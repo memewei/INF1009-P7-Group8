@@ -10,8 +10,6 @@ import com.badlogic.gdx.math.Vector2;
 public class DynamicInput extends InputAdapter {
     private String currentInput = "";  // stores the currently pressed key/mouse button
     private final Vector2 mousePosition = new Vector2();
-    private SpriteBatch batch;
-    private BitmapFont font;
 
     @Override
     public boolean keyDown(int keycode) {
@@ -44,7 +42,10 @@ public class DynamicInput extends InputAdapter {
 
     //draw inputs for display purposes only
    public void drawInputText() {
-        batch = new SpriteBatch();
+       SpriteBatch batch;
+       BitmapFont font;
+
+       batch = new SpriteBatch();
         font = new BitmapFont();
         font.getData().setScale(1f);
 
