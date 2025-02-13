@@ -1,7 +1,9 @@
-package io.github.some_example_name.game.physics;
+package io.github.some_example_name.lwjgl3.abstract_engine.collision;
 
-import io.github.some_example_name.game.entities.Entity;
 import java.util.List;
+
+import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
+
 import java.util.ArrayList;
 
 public class CollisionManager {

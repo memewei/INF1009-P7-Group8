@@ -1,7 +1,8 @@
-package io.github.some_example_name.game.entities;
+package io.github.some_example_name.lwjgl3.abstract_engine.entity;
 
-import io.github.some_example_name.game.physics.Collidable;
 import com.badlogic.gdx.graphics.Texture;
+
+import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
 
 public abstract class MovableEntity extends Entity implements Collidable {
     protected float velocityX, velocityY;

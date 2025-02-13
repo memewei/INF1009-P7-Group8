@@ -1,4 +1,4 @@
-package io.github.some_example_name.game.entities;
+package io.github.some_example_name.lwjgl3.abstract_engine.entity;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
