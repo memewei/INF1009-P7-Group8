@@ -11,7 +11,6 @@ public class GameScene extends Scene {
 
     @Override
     public void update() {
-        // Update logic for gameplay scene
         for (Entity entity : entityComponents) {
             entity.update();
         }
@@ -19,20 +18,16 @@ public class GameScene extends Scene {
 
     @Override
     public void render() {
-        // Render logic for gameplay scene
         for (Entity entity : entityComponents) {
             entity.render();
         }
     }
 
     @Override
-    public void handleInput(String userInput) {
-        // Handle input in gameplay scene
-    }
+    public void handleInput(String userInput)
 
     @Override
     public void dispose() {
-        // Dispose resources used by the gameplay scene
         for (Entity entity : entityComponents) {
             entity.dispose();
         }

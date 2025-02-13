@@ -13,13 +13,10 @@ public class MenuScene extends Scene {
     }
 
     @Override
-    public void update() {
-        // Update logic for menu scene
-    }
+    public void update()
 
     @Override
     public void render() {
-        // Render logic for menu scene
         System.out.println("Rendering menu options:");
         for (String option : menuOptions) {
             System.out.println(option);
@@ -30,7 +27,6 @@ public class MenuScene extends Scene {
     public void handleInput(String userInput) {
         if (menuOptions.contains(userInput)) {
             System.out.println("Selected option: " + userInput);
-            // Handle the selected option
         } else {
             System.out.println("Invalid option. Please choose from available options.");
         }
@@ -38,6 +34,5 @@ public class MenuScene extends Scene {
 
     @Override
     public void dispose() {
-        // Dispose resources used by the menu scene
     }
 }
