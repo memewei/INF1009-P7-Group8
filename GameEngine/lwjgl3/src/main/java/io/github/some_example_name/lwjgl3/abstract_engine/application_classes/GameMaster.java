@@ -11,7 +11,7 @@ import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameScene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.MenuScene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManagement;
-//import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
@@ -20,15 +20,15 @@ import java.util.Arrays;
 
 public class GameMaster extends ApplicationAdapter {
     private SceneManagement sceneManager;
-//    private MovementManager movementManager;
-//    private World world;
-//    private MovableEntity movableEntity;
+    private MovementManager movementManager;
+    private World world;
+    private MovableEntity movableEntity;
 
     public GameMaster() {
         this.sceneManager = new SceneManagement();
-//        Box2D.init();
-//        this.world = new World(new com.badlogic.gdx.math.Vector2(0,-9.8f),true);
-//        this.movementManager = new MovementManager(world);
+        Box2D.init();
+        this.world = new World(new com.badlogic.gdx.math.Vector2(0,-9.8f),true);
+        this.movementManager = new MovementManager(world);
     }
 
     public void manageGameScenes() {
