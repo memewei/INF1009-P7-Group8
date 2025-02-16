@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class GameMaster extends ApplicationAdapter {
 //    private SceneManagement sceneManager;
     private MovementManager movementManager;
+    private MovementComponent movementComponent;
     private World world;
     private MovableEntity movableEntity;
     private SpriteBatch batch;
@@ -26,7 +27,7 @@ public class GameMaster extends ApplicationAdapter {
     public GameMaster() {
 //        this.sceneManager = new SceneManagement();
         Box2D.init();
-        this.world = new World(new com.badlogic.gdx.math.Vector2(0,-9.8f),true);
+        this.world = new World(new com.badlogic.gdx.math.Vector2(0,0f),true);
         this.movementManager = new MovementManager(world);
     }
 
@@ -52,6 +53,7 @@ public class GameMaster extends ApplicationAdapter {
 //    }
 
     public void setupGame() {
+        movementComponent = new MovementComponent(world, 0, 0);
         movableEntity = new MovableEntity("Player", 0, 0, "player.png", null, new MovementComponent(world, 0, 0)) {
             @Override
             public void onCollision(Entity other) {
