@@ -2,10 +2,11 @@ package io.github.some_example_name.lwjgl3.abstract_engine.entity;
 
 import com.badlogic.gdx.math.Vector2;
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
+import io.github.some_example_name.lwjgl3.abstract_engine.movement.IMovable;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public abstract class MovableEntity extends Entity implements Collidable {
+public abstract class MovableEntity extends Entity implements Collidable, IMovable {
     protected float velocityX, velocityY;
     private float direction;
     private StaticEntity linkedStatic;
@@ -50,6 +51,27 @@ public abstract class MovableEntity extends Entity implements Collidable {
     @Override
     public int getHeight() {
         return texture.getHeight();
+    }
+
+    @Override
+    public void move(float forceX) {
+        if (movementComponent != null) {
+            movementComponent.move(forceX);
+        }
+    }
+
+    @Override
+    public void jump() {
+        if (movementComponent != null) {
+            movementComponent.jump();
+        }
+    }
+
+    @Override
+    public void stop() {
+        if (movementComponent != null) {
+            movementComponent.stop();
+        }
     }
 
     public float getVelocityX() {
