@@ -1,16 +1,18 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.movement;
 
-import com.badlogic.gdx.Gdx;
+import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Gdx;
+import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
 import com.badlogic.gdx.physics.box2d.World;
+import java.util.List;
+import java.util.ArrayList;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class MovementManager {
     private World world;
-    private List<MovableEntity> Entities; // Use TestMovableEntity for testing
+    private List<MovableEntity> Entities;
 
     public MovementManager(World world) {
         this.world = world;
@@ -26,7 +28,7 @@ public class MovementManager {
             MovementComponent movement = entity.getMovementComponent();
             if (movement != null) {
                 handlePlayerInput(movement);
-                movement.update(deltaTime); // Let MovementComponent handle physics updates
+                movement.update(deltaTime);
                 System.out.println(entity.getEntityName() + " Position: " + movement.getPosition());
             }
         }
@@ -37,15 +39,15 @@ public class MovementManager {
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
             moveForceX = -10f;
+            System.out.println("Moving Left");
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
             moveForceX = 10f;
+            System.out.println("Moving Right");
         }
 
-        // Debugging: Print applied force
-        System.out.println("Applied Force: " + moveForceX);
+        System.out.println("Applied Force: " + moveForceX); // Debugging Log
 
-        // Now using move() instead of applyForce()
         if (moveForceX == 0) {
             movement.stop();
         } else {

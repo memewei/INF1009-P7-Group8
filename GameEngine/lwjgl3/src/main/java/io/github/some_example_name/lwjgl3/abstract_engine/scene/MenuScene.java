@@ -1,8 +1,10 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.scene;
 
 import com.badlogic.gdx.ApplicationAdapter;
-
 import com.badlogic.gdx.utils.ScreenUtils;
+import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
+
+import java.util.List;
 
 public class MenuScene extends Scene {
     private List<String> menuOptions;
@@ -13,7 +15,12 @@ public class MenuScene extends Scene {
     }
 
     @Override
-    public void update()
+    public void update() {
+        float deltaTime = com.badlogic.gdx.Gdx.graphics.getDeltaTime(); // Get deltaTime
+        for (Entity entity : entityComponents) { // Iterate over entities
+            entity.update(deltaTime); // Pass deltaTime correctly
+        }
+    }
 
     @Override
     public void render() {
