@@ -3,7 +3,7 @@ package io.github.some_example_name.lwjgl3.abstract_engine.movement;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
-public class MovementComponent {
+public class MovementComponent implements IMovable {
     private Body body;
 
     public MovementComponent(World world, float x, float y) {
@@ -27,42 +27,36 @@ public class MovementComponent {
         body.createFixture(fixtureDef);
         shape.dispose(); // Cleanup
 
-        // Optional: Apply slight damping to reduce velocity over time
+        // Apply slight damping to reduce velocity over time
         body.setLinearDamping(0.1f);
     }
 
-    //  Handles movement logic directly (Encapsulation)
+    @Override
     public void move(float forceX) {
-        body.applyForceToCenter(new Vector2(forceX, 0), true);
+        body.setLinearVelocity(new Vector2(forceX, body.getLinearVelocity().y));
     }
 
+    @Override
     public void jump() {
         if (isGrounded()) {
             body.applyLinearImpulse(new Vector2(0, 5f), body.getWorldCenter(), true);
         }
     }
 
-    public void applyGravity(float gravityForce, float deltaTime) {
-        body.applyForceToCenter(new Vector2(0, gravityForce * deltaTime), true);
-    }
-
+    @Override
     public void stop() {
-        body.setLinearVelocity(new Vector2(0, 0));
-    }
-
-    public Vector2 getPosition() {
-        return body.getPosition();
-    }
-
-    public Vector2 getVelocity() {
-        return body.getLinearVelocity();
+        body.setLinearVelocity(new Vector2(0, body.getLinearVelocity().y));
     }
 
     public boolean isGrounded() {
         return body.getLinearVelocity().y == 0;
     }
 
+    public Vector2 getPosition() {
+        return body.getPosition();
+    }
+
     public void update(float deltaTime) {
-        applyGravity(-9.8f, deltaTime); // Moves gravity handling inside MovementComponent
+        body.applyForceToCenter(new Vector2(0, -9.8f * deltaTime), true);
     }
 }

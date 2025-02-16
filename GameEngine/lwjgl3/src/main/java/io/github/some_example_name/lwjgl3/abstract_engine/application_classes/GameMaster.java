@@ -1,12 +1,10 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.application_classes;
 
 import com.badlogic.gdx.ApplicationAdapter;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
-
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 //import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameScene;
 //import io.github.some_example_name.lwjgl3.abstract_engine.scene.MenuScene;
@@ -15,8 +13,6 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementCompo
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
-import java.util.Arrays;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
@@ -81,21 +77,20 @@ public class GameMaster extends ApplicationAdapter {
         float deltaTime = Gdx.graphics.getDeltaTime();
         movementManager.updateMovement(deltaTime);
 
-        batch.begin();  // ✅ Begin once before rendering
+        batch.begin();
         if (movableEntity != null) {
             System.out.println("Player Position: " + movableEntity.getPosition());
-            movableEntity.render(batch); // ✅ Rendering player
+            movableEntity.render(batch);
         } else {
             System.out.println("Warning: movableEntity is NULL!");
         }
-        batch.end();  // ✅ End after rendering everything
+        batch.end();
 
         IOManager.getInstance().getDynamicInput().drawInputText();
         IOManager.getInstance().getAudio().playMusic("BgMusic.mp3");
 
         super.render();
     }
-
 
     @Override
     public void dispose() {
