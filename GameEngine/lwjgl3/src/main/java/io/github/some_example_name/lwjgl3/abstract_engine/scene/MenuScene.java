@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 public class MenuScene extends Scene {
     private List<String> menuOptions;
+    private int selectedIndex = 0;
 
     public MenuScene(int sceneID, List<String> menuOptions) {
         super(sceneID);

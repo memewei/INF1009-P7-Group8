@@ -31,36 +31,31 @@ public class GameMaster extends ApplicationAdapter {
         this.movementManager = new MovementManager(world);
     }
 
-    public void manageGameScenes() {
-        Player player = new Player("Hero");
-        Enemy enemy1 = new Enemy("Goblin");
-        Enemy enemy2 = new Enemy("Orc");
-
-        GameScene gameScene = new GameScene("MainGame", player);
-        gameScene.addEnemy(enemy1);
-        gameScene.addEnemy(enemy2);
-
-        MenuScene menuScene = new MenuScene("MainMenu", Arrays.asList("Start", "Load", "Exit"));
-
-        sceneManager.addScene(gameScene.getName(), gameScene);
-        sceneManager.addScene(menuScene.getName(), menuScene);
-
-        sceneManager.switchScene(gameScene.getName());
-        sceneManager.updateCurrentScene();
-        sceneManager.renderCurrentScene();
-
-        menuScene.handleInput("Start");
-    }
-
     @Override
     public void create() {
         IOManager.getInstance();// initializes the IOManager and sets up input
 
+        Player player = new Playher("Hero");
+        Enemy enemy1 = new Enemy("Enemy1");
+        Enemy enemy2 = new Enemy("Enemy2");
+        
+        GameScene gameScene = new GameScene(1, "gameScene1.jpg");
+        gameScene.addEntity(player);
+        gameScene.addEntity(enemy1);
+        gameScene.addEntity(enemy2);
+
+        MenuScene menuScene = new MenuScene(0, List.of("Start", "Settings", "Exit"));
+
+        sceneManager.addScene("Menu", menuScene);
+        sceneManager.addScene("Game", gameScene);
+
+        sceneManager.switchScene("Menu");
     }
 
     @Override
     public void render() {
         ScreenUtils.clear(0.2f, 0, 0.2f, 1);
+        sceneManager.renderCurrentScene();
 
 //        world.step(1/ 60f,6,2);
 //        float deltaTime = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
@@ -79,5 +74,6 @@ public class GameMaster extends ApplicationAdapter {
     public void dispose() {
         IOManager.getInstance().dispose();
 //        world.dispose();
+        sceneManager.dispose();
     }
 }

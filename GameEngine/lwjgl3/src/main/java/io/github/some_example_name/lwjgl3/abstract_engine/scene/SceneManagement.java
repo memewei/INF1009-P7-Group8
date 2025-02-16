@@ -23,6 +23,7 @@ public class SceneManagement {
     public void switchScene(int sceneID) {
         if (scenes.containsKey(sceneID)) {
             currentScene = scenes.get(sceneID);
+            currentScene.initialize();
         } else {
             System.out.println("No scene found with ID: " + sceneID);
         }
@@ -37,6 +38,12 @@ public class SceneManagement {
     public void renderCurrentScene() {
         if (currentScene != null) {
             currentScene.render();
+        }
+    }
+
+    private void handleInput(String input) {
+        if (currentScene != null) {
+            currentScene.handleInput(input);
         }
     }
 
