@@ -35,12 +35,16 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
     public void update(float deltaTime) {
         if (movementComponent != null) {
             movementComponent.update(deltaTime);
+            Vector2 updatedPosition = movementComponent.getPosition();
+            this.positionX = updatedPosition.x;
+            this.positionY = updatedPosition.y;
         }
     }
 
     @Override
     public void render(SpriteBatch batch) {
-        batch.draw(texture, positionX, positionY, getWidth() * 0.2f, getHeight() * 0.2f);
+        Vector2 updatedPosition = getPosition(); // Get updated position
+        batch.draw(texture, updatedPosition.x, updatedPosition.y, getWidth() * 0.2f, getHeight() * 0.2f);
     }
 
     @Override

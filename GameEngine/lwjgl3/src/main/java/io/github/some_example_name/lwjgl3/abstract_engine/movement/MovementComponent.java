@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.box2d.*;
 public class MovementComponent implements IMovable {
     private Body body;
 
-    public MovementComponent(World world, float x, float y) {
+    public MovementComponent(World world, float x, float y) { //might need to have this in MovablEntity
         // Define the body in Box2D
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
