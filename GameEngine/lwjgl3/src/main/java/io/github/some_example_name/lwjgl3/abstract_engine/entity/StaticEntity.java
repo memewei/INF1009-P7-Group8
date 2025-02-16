@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.badlogic.gdx.graphics.Texture;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
 
 public class StaticEntity extends Entity implements Collidable {
@@ -33,8 +34,10 @@ public class StaticEntity extends Entity implements Collidable {
     }
 
     @Override
-    public void render() {
-        // Placeholder for future logic
+    public void render(SpriteBatch batch) {
+        batch.begin();
+        batch.draw(texture, positionX, positionY, getWidth(), getHeight());
+        batch.end();
     }
 
     @Override
