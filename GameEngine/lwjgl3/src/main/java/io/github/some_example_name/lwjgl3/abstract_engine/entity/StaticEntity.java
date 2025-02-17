@@ -35,9 +35,7 @@ public class StaticEntity extends Entity implements Collidable {
 
     @Override
     public void render(SpriteBatch batch) {
-        batch.begin();
         batch.draw(texture, positionX, positionY, getWidth(), getHeight());
-        batch.end();
     }
 
     @Override

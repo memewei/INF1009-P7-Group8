@@ -24,6 +24,10 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
         return movementComponent;
     }
 
+    public void setMovementComponent(MovementComponent movementComponent) {
+        this.movementComponent = movementComponent;
+    }
+    
     @Override
     public Vector2 getPosition() {
         return movementComponent != null ? movementComponent.getPosition() : new Vector2(positionX, positionY);
@@ -43,8 +47,9 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
 
     @Override
     public void render(SpriteBatch batch) {
-        Vector2 updatedPosition = getPosition(); // Get updated position
-        batch.draw(texture, updatedPosition.x, updatedPosition.y, getWidth() * 0.2f, getHeight() * 0.2f);
+        Vector2 updatedPosition = getPosition();
+        // Adjust scaling as needed (change 0.2f to 1.0f for testing visibility)
+        batch.draw(texture, updatedPosition.x, updatedPosition.y, getWidth() * 1.0f, getHeight() * 1.0f);
     }
 
     @Override
@@ -57,17 +62,11 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
         return texture.getHeight();
     }
 
+    // Updated move method with two arguments
     @Override
-    public void move(float forceX) {
+    public void move(float forceX, float forceY) {
         if (movementComponent != null) {
-            movementComponent.move(forceX);
-        }
-    }
-
-    @Override
-    public void jump() {
-        if (movementComponent != null) {
-            movementComponent.jump();
+            movementComponent.move(forceX, forceY);
         }
     }
 
@@ -76,33 +75,5 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
         if (movementComponent != null) {
             movementComponent.stop();
         }
-    }
-
-    public float getVelocityX() {
-        return velocityX;
-    }
-
-    public void setVelocityX(float velocityX) {
-        this.velocityX = velocityX;
-    }
-
-    public float getVelocityY() {
-        return velocityY;
-    }
-
-    public void setVelocityY(float velocityY) {
-        this.velocityY = velocityY;
-    }
-
-    public float getDirection() {
-        return direction;
-    }
-
-    public void setDirection(float direction) {
-        this.direction = direction;
-    }
-
-    public StaticEntity getLinkedImmovable() {
-        return linkedStatic;
     }
 }

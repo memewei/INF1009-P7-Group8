@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class MovementManager {
     private World world;
-    private List<IMovable> entities; //
+    private List<IMovable> entities;
 
     public MovementManager(World world) {
         this.world = world;
@@ -31,27 +31,32 @@ public class MovementManager {
     }
 
     private void handlePlayerInput(IMovable entity) {
-        float moveForceX = 0;
+        float forceX = 0;
+        float forceY = 0;
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
-            moveForceX = -50f;
-            System.out.println("Moving Left");
+            forceX = -50f;
+            // System.out.println("Moving Left");
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
-            moveForceX = 50f;
-            System.out.println("Moving Right");
+            forceX = 50f;
+            // System.out.println("Moving Right");
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
+            forceY = 50f;
+            // System.out.println("Moving Up");
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
+            forceY = -50f;
+            // System.out.println("Moving Down");
         }
 
-        System.out.println("Applied Force: " + moveForceX); // Debugging Log
+        // System.out.println("Applied Force: (" + forceX + ", " + forceY + ")");
 
-        if (moveForceX == 0) {
+        if (forceX == 0 && forceY == 0) {
             entity.stop();
         } else {
-            entity.move(moveForceX);
-        }
-
-        if ((Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isKeyJustPressed(Input.Keys.UP))) {
-            entity.jump();
+            entity.move(forceX, forceY);
         }
     }
 }
