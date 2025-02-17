@@ -91,7 +91,6 @@ public class GameMaster extends ApplicationAdapter {
     public void create() {
         batch = new SpriteBatch();
         IOManager.getInstance(); // Initializes the IOManager and sets up input
-        Gdx.input.setInputProcessor(IOManager.getInstance().getDynamicInput());
         setupGame();
     }
 
