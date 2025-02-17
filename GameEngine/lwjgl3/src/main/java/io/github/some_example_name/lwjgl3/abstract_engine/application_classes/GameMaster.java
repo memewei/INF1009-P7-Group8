@@ -41,6 +41,27 @@ public class GameMaster extends ApplicationAdapter {
         this.movementManager = new MovementManager(world);
     }
 
+    // public void manageGameScenes() {
+    //     Player player = new Player("Hero");
+    //     Enemy enemy1 = new Enemy("Goblin");
+    //     Enemy enemy2 = new Enemy("Orc");
+
+    //     GameScene gameScene = new GameScene("MainGame", player);
+    //     gameScene.addEnemy(enemy1);
+    //     gameScene.addEnemy(enemy2);
+
+    //     MenuScene menuScene = new MenuScene("MainMenu", Arrays.asList("Start", "Load", "Exit"));
+
+    //     sceneManager.addScene(gameScene.getName(), gameScene);
+    //     sceneManager.addScene(menuScene.getName(), menuScene);
+
+    //     sceneManager.switchScene(gameScene.getName());
+    //     sceneManager.updateCurrentScene();
+    //     sceneManager.renderCurrentScene();
+
+    //     menuScene.handleInput("Start");
+    // }
+
     public void setupGame() {
         // Create the player MovableEntity.
         // First, create the entity without a MovementComponent.
@@ -60,7 +81,8 @@ public class GameMaster extends ApplicationAdapter {
         entityManager.addEntity(movableEntity);
         movementManager.addEntity(movableEntity);
 
-        // Create a static entity (e.g., a Demon) positioned at x=0 and vertically centered.
+        // Create a static entity (e.g., a Demon) positioned at x=0 and vertically
+        // centered.
         StaticEntity demon = new StaticEntity("Demon", 0, Gdx.graphics.getHeight() / 2f, "demon.png");
         entityManager.addEntity(demon);
     }
