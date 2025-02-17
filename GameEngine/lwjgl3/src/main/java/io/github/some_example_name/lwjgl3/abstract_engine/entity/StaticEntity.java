@@ -15,11 +15,13 @@ public class StaticEntity extends Entity implements Collidable {
         super(entityName, positionX, positionY, texturePath);
         this.componentData = new HashMap<>();
     }
-
-    public void setComponent(String key, String value) {
+    
+    @Override
+    public void addComponent(String key, String value) {
         componentData.put(key, value);
     }
-
+    
+    @Override
     public String getComponent(String key) {
         return componentData.getOrDefault(key, null);
     }
@@ -52,4 +54,6 @@ public class StaticEntity extends Entity implements Collidable {
     public void onCollision(Entity other) {
         System.out.println("Static object collided with: " + other.getClass().getSimpleName());
     }
+    
+    
 }

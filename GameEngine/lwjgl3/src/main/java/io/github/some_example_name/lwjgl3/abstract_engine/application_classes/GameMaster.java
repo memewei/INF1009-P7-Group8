@@ -72,11 +72,25 @@ public class GameMaster extends ApplicationAdapter {
                 IOManager.getInstance().getAudio().playSound("hit_sound.mp3");
             }
         };
+        StaticEntity bag = new StaticEntity("Bag", 200, 100, "ground.png");
+        entityManager.addEntity(bag);
+        bag.addComponent("Health", "100");
+        bag.addComponent("Type", "Building");
+        
         // Now create the MovementComponent for the player,
         // passing the world, initial position, and the movableEntity as owner.
         MovementComponent playerMovement = new MovementComponent(world, 100, 100, movableEntity);
         // Set the movement component on the player (requires a setter in MovableEntity)
         movableEntity.setMovementComponent(playerMovement);
+        
+        movableEntity.addComponent(bag);
+        
+        System.out.println("Player bag health: " + movableEntity.getStaticComponent("Bag").getComponent("Health"));
+        System.out.println("Player bag type: " + movableEntity.getStaticComponent("Bag").getComponent("Type"));
+
+        
+        movableEntity.removeComponent("bag");
+        System.out.println("Bag after removal: " + movableEntity.getComponent("bag")); // Should print null
 
         // Add the player to both managers
         entityManager.addEntity(movableEntity);
@@ -86,6 +100,7 @@ public class GameMaster extends ApplicationAdapter {
         // centered.
         StaticEntity demon = new StaticEntity("Demon", 0, Gdx.graphics.getHeight() / 2f, "demon.png");
         entityManager.addEntity(demon);
+        
     }
 
     @Override

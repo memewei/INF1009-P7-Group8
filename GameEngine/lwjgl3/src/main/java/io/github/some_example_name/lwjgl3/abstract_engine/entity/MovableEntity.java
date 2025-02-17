@@ -4,20 +4,24 @@ import com.badlogic.gdx.math.Vector2;
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.IMovable;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public abstract class MovableEntity extends Entity implements Collidable, IMovable {
     protected float velocityX, velocityY;
     private float direction;
-    private StaticEntity linkedStatic;
+    private List<StaticEntity> components;
     private MovementComponent movementComponent;
 
     public MovableEntity(String entityName, float positionX, float positionY, String texturePath, StaticEntity linkedStatic, MovementComponent movementComponent) {
         super(entityName, positionX, positionY, texturePath);
         this.velocityX = 0;
         this.velocityY = 0;
-        this.linkedStatic = linkedStatic;
         this.movementComponent = movementComponent;
+        this.components = new ArrayList<>();
     }
 
     public MovementComponent getMovementComponent() {
@@ -75,5 +79,32 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
         if (movementComponent != null) {
             movementComponent.stop();
         }
+    }
+    
+    @Override
+    public void addComponent(String key, String value) {
+        // Not used
+    }
+
+    public void addComponent(StaticEntity component) {
+        components.add(component);
+    }
+    
+    @Override
+    public String getComponent(String key){
+    	return null;
+    }
+
+    public StaticEntity getStaticComponent(String name) {
+        for (StaticEntity comp : components) {
+            if (comp.getEntityName().equals(name)) {
+                return comp;
+            }
+        }
+        return null;
+    }
+
+    public void removeComponent(String name) {
+        components.removeIf(comp -> comp.getEntityName().equals(name));
     }
 }

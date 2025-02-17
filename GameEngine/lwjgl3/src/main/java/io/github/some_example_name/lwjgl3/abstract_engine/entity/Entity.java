@@ -21,9 +21,6 @@ public abstract class Entity {
         this.texture = new Texture(Gdx.files.internal(texturePath)); // Load texture
     }
 
-    public abstract void update(float deltaTime);
-    public abstract void render(SpriteBatch batch);
-
     // Return texture width and height instead of hardcoded values
     public int getWidth() {
         return texture.getWidth();
@@ -56,4 +53,13 @@ public abstract class Entity {
 
     public void dispose() {
     }
+    
+    //Component Management
+    public abstract void addComponent(String key, String value);
+    public abstract String getComponent(String key);
+    public abstract void removeComponent(String key);
+    
+    //State Management
+    public abstract void update(float deltaTime);
+    public abstract void render(SpriteBatch batch);
 }
