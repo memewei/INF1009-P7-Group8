@@ -16,27 +16,23 @@ public class Box2DCollisionListener implements ContactListener {
 
             if (entityA instanceof Collidable) {
                 ((Collidable) entityA).onCollision(entityB);
-                System.out.println(entityA.getClass().getSimpleName() + " collided with " + entityB.getClass().getSimpleName());
+                System.out.println(entityA.getEntityName() + " collided with " + entityB.getEntityName());
             }
             if (entityB instanceof Collidable) {
                 ((Collidable) entityB).onCollision(entityA);
-                System.out.println(entityB.getClass().getSimpleName() + " collided with " + entityA.getClass().getSimpleName());
+                System.out.println(entityB.getEntityName() + " collided with " + entityA.getEntityName());
             }
         }
     }
 
     @Override
     public void endContact(Contact contact) {
-        // Handle end-of-contact if needed.
+        // Optionally handle end of contact
     }
 
     @Override
-    public void preSolve(Contact contact, Manifold oldManifold) {
-        // Optional pre-solve logic.
-    }
+    public void preSolve(Contact contact, Manifold oldManifold) { }
 
     @Override
-    public void postSolve(Contact contact, ContactImpulse impulse) {
-        // Optional post-solve logic.
-    }
+    public void postSolve(Contact contact, ContactImpulse impulse) { }
 }

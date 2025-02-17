@@ -22,49 +22,45 @@ public class GameMaster extends ApplicationAdapter {
     // Uncomment if you want to use your scene management:
     // private SceneManagement sceneManager;
     private MovementManager movementManager;
-    private MovementComponent movementComponent;
     private World world;
     private MovableEntity movableEntity;
     private SpriteBatch batch;
-    private EntityManager entityManager; // Now manages both dynamic and static entities
+    private EntityManager entityManager; // Manages both dynamic and static entities
 
     public GameMaster() {
         // Uncomment if you want to initialize scene management:
         // this.sceneManager = new SceneManagement();
         Box2D.init();
+        // Using (0,0) gravity for a top-down style; adjust if needed.
         this.world = new World(new com.badlogic.gdx.math.Vector2(0, 0f), true);
-        // Attach the Box2D collision listener for built-in collision detection.
+        // Attach the Box2D collision listener
         world.setContactListener(new Box2DCollisionListener());
-        // Initialize the unified EntityManager with the Box2D world
+        // Initialize the unified EntityManager with the world
         this.entityManager = new EntityManager(world);
-        // You can still initialize the MovementManager if needed for dynamic entities
+        // Initialize the MovementManager for dynamic entities
         this.movementManager = new MovementManager(world);
     }
 
-    // Uncomment and modify this method if you decide to implement scene management.
-    /*
-     * public void manageGameScenes() {
-     * // Scene management logic here...
-     * }
-     */
-
     public void setupGame() {
-        // Create the player's MovementComponent
-        MovementComponent playerMovement = new MovementComponent(world, 0, 0);
-
-        // Create the player entity using that MovementComponent
-        movableEntity = new MovableEntity("Player", 0, 0, "player.png", null, playerMovement) {
+        // Create the player MovableEntity.
+        // First, create the entity without a MovementComponent.
+        movableEntity = new MovableEntity("Player", 100, 100, "player.png", null, null) {
             @Override
             public void onCollision(Entity other) {
                 System.out.println("Player collided with " + other.getEntityName());
             }
         };
+        // Now create the MovementComponent for the player,
+        // passing the world, initial position, and the movableEntity as owner.
+        MovementComponent playerMovement = new MovementComponent(world, 100, 100, movableEntity);
+        // Set the movement component on the player (requires a setter in MovableEntity)
+        movableEntity.setMovementComponent(playerMovement);
 
         // Add the player to both managers
         entityManager.addEntity(movableEntity);
-        movementManager.addEntity(movableEntity); // This is key!
+        movementManager.addEntity(movableEntity);
 
-        // Create a static entity (e.g., a Demon)
+        // Create a static entity (e.g., a Demon) positioned at x=0 and vertically centered.
         StaticEntity demon = new StaticEntity("Demon", 0, Gdx.graphics.getHeight() / 2f, "demon.png");
         entityManager.addEntity(demon);
     }
@@ -72,7 +68,7 @@ public class GameMaster extends ApplicationAdapter {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        IOManager.getInstance(); // initializes the IOManager and sets up input
+        IOManager.getInstance(); // Initializes the IOManager and sets up input
         Gdx.input.setInputProcessor(IOManager.getInstance().getDynamicInput());
         setupGame();
     }
@@ -80,12 +76,12 @@ public class GameMaster extends ApplicationAdapter {
     @Override
     public void render() {
         ScreenUtils.clear(0.2f, 0, 0.2f, 1);
-
-        // Update Box2D physics
+        // Step the Box2D world
         world.step(1 / 60f, 6, 2);
         float deltaTime = Gdx.graphics.getDeltaTime();
-        // Update dynamic entities (if needed) via movementManager or EntityManager
+        // Update input/movement for dynamic entities
         movementManager.updateMovement(deltaTime);
+        // Update all entities (e.g., for position syncing)
         entityManager.updateEntities(deltaTime);
 
         batch.begin();
@@ -109,6 +105,6 @@ public class GameMaster extends ApplicationAdapter {
         batch.dispose();
         IOManager.getInstance().dispose();
         world.dispose();
-        // Dispose each entity if necessary (or let EntityManager handle it)
+        // Dispose of entities if needed
     }
 }
