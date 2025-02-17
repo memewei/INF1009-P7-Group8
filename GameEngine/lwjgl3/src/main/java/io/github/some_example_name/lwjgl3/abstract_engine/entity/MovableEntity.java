@@ -44,7 +44,8 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
     @Override
     public void render(SpriteBatch batch) {
         Vector2 updatedPosition = getPosition(); // Get updated position
-        batch.draw(texture, updatedPosition.x, updatedPosition.y, getWidth() * 0.2f, getHeight() * 0.2f);
+        // Render using a scaling factor (adjust as desired)
+        batch.draw(texture, updatedPosition.x, updatedPosition.y, getWidth() * 1.0f, getHeight() * 1.0f);
     }
 
     @Override
@@ -57,17 +58,11 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
         return texture.getHeight();
     }
 
+    // Updated move method accepting both X and Y forces.
     @Override
-    public void move(float forceX) {
+    public void move(float forceX, float forceY) {
         if (movementComponent != null) {
-            movementComponent.move(forceX);
-        }
-    }
-
-    @Override
-    public void jump() {
-        if (movementComponent != null) {
-            movementComponent.jump();
+            movementComponent.move(forceX, forceY);
         }
     }
 
