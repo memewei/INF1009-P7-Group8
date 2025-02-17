@@ -1,45 +1,48 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.scene;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.utils.ScreenUtils;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
-
-import java.util.List;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class MenuScene extends Scene {
-    private List<String> menuOptions;
+    private Texture backgroundTexture;
+    private SpriteBatch batch;
 
-    public MenuScene(int sceneID, List<String> menuOptions) {
-        super(sceneID);
-        this.menuOptions = menuOptions;
+    public MenuScene() {
+        super();
     }
 
     @Override
-    public void update() {
-        float deltaTime = com.badlogic.gdx.Gdx.graphics.getDeltaTime(); // Get deltaTime
-        for (Entity entity : entityComponents) { // Iterate over entities
-            entity.update(deltaTime); // Pass deltaTime correctly
+    public void initialize() {
+        batch = new SpriteBatch();
+        try {
+            backgroundTexture = new Texture(Gdx.files.internal("menuScene1.png"));
+        } catch (Exception e) {
+            System.err.println("Error loading menu texture: " + e.getMessage());
+            // Default texture in case of failure
+            backgroundTexture = new Texture(Gdx.files.internal("defaultMenu.png"));
         }
     }
 
     @Override
-    public void render() {
-        System.out.println("Rendering menu options:");
-        for (String option : menuOptions) {
-            System.out.println(option);
+    public void render(SpriteBatch batch) {
+        batch.begin();
+        if (backgroundTexture != null) {
+            batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         }
-    }
-
-    @Override
-    public void handleInput(String userInput) {
-        if (menuOptions.contains(userInput)) {
-            System.out.println("Selected option: " + userInput);
-        } else {
-            System.out.println("Invalid option. Please choose from available options.");
-        }
+        batch.end();
     }
 
     @Override
     public void dispose() {
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
+        }
+        if (batch != null) {
+            batch.dispose();
+        }
     }
+
+    @Override
+    public void update(float deltaTime){};
 }

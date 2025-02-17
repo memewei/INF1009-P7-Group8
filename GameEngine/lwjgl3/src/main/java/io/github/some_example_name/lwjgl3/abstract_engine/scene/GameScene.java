@@ -1,47 +1,51 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.scene;
 
-import com.badlogic.gdx.ApplicationAdapter;
-
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 
 public class GameScene extends Scene {
+    private Texture backgroundTexture;
     private SpriteBatch batch;
 
-    public GameScene(int sceneID) {
-        super(sceneID);
-        this.batch = new SpriteBatch();
+    public GameScene() {
+        super();
+        // Initialize resources here if needed
     }
 
     @Override
-    public void update() {
-        float deltaTime = Gdx.graphics.getDeltaTime();
-        for (Entity entity : entityComponents) {
-            entity.update(deltaTime);
+    public void initialize() {
+        // Initialize resources specifically for this scene
+        batch = new SpriteBatch();
+        try {
+            backgroundTexture = new Texture(Gdx.files.internal("gameScene1.png"));
+        } catch (Exception e) {
+            System.err.println("Error loading texture for GameScene: " + e.getMessage());
         }
     }
 
     @Override
-    public void render() {
+    public void update(float deltaTime) {
+        // Handle any dynamic updates, such as movement, input, etc.
+    }
+
+    @Override
+    public void render(SpriteBatch batch) {
         batch.begin();
-        for (Entity entity : entityComponents) {
-            entity.render(batch);
+        if (backgroundTexture != null) {
+            batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         }
         batch.end();
     }
 
     @Override
-    public void handleInput(String userInput) {
-        for (Entity entity : entityComponents) {}
-    }
-
-    @Override
     public void dispose() {
-        for (Entity entity : entityComponents) {
-            entity.dispose();
+        // Dispose resources for this scene
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
         }
-        batch.dispose();
+        if (batch != null) {
+            batch.dispose();
+        }
     }
 }
