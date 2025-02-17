@@ -14,6 +14,7 @@ public class AudioOutput {
 
     public void playSound(String file) {
         Sound sound = soundEffects.computeIfAbsent(file, f -> Gdx.audio.newSound(Gdx.files.internal(f)));
+        sound.stop(); //stop sounds that are playing already so that sounds do not overlap
         sound.play(volume);
     }
 
