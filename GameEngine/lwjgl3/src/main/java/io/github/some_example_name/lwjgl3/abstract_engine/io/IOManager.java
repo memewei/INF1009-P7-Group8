@@ -2,8 +2,6 @@ package io.github.some_example_name.lwjgl3.abstract_engine.io;
 
 import com.badlogic.gdx.Gdx;
 
-import io.github.some_example_name.lwjgl3.abstract_engine.audio.AudioOutput;
-
 public class IOManager {
     private static IOManager instance;
     private final AudioOutput audio;
