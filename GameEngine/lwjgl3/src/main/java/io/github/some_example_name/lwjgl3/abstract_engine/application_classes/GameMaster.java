@@ -7,9 +7,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
-//import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameScene;
-//import io.github.some_example_name.lwjgl3.abstract_engine.scene.MenuScene;
-//import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManagement;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameScene;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.MenuScene;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
@@ -20,7 +20,7 @@ import io.github.some_example_name.lwjgl3.abstract_engine.collision.Box2DCollisi
 
 public class GameMaster extends ApplicationAdapter {
     // Uncomment if you want to use your scene management:
-    // private SceneManagement sceneManager;
+    private SceneManager sceneManager;
     private MovementManager movementManager;
     private World world;
     private MovableEntity movableEntity;
@@ -28,8 +28,9 @@ public class GameMaster extends ApplicationAdapter {
     private EntityManager entityManager; // Manages both dynamic and static entities
 
     public GameMaster() {
-        // Uncomment if you want to initialize scene management:
-        // this.sceneManager = new SceneManagement();
+        // Initialize SceneManager
+        this.sceneManager = new SceneManager();
+        sceneManager.update(new MenuScene());
         Box2D.init();
         // Using (0,0) gravity for a top-down style; adjust if needed.
         this.world = new World(new com.badlogic.gdx.math.Vector2(0, 0f), true);
@@ -40,27 +41,6 @@ public class GameMaster extends ApplicationAdapter {
         // Initialize the MovementManager for dynamic entities
         this.movementManager = new MovementManager(world);
     }
-
-    // public void manageGameScenes() {
-    //     Player player = new Player("Hero");
-    //     Enemy enemy1 = new Enemy("Goblin");
-    //     Enemy enemy2 = new Enemy("Orc");
-
-    //     GameScene gameScene = new GameScene("MainGame", player);
-    //     gameScene.addEnemy(enemy1);
-    //     gameScene.addEnemy(enemy2);
-
-    //     MenuScene menuScene = new MenuScene("MainMenu", Arrays.asList("Start", "Load", "Exit"));
-
-    //     sceneManager.addScene(gameScene.getName(), gameScene);
-    //     sceneManager.addScene(menuScene.getName(), menuScene);
-
-    //     sceneManager.switchScene(gameScene.getName());
-    //     sceneManager.updateCurrentScene();
-    //     sceneManager.renderCurrentScene();
-
-    //     menuScene.handleInput("Start");
-    // }
 
     public void setupGame() {
         // Create the player MovableEntity.
@@ -114,10 +94,7 @@ public class GameMaster extends ApplicationAdapter {
         IOManager.getInstance().getDynamicInput().drawInputText();
         IOManager.getInstance().getAudio().playMusic("BgMusic.mp3");
 
-        // Uncomment these if you re-enable scene management:
-        // sceneManager.switchScene("MainGame");
-        // sceneManager.updateCurrentScene();
-        // sceneManager.renderCurrentScene();
+        sceneManager.update(new GameScene());
 
         super.render();
     }
@@ -125,6 +102,7 @@ public class GameMaster extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();
+        sceneManager.dispose();
         IOManager.getInstance().dispose();
         world.dispose();
         // Dispose of entities if needed
