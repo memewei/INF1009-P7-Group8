@@ -1,4 +1,4 @@
-package io.github.some_example_name.lwjgl3.abstract_engine.audio;
+package io.github.some_example_name.lwjgl3.abstract_engine.io;
 
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -14,6 +14,7 @@ public class AudioOutput {
 
     public void playSound(String file) {
         Sound sound = soundEffects.computeIfAbsent(file, f -> Gdx.audio.newSound(Gdx.files.internal(f)));
+        sound.stop(); //stop sounds that are playing already so that sounds do not overlap
         sound.play(volume);
     }
 

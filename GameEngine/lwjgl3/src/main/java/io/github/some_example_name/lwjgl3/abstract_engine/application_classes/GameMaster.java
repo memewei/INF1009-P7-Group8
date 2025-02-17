@@ -69,6 +69,7 @@ public class GameMaster extends ApplicationAdapter {
             @Override
             public void onCollision(Entity other) {
                 System.out.println("Player collided with " + other.getEntityName());
+                IOManager.getInstance().getAudio().playSound("hit_sound.mp3");
             }
         };
         // Now create the MovementComponent for the player,
@@ -91,7 +92,6 @@ public class GameMaster extends ApplicationAdapter {
     public void create() {
         batch = new SpriteBatch();
         IOManager.getInstance(); // Initializes the IOManager and sets up input
-        Gdx.input.setInputProcessor(IOManager.getInstance().getDynamicInput());
         setupGame();
     }
 
