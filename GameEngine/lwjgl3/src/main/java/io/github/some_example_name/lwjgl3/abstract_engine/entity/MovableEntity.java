@@ -8,6 +8,7 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementCompo
 
 public abstract class MovableEntity extends Entity implements Collidable, IMovable {
     protected MovementComponent movementComponent;
+    private StaticEntity linkedImmovable;
 
     public MovableEntity(String entityName, float positionX, float positionY, String texturePath) {
         super(entityName, positionX, positionY, texturePath);
