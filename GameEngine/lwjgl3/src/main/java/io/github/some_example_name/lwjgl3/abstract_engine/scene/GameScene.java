@@ -10,16 +10,16 @@ import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.PlayerEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.StaticEntity;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
+// import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 
 public class GameScene extends Scene {
     private Texture backgroundTexture;
     private SpriteBatch batch;
     private EntityManager entityManager;
     private MovementManager movementManager;
-    private World world; // ✅ FIX: Store World reference
+    private World world;
     private MovableEntity player;
-    private SceneManager sceneManager; // ✅ FIX: Store SceneManager
+    private SceneManager sceneManager;
 
     public GameScene(SpriteBatch batch, EntityManager entityManager, MovementManager movementManager, World world,
             SceneManager sceneManager) {
@@ -27,7 +27,7 @@ public class GameScene extends Scene {
         this.entityManager = entityManager;
         this.movementManager = movementManager;
         this.world = world;
-        this.sceneManager = sceneManager; // ✅ FIX: Store SceneManager
+        this.sceneManager = sceneManager; //Store SceneManager
     }
 
     @Override

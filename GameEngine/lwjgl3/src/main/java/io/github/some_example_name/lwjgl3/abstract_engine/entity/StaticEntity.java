@@ -3,8 +3,6 @@ package io.github.some_example_name.lwjgl3.abstract_engine.entity;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.badlogic.gdx.graphics.Texture;
-
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
 

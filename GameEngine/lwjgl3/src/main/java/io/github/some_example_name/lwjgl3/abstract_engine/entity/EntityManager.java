@@ -2,7 +2,6 @@ package io.github.some_example_name.lwjgl3.abstract_engine.entity;
 
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
