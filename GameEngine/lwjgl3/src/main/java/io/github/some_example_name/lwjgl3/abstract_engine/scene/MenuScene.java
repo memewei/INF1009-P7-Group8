@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class MenuScene extends Scene {
     private Texture backgroundTexture;
-    private Texture pressEnterTexture; // ✅ Image for "Press ENTER to Start"
+    private Texture pressEnterTexture; // "Press ENTER to Start"
     private SpriteBatch batch;
     private SceneManager sceneManager;
     private float textY;
@@ -23,7 +23,7 @@ public class MenuScene extends Scene {
     public void initialize() {
         try {
             backgroundTexture = new Texture(Gdx.files.internal("menuScene1.png"));
-            pressEnterTexture = new Texture(Gdx.files.internal("press_enter.png")); // ✅ Load image
+            pressEnterTexture = new Texture(Gdx.files.internal("press_enter.png")); //Load image
         } catch (Exception e) {
             System.err.println("Error loading menu texture: " + e.getMessage());
             backgroundTexture = new Texture(Gdx.files.internal("menuScene1.png"));
@@ -54,7 +54,7 @@ public class MenuScene extends Scene {
             batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         }
 
-        // ✅ Draw "Press ENTER to Start" image (floating effect)
+        // "Press ENTER to Start" image with floating effect
         if (pressEnterTexture != null) {
             float textX = (Gdx.graphics.getWidth() - pressEnterTexture.getWidth()) / 2; // Center horizontally
             batch.draw(pressEnterTexture, textX, textY);
