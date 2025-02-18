@@ -16,6 +16,11 @@ public class StaticEntity extends Entity implements Collidable {
         this.componentData = new HashMap<>();
     }
     
+    public StaticEntity(String entityName) {
+        super(entityName);
+        this.componentData = new HashMap<>();
+    }
+    
     @Override
     public void addComponent(String key, String value) {
         componentData.put(key, value);
@@ -23,7 +28,12 @@ public class StaticEntity extends Entity implements Collidable {
     
     @Override
     public String getComponent(String key) {
-        return componentData.getOrDefault(key, null);
+        if (componentData.containsKey(key)) {
+            return componentData.get(key);
+        } else if (componentData.containsKey("Value")) {
+            return componentData.get("Value");
+        }
+        return null;
     }
 
     public void removeComponent(String key) {

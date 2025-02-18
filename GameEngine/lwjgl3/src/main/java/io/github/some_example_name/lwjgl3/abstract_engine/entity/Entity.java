@@ -20,6 +20,11 @@ public abstract class Entity {
         this.positionY = positionY;
         this.texture = new Texture(Gdx.files.internal(texturePath)); // Load texture
     }
+    
+    public Entity(String entityName) {
+        this.entityID = UUID.randomUUID().toString();
+        this.entityName = entityName;
+    }
 
     // Return texture width and height instead of hardcoded values
     public int getWidth() {

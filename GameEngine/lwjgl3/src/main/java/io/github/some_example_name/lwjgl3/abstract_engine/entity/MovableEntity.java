@@ -83,18 +83,27 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
     
     @Override
     public void addComponent(String key, String value) {
-        // Not used
-    }
-
-    public void addComponent(StaticEntity component) {
+        for (StaticEntity comp : components) {
+            if (comp.getEntityName().equals(key)) {
+                comp.addComponent("Value", value);
+                return;
+            }
+        }
+        StaticEntity component = new StaticEntity(key);
+        component.addComponent("Value", value);
         components.add(component);
     }
     
     @Override
-    public String getComponent(String key){
-    	return null;
+    public String getComponent(String key) {
+        for (StaticEntity comp : components) {
+            if (comp.getEntityName().equals(key)) {
+                return comp.getComponent(key);
+            }
+        }
+        return null;
     }
-
+    
     public StaticEntity getStaticComponent(String name) {
         for (StaticEntity comp : components) {
             if (comp.getEntityName().equals(name)) {

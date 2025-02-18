@@ -72,10 +72,24 @@ public class GameMaster extends ApplicationAdapter {
                 IOManager.getInstance().getAudio().playSound("hit_sound.mp3");
             }
         };
-        StaticEntity bag = new StaticEntity("Bag", 200, 100, "ground.png");
-        entityManager.addEntity(bag);
-        bag.addComponent("Health", "100");
-        bag.addComponent("Type", "Building");
+        
+        // Add components 
+        movableEntity.addComponent("Health", "100");
+        movableEntity.addComponent("Type", "Hero");
+        movableEntity.addComponent("Speed", "5");
+
+        // Retrieve and print components
+        StaticEntity retrievedHealth = movableEntity.getStaticComponent("Health");
+
+        if (retrievedHealth != null) {
+            System.out.println("Player Health: " + retrievedHealth.getComponent("Health")); 
+        } else {
+            System.out.println("Health component not found!");
+        }
+
+        // Remove a component
+        movableEntity.removeComponent("Health");
+        System.out.println("Health after removal: " + (movableEntity.getStaticComponent("Health") != null ? "Exists" : "Removed"));  
         
         // Now create the MovementComponent for the player,
         // passing the world, initial position, and the movableEntity as owner.
@@ -83,15 +97,6 @@ public class GameMaster extends ApplicationAdapter {
         // Set the movement component on the player (requires a setter in MovableEntity)
         movableEntity.setMovementComponent(playerMovement);
         
-        movableEntity.addComponent(bag);
-        
-        System.out.println("Player bag health: " + movableEntity.getStaticComponent("Bag").getComponent("Health"));
-        System.out.println("Player bag type: " + movableEntity.getStaticComponent("Bag").getComponent("Type"));
-
-        
-        movableEntity.removeComponent("bag");
-        System.out.println("Bag after removal: " + movableEntity.getComponent("bag")); // Should print null
-
         // Add the player to both managers
         entityManager.addEntity(movableEntity);
         movementManager.addEntity(movableEntity);
