@@ -12,9 +12,9 @@ import io.github.some_example_name.lwjgl3.abstract_engine.collision.Box2DCollisi
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
-import io.github.some_example_name.lwjgl3.abstract_engine.scene.MenuScene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameScene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.MenuScene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
 
 public class GameMaster extends ApplicationAdapter {
@@ -47,11 +47,14 @@ public class GameMaster extends ApplicationAdapter {
     public void render() {
         ScreenUtils.clear(0.2f, 0, 0.2f, 1);
         float deltaTime = Gdx.graphics.getDeltaTime();
-        world.step(1 / 60f, 6, 2);
 
-        movementManager.updateMovement(deltaTime);
-        entityManager.updateEntities(deltaTime);
+        GameState currentGameState = sceneManager.getGameState();
 
+        if (currentGameState == GameState.RUNNING){
+            world.step(1 / 60f, 6, 2);
+            movementManager.updateMovement(deltaTime);
+            entityManager.updateEntities(deltaTime);
+        }
         batch.begin();
         //Only render background if GameScene is active
         if (sceneManager.getCurrentScene() instanceof GameScene && backgroundTexture != null) {
