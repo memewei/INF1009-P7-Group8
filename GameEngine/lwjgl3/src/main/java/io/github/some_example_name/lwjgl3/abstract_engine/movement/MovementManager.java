@@ -2,17 +2,20 @@ package io.github.some_example_name.lwjgl3.abstract_engine.movement;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.physics.box2d.World;
-import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.io.InputHandler;
 import java.util.List;
 import java.util.ArrayList;
 
 public class MovementManager {
     private World world;
     private List<IMovable> entities;
+    private InputHandler inputHandler;  // InputHandler to be injected
 
-    public MovementManager(World world) {
+    // Constructor now accepts an InputHandler
+    public MovementManager(World world, InputHandler inputHandler) {
         this.world = world;
         this.entities = new ArrayList<>();
+        this.inputHandler = inputHandler;  // Set the inputHandler
     }
 
     public void addEntity(IMovable entity) {
@@ -34,26 +37,27 @@ public class MovementManager {
         float forceX = 0;
         float forceY = 0;
 
-        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.LEFT) ||IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.A)) {
+        // Use the inputHandler to check for key presses
+        if (inputHandler.isKeyPressed(Input.Keys.LEFT) || inputHandler.isKeyPressed(Input.Keys.A)) {
             forceX = -50f;
             // System.out.println("Moving Left");
         }
-        if (!IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.RIGHT) && !IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.D)) {
+        if (!inputHandler.isKeyPressed(Input.Keys.RIGHT) && !inputHandler.isKeyPressed(Input.Keys.D)) {
+            // no movement
         } else {
             forceX = 50f;
             // System.out.println("Moving Right");
         }
-        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.UP) || IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.W)) {
+        if (inputHandler.isKeyPressed(Input.Keys.UP) || inputHandler.isKeyPressed(Input.Keys.W)) {
             forceY = 50f;
             // System.out.println("Moving Up");
         }
-        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.DOWN) || IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.S)) {
+        if (inputHandler.isKeyPressed(Input.Keys.DOWN) || inputHandler.isKeyPressed(Input.Keys.S)) {
             forceY = -50f;
             // System.out.println("Moving Down");
         }
 
-        // System.out.println("Applied Force: (" + forceX + ", " + forceY + ")");
-
+        // Apply movement
         if (forceX == 0 && forceY == 0) {
             entity.stop();
         } else {

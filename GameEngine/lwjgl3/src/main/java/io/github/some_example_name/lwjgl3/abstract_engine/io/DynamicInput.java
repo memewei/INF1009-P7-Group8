@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 
-public class DynamicInput extends InputAdapter {
+public class DynamicInput extends InputAdapter implements InputHandler {
     private String currentInput = "";  // stores the currently pressed key/mouse button
     private final Vector2 mousePosition = new Vector2();
 
