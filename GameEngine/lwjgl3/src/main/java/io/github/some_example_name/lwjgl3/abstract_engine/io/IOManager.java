@@ -7,9 +7,9 @@ public class IOManager {
     private final AudioOutput audio;
     private DynamicInput dynamicInput;
 
-    public IOManager() {
+    private IOManager() {
         audio = new AudioOutput(); // initialize audio
-        dynamicInput = new DynamicInput(); // initialize dynamic input
+        dynamicInput = new DynamicInput(new GdxInputHandler()); // initialize dynamic input
         Gdx.input.setInputProcessor(dynamicInput); // set input processor
     }
 
