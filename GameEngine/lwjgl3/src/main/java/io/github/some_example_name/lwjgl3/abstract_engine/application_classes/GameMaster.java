@@ -18,6 +18,7 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementCompo
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.MenuScene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameScene;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
 
 public class GameMaster extends ApplicationAdapter {
@@ -38,34 +39,14 @@ public class GameMaster extends ApplicationAdapter {
         this.movementManager = new MovementManager(world);
     }
 
-    public void setupGame() {
-        movableEntity = new MovableEntity("Player", 100, 100, "player.png", null, null) {
-            @Override
-            public void onCollision(Entity other) {
-                System.out.println("Player collided with " + other.getEntityName());
-                IOManager.getInstance().getAudio().playSound("hit_sound.mp3");
-            }
-        };
-
-        MovementComponent playerMovement = new MovementComponent(world, 100, 100, movableEntity);
-        movableEntity.setMovementComponent(playerMovement);
-
-        entityManager.addEntity(movableEntity);
-        movementManager.addEntity(movableEntity);
-
-        StaticEntity demon = new StaticEntity("Demon", 0, Gdx.graphics.getHeight() / 2f, "demon.png");
-        entityManager.addEntity(demon);
-    }
-
     @Override
     public void create() {
         batch = new SpriteBatch();
 
-        // ✅ FIX: Pass World to SceneManager
         sceneManager = new SceneManager(entityManager, movementManager, world);
 
-        // ✅ FIX: Pass SceneManager to MenuScene
-        sceneManager.pushScene(new MenuScene(batch, sceneManager));
+        // ✅ Start in the main menu
+        sceneManager.pushScene(new MenuScene(batch, sceneManager), GameState.MAIN_MENU);
     }
 
     @Override

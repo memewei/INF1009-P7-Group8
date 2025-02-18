@@ -22,6 +22,7 @@ public abstract class Entity {
     }
 
     public abstract void update(float deltaTime);
+
     public abstract void render(SpriteBatch batch);
 
     // Return texture width and height instead of hardcoded values
@@ -53,6 +54,8 @@ public abstract class Entity {
         this.positionX = x;
         this.positionY = y;
     }
+
+    public abstract void onCollision(Entity other);
 
     public void dispose() {
     }

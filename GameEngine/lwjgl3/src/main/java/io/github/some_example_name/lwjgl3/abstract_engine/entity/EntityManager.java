@@ -16,6 +16,7 @@ public class EntityManager {
         this.world = world;
     }
 
+    // EntityManager.java (partial)
     public Entity getEntityByID(String entityID) {
         for (Entity entity : entities) {
             if (entity.getEntityID().equals(entityID)) {
@@ -23,6 +24,10 @@ public class EntityManager {
             }
         }
         return null;
+    }
+
+    public boolean hasEntity(String entityID) {
+        return getEntityByID(entityID) != null;
     }
 
     // Add entity and create a static body if it's a StaticEntity
@@ -47,14 +52,14 @@ public class EntityManager {
     public int getActiveEntitiesCount() {
         return entities.size();
     }
-    
+
     // Render all entities
     public void render(SpriteBatch batch) {
         for (Entity entity : entities) {
             entity.render(batch);
         }
     }
-    
+
     // Create a Box2D static body for the given StaticEntity
     private void createStaticBodyForEntity(StaticEntity entity) {
         BodyDef bodyDef = new BodyDef();
