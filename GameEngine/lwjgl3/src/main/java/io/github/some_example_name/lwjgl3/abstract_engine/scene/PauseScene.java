@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 
 public class PauseScene extends Scene {
@@ -31,6 +32,9 @@ public class PauseScene extends Scene {
             System.out.println("[PauseScene] Resuming game...");
             sceneManager.popScene();
             sceneManager.setGameState(GameState.RUNNING);
+        } else if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.Q)) {
+            System.out.println("Exiting game...");
+            sceneManager.changeScene(new MenuScene(batch, sceneManager), GameState.MAIN_MENU);
         }
     }
 
