@@ -1,4 +1,3 @@
-// MovableEntity.java
 package io.github.some_example_name.lwjgl3.abstract_engine.entity;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -42,7 +41,7 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
         batch.draw(texture, positionX, positionY, getWidth(), getHeight());
     }
 
-    // Force concrete subclasses to implement their movement behavior.
+    // Abstract so that concrete subclasses must implement their own move logic.
     public abstract void move(float forceX, float forceY);
 
     @Override

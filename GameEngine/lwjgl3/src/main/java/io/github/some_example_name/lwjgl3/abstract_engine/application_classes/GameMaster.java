@@ -9,12 +9,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Box2DCollisionListener;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.StaticEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
-import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.MenuScene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameScene;
@@ -26,7 +22,6 @@ public class GameMaster extends ApplicationAdapter {
     private MovementManager movementManager;
     private World world;
     private Texture backgroundTexture;
-    private MovableEntity movableEntity;
     private SpriteBatch batch;
     private EntityManager entityManager;
 
@@ -45,7 +40,6 @@ public class GameMaster extends ApplicationAdapter {
 
         sceneManager = new SceneManager(entityManager, movementManager, world);
 
-        // ✅ Start in the main menu
         sceneManager.pushScene(new MenuScene(batch, sceneManager), GameState.MAIN_MENU);
     }
 
@@ -59,7 +53,7 @@ public class GameMaster extends ApplicationAdapter {
         entityManager.updateEntities(deltaTime);
 
         batch.begin();
-        // ✅ FIX: Only render background if GameScene is active
+        //Only render background if GameScene is active
         if (sceneManager.getCurrentScene() instanceof GameScene && backgroundTexture != null) {
             batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         }

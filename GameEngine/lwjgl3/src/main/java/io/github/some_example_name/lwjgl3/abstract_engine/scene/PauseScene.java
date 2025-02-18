@@ -27,7 +27,7 @@ public class PauseScene extends Scene {
     public void update(float deltaTime) {
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
             System.out.println("[PauseScene] Resuming game...");
-            sceneManager.popScene(); // ✅ Demonstrates SceneStack working
+            sceneManager.popScene();
             sceneManager.setGameState(GameState.RUNNING);
         }
     }
