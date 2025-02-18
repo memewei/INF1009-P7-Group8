@@ -11,6 +11,10 @@ public class MovementComponent implements IMovable {
     private Body body;
     private MovableEntity owner; // Links this body to the MovableEntity
 
+    // Realistic movement parameters
+    private float acceleration = 5f;
+    private float maxSpeed = 50f;
+    private float friction = 0.9f;
 
     //Creates a dynamic body at (x, y) for the given MovableEntity.
     //The 'owner' parameter should be the MovableEntity using this component.
@@ -35,19 +39,28 @@ public class MovementComponent implements IMovable {
         fixture.setUserData(owner);
 
         shape.dispose();
-
         // Slight damping to reduce sliding in top-down movement
         body.setLinearDamping(0.1f);
     }
 
     @Override
     public void move(float forceX, float forceY) {
-        body.setLinearVelocity(new Vector2(forceX, forceY));
+        Vector2 velocity = body.getLinearVelocity();
+
+        velocity.x += forceX * acceleration;
+        velocity.y += forceY * acceleration;
+
+        velocity.x *= friction;
+        velocity.y *= friction;
+        body.setLinearVelocity(velocity);
     }
 
     @Override
     public void stop() {
-        body.setLinearVelocity(new Vector2(0, 0));
+        Vector2 velocity = body.getLinearVelocity();
+        velocity.x *= friction;
+        velocity.y *= friction;
+        body.setLinearVelocity(velocity);
     }
 
     public Vector2 getPosition() {
@@ -56,5 +69,6 @@ public class MovementComponent implements IMovable {
 
     public void update(float deltaTime) {
         // You can add any per-frame logic if needed.
+        stop();
     }
 }
