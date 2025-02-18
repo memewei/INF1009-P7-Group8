@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Entity {
     protected String entityID;
@@ -19,6 +21,11 @@ public abstract class Entity {
         this.positionX = positionX;
         this.positionY = positionY;
         this.texture = new Texture(Gdx.files.internal(texturePath)); // Load texture
+    }
+    
+    public Entity(String entityName) {
+        this.entityID = UUID.randomUUID().toString();
+        this.entityName = entityName;
     }
 
     public abstract void update(float deltaTime);
@@ -59,4 +66,11 @@ public abstract class Entity {
 
     public void dispose() {
     }
+    
+  //Component Management
+    public abstract void addComponent(String key, String value);
+    public abstract String getComponent(String key);
+    public abstract void removeComponent(String key);
+    
+
 }
