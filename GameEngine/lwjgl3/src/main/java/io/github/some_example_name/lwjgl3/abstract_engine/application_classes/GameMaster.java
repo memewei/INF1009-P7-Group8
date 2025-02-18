@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Box2DCollisionListener;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.io.DynamicInput;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameScene;
@@ -31,7 +32,8 @@ public class GameMaster extends ApplicationAdapter {
         world.setContactListener(new Box2DCollisionListener());
 
         this.entityManager = new EntityManager(world);
-        this.movementManager = new MovementManager(world);
+        DynamicInput dynamicInput = new DynamicInput();
+        this.movementManager = new MovementManager(world, dynamicInput);  // Pass dynamicInput to MovementManager
     }
 
     @Override
