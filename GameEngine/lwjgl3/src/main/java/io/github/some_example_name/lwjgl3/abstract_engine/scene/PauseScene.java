@@ -1,8 +1,10 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.scene;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 
 public class PauseScene extends Scene {
     private Texture pauseBackground;
@@ -25,7 +27,7 @@ public class PauseScene extends Scene {
 
     @Override
     public void update(float deltaTime) {
-        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
+        if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
             System.out.println("[PauseScene] Resuming game...");
             sceneManager.popScene();
             sceneManager.setGameState(GameState.RUNNING);

@@ -3,6 +3,8 @@ package io.github.some_example_name.lwjgl3.abstract_engine.movement;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.World;
+import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -34,19 +36,20 @@ public class MovementManager {
         float forceX = 0;
         float forceY = 0;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.LEFT) ||IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.A)) {
             forceX = -50f;
             // System.out.println("Moving Left");
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+        if (!IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.RIGHT) && !IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.D)) {
+        } else {
             forceX = 50f;
             // System.out.println("Moving Right");
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
+        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.UP) || IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.W)) {
             forceY = 50f;
             // System.out.println("Moving Up");
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
+        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.DOWN) || IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.S)) {
             forceY = -50f;
             // System.out.println("Moving Down");
         }

@@ -1,8 +1,10 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.scene;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 
 public class MenuScene extends Scene {
     private Texture backgroundTexture;
@@ -35,7 +37,7 @@ public class MenuScene extends Scene {
         timeElapsed += deltaTime;
         textY = (Gdx.graphics.getHeight() / 4f) + (float) Math.sin(timeElapsed * 2) * 10; // Floating effect
 
-        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ENTER)) {
+        if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
             System.out.println("Starting game...");
             sceneManager.changeScene(new GameScene(
                     batch,
