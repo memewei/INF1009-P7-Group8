@@ -1,10 +1,12 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.scene;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.World;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.PlayerEntity;
@@ -66,7 +68,7 @@ public void initialize() {
     @Override
     public void update(float deltaTime) {
         // ✅ FIX: Now sceneManager is accessible
-        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
+        if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
             System.out.println("Pausing game...");
             sceneManager.pushScene(new PauseScene(batch, sceneManager), GameState.PAUSED);
         }

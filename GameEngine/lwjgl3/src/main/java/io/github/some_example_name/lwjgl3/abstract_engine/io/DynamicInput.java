@@ -16,28 +16,31 @@ public class DynamicInput extends InputAdapter {
         currentInput = "Key: " + Input.Keys.toString(keycode);
         return true;
     }
-
     @Override
     public boolean keyUp(int keycode) {
-        currentInput = ""; // clear when key is released
+        currentInput = "";
         return true;
     }
-
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         mousePosition.set(screenX, screenY);
         currentInput = "Mouse: Button " + button;
         return true;
     }
-
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        currentInput = ""; // clear when mouse button is released
+        currentInput = "";
         return true;
     }
 
-    public String getCurrentInput() {
-        return currentInput;
+    //check if a key was pressed - needed for movement, tracks every frame
+    public boolean isKeyPressed(int keycode) {
+        return Gdx.input.isKeyPressed(keycode);
+    }
+
+    // checks if key is pressed once only when it is pressed
+    public boolean isKeyJustPressed(int keycode) {
+        return Gdx.input.isKeyJustPressed(keycode);
     }
 
     //draw inputs for display purposes only
@@ -49,7 +52,7 @@ public class DynamicInput extends InputAdapter {
         font = new BitmapFont();
         font.getData().setScale(1f);
 
-        String input = getCurrentInput();
+        String input = currentInput;
         if (!input.isEmpty()) {
             float x = Gdx.graphics.getWidth() - 120; // top right
             float y = Gdx.graphics.getHeight() - 20;
