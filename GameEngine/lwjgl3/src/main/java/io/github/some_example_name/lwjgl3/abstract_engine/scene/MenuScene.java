@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 
 public class MenuScene extends Scene {
@@ -46,7 +47,7 @@ public class MenuScene extends Scene {
                     sceneManager.getWorld(),
                     sceneManager // ✅ FIX: Pass SceneManager
             ), GameState.RUNNING);
-        }
+        } 
     }
 
     @Override
