@@ -9,10 +9,12 @@ import java.util.ArrayList;
 public class MovementManager {
     private World world;
     private List<IMovable> entities;
+    private IOManager ioManager;
 
     public MovementManager(World world) {
         this.world = world;
         this.entities = new ArrayList<>();
+        this.ioManager = IOManager.getInstance(); // Cache IOManager
     }
 
     public void addEntity(IMovable entity) {
@@ -34,22 +36,21 @@ public class MovementManager {
         float forceX = 0;
         float forceY = 0;
 
-        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.LEFT) ||IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.A)) {
+        if (ioManager.getDynamicInput().isKeyPressed(Input.Keys.LEFT) ||
+                ioManager.getDynamicInput().isKeyPressed(Input.Keys.A)) {
             forceX = -50f;
-            // System.out.println("Moving Left");
         }
-        if (!IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.RIGHT) && !IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.D)) {
-        } else {
+        if (ioManager.getDynamicInput().isKeyPressed(Input.Keys.RIGHT) ||
+                ioManager.getDynamicInput().isKeyPressed(Input.Keys.D)) {
             forceX = 50f;
-            // System.out.println("Moving Right");
         }
-        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.UP) || IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.W)) {
+        if (ioManager.getDynamicInput().isKeyPressed(Input.Keys.UP) ||
+                ioManager.getDynamicInput().isKeyPressed(Input.Keys.W)) {
             forceY = 50f;
-            // System.out.println("Moving Up");
         }
-        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.DOWN) || IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.S)) {
+        if (ioManager.getDynamicInput().isKeyPressed(Input.Keys.DOWN) ||
+                ioManager.getDynamicInput().isKeyPressed(Input.Keys.S)) {
             forceY = -50f;
-            // System.out.println("Moving Down");
         }
 
         // System.out.println("Applied Force: (" + forceX + ", " + forceY + ")");

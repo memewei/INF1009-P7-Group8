@@ -7,37 +7,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
 
 public class StaticEntity extends Entity implements Collidable {
-    private Map<String, String> componentData;
-
     public StaticEntity(String entityName, float positionX, float positionY, String texturePath) {
         super(entityName, positionX, positionY, texturePath);
-        this.componentData = new HashMap<>();
-    }
-    
-    public StaticEntity(String entityName) {
-        super(entityName);
-        this.componentData = new HashMap<>();
     }
 
-    @Override
-    public void addComponent(String key, String value) {
-        componentData.put(key, value);
+    public StaticEntity(String entityName, String texturePath) {
+        super(entityName, 0, 0, texturePath);  // Temporary (0,0) position
+        System.err.println("[WARNING] StaticEntity `" + entityName + "` initialized without a position. Call setPosition()!");
     }
-    
-    @Override
-    public String getComponent(String key) {
-        if (componentData.containsKey(key)) {
-            return componentData.get(key);
-        } else if (componentData.containsKey("Value")) {
-            return componentData.get("Value");
-        }
-        return null;
-    }
-
-    public void removeComponent(String key) {
-        componentData.remove(key);
-    }
-
 
     @Override
     public void update(float deltaTime) {
@@ -46,7 +23,9 @@ public class StaticEntity extends Entity implements Collidable {
 
     @Override
     public void render(SpriteBatch batch) {
-        batch.draw(texture, positionX, positionY, getWidth(), getHeight());
+        if (texture != null) {  //Prevent null reference crashes
+            batch.draw(texture, positionX, positionY, getWidth(), getHeight());
+        }
     }
 
     @Override

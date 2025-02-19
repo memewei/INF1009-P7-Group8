@@ -4,32 +4,41 @@ import com.badlogic.gdx.Gdx;
 
 public class IOManager {
     private static IOManager instance;
-    private final AudioOutput audio;
+    private AudioOutput audio;
     private DynamicInput dynamicInput;
 
     private IOManager() {
-        audio = new AudioOutput(); // initialize audio
-        dynamicInput = new DynamicInput(); // initialize dynamic input
-        Gdx.input.setInputProcessor(dynamicInput); // set input processor
+        //initialize non-Gdx components
+        audio = new AudioOutput();
     }
 
     public static IOManager getInstance() {
-        if (instance == null) { //ensures only 1 IOManager is created
+        if (instance == null) {
             instance = new IOManager();
         }
         return instance;
     }
 
-    public DynamicInput getDynamicInput() {
-        return dynamicInput;
+
+    // Separate method for Gdx-dependent initialization.
+    //Must be called after LibGDX is initialized (in GameMaster.create()).
+    public void init() {
+        dynamicInput = new DynamicInput();
+        Gdx.input.setInputProcessor(dynamicInput);
     }
 
     public AudioOutput getAudio() {
         return audio;
     }
 
+    public DynamicInput getDynamicInput() {
+        return dynamicInput;
+    }
+
     public void dispose() {
-        audio.dispose(); // ensure cleanup of audio resources
-        dynamicInput = null; // clean up dynamic input
+        if (audio != null) {
+            audio.dispose();
+        }
+        dynamicInput = null;
     }
 }

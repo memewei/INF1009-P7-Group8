@@ -4,22 +4,25 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public abstract class Entity {
-    protected String entityID;
+    protected final String entityID;
     protected String entityName;
     protected float positionX;
     protected float positionY;
-    protected Texture texture; // Add texture field
+    protected Texture texture;
+    private Map<String, Object> components;  //Stores components
 
     public Entity(String entityName, float positionX, float positionY, String texturePath) {
         this.entityID = UUID.randomUUID().toString();
         this.entityName = entityName;
         this.positionX = positionX;
         this.positionY = positionY;
+        this.components = new HashMap<>();
         this.texture = new Texture(Gdx.files.internal(texturePath)); // Load texture
     }
     
@@ -28,8 +31,23 @@ public abstract class Entity {
         this.entityName = entityName;
     }
 
-    public abstract void update(float deltaTime);
+    public void addComponent(String key, Object value) {
+        components.put(key, value);
+    }
 
+    public Object getComponent(String key) {
+        return components.getOrDefault(key, null);
+    }
+
+    public void removeComponent(String key) {
+        components.remove(key);
+    }
+
+    public Map<String, Object> getAllComponents() {
+        return components;
+    }
+
+    public abstract void update(float deltaTime);
     public abstract void render(SpriteBatch batch);
 
     // Return texture width and height instead of hardcoded values
@@ -65,12 +83,8 @@ public abstract class Entity {
     public abstract void onCollision(Entity other);
 
     public void dispose() {
+        if (texture != null) {
+            texture.dispose();
+        }
     }
-    
-  //Component Management
-    public abstract void addComponent(String key, String value);
-    public abstract String getComponent(String key);
-    public abstract void removeComponent(String key);
-    
-
 }

@@ -15,15 +15,21 @@ public class Box2DCollisionListener implements ContactListener {
             Entity entityA = (Entity) userDataA;
             Entity entityB = (Entity) userDataB;
 
+            boolean collisionHandled = false;
+
             if (entityA instanceof Collidable) {
                 ((Collidable) entityA).onCollision(entityB);
-                System.out.println(entityA.getEntityName() + " collided with " + entityB.getEntityName());
-                IOManager.getInstance().getAudio().playSound("hit_sound.mp3");
+                if (!collisionHandled) {
+                    IOManager.getInstance().getAudio().playSound("hit_sound.mp3");
+                    collisionHandled = true;
+                }
             }
+
             if (entityB instanceof Collidable) {
                 ((Collidable) entityB).onCollision(entityA);
-                System.out.println(entityB.getEntityName() + " collided with " + entityA.getEntityName());
-                IOManager.getInstance().getAudio().playSound("hit_sound.mp3");
+                if (!collisionHandled) {
+                    IOManager.getInstance().getAudio().playSound("hit_sound.mp3");
+                }
             }
         }
     }
@@ -34,8 +40,10 @@ public class Box2DCollisionListener implements ContactListener {
     }
 
     @Override
-    public void preSolve(Contact contact, Manifold oldManifold) { }
+    public void preSolve(Contact contact, Manifold oldManifold) {
+    }
 
     @Override
-    public void postSolve(Contact contact, ContactImpulse impulse) { }
+    public void postSolve(Contact contact, ContactImpulse impulse) {
+    }
 }

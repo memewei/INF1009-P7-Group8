@@ -1,60 +1,94 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.entity;
 
-import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import java.util.ArrayList;
-import java.util.List;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EntityManager {
-    private List<Entity> entities;
-    private World world; // World reference for creating Box2D bodies
+    private final World world;
+    private final Map<String, Entity> entityMap;  // Stores entities by ID
 
-    // Constructor now accepts a Box2D world
     public EntityManager(World world) {
-        this.entities = new ArrayList<>();
         this.world = world;
+        this.entityMap = new HashMap<>();
     }
 
-    // EntityManager.java (partial)
+     public Collection<Entity> getAllEntities() {
+        return entityMap.values();
+    }
+
     public Entity getEntityByID(String entityID) {
-        for (Entity entity : entities) {
-            if (entity.getEntityID().equals(entityID)) {
-                return entity;
-            }
-        }
-        return null;
+        return entityMap.get(entityID);  // O(1) lookup time
     }
 
     public boolean hasEntity(String entityID) {
         return getEntityByID(entityID) != null;
     }
 
-    // Add entity and create a static body if it's a StaticEntity
     public void addEntity(Entity entity) {
-        entities.add(entity);
-        if (entity instanceof StaticEntity) {
-            createStaticBodyForEntity((StaticEntity) entity);
+        if (entity == null) {
+            System.err.println("[EntityManager] Attempted to add a null entity.");
+            return;
         }
+    
+        // Prevent adding duplicates based on entity ID
+        if (hasEntity(entity.getEntityID())) {
+            System.out.println("[EntityManager] Entity with ID '" + entity.getEntityID() + "' already exists. Skipping addition.");
+            return;
+        }
+    
+        entityMap.put(entity.getEntityID(), entity); // Store in HashMap
+    
+        // Handle static entities (Box2D physics setup)
+        if (entity instanceof StaticEntity) {
+            StaticEntity staticEntity = (StaticEntity) entity;
+
+            if (staticEntity.getEntityName().toLowerCase().contains("enemy")) {
+                staticEntity.addComponent("Type", "Enemy");
+                staticEntity.addComponent("Health", "100");
+                staticEntity.addComponent("AI", "Aggressive");
+            }
+
+            createStaticBodyForEntity(staticEntity);
+        }
+    
+        System.out.println("[EntityManager] Entity '" + entity.getEntityID() + "' added successfully.");
     }
 
+    public void clearEntities() {
+        System.out.println("[EntityManager] Clearing all entities...");
+        for (Entity entity : entityMap.values()) {
+            entity.dispose();  //Dispose to prevent memory leaks
+        }
+        entityMap.clear();
+    }
+    
+
     public void removeEntity(String entityID) {
-        // Optionally: destroy Box2D body if it's a static entity
-        entities.removeIf(entity -> entity.getEntityID().equals(entityID));
+        entityMap.remove(entityID);
     }
 
     public void updateEntities(float deltaTime) {
-        for (Entity entity : entities) {
+        for (Entity entity : entityMap.values()) {
             entity.update(deltaTime);
         }
     }
 
     public int getActiveEntitiesCount() {
-        return entities.size();
+        return entityMap.size();
     }
 
     // Render all entities
     public void render(SpriteBatch batch) {
-        for (Entity entity : entities) {
+        for (Entity entity : entityMap.values()) {
             entity.render(batch);
         }
     }

@@ -1,5 +1,7 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.application_classes;
 
+import java.util.Map;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -9,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Box2DCollisionListener;
+import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
@@ -38,8 +41,10 @@ public class GameMaster extends ApplicationAdapter {
     public void create() {
         batch = new SpriteBatch();
 
-        sceneManager = new SceneManager(entityManager, movementManager, world);
+        // Ensure IOManager is initialized
+        IOManager.getInstance().init();
 
+        sceneManager = new SceneManager(entityManager, movementManager, world);
         sceneManager.pushScene(new MenuScene(batch, sceneManager), GameState.MAIN_MENU);
     }
 
@@ -50,13 +55,13 @@ public class GameMaster extends ApplicationAdapter {
 
         GameState currentGameState = sceneManager.getGameState();
 
-        if (currentGameState == GameState.RUNNING){
+        if (currentGameState == GameState.RUNNING) {
             world.step(1 / 60f, 6, 2);
             movementManager.updateMovement(deltaTime);
             entityManager.updateEntities(deltaTime);
         }
         batch.begin();
-        //Only render background if GameScene is active
+        // Only render background if GameScene is active
         if (sceneManager.getCurrentScene() instanceof GameScene && backgroundTexture != null) {
             batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         }

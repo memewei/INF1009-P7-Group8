@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 
 public class PauseScene extends Scene {
@@ -19,10 +18,19 @@ public class PauseScene extends Scene {
 
     @Override
     public void initialize() {
-        try {
-            pauseBackground = new Texture(Gdx.files.internal("pause_menu.png"));
-        } catch (Exception e) {
-            System.err.println("Error loading pause menu: " + e.getMessage());
+        System.out.println("[PauseScene] Initializing...");
+        
+        loadPauseMenuTexture();
+    }
+
+    private void loadPauseMenuTexture() {
+        if (pauseBackground == null) {
+            try {
+                pauseBackground = new Texture(Gdx.files.internal("pause_menu.png"));
+                System.out.println("[PauseScene] Pause menu loaded.");
+            } catch (Exception e) {
+                System.err.println("[PauseScene] Error loading background: " + e.getMessage());
+            }
         }
     }
 
@@ -30,11 +38,21 @@ public class PauseScene extends Scene {
     public void update(float deltaTime) {
         if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
             System.out.println("[PauseScene] Resuming game...");
-            sceneManager.popScene();
-            sceneManager.setGameState(GameState.RUNNING);
+            
+            if (sceneManager != null) {
+                sceneManager.popScene();
+                sceneManager.setGameState(GameState.RUNNING);
+            } else {
+                System.err.println("[PauseScene] sceneManager is NULL! Cannot resume.");
+            }
         } else if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.Q)) {
-            System.out.println("Exiting game...");
-            sceneManager.changeScene(new MenuScene(batch, sceneManager), GameState.MAIN_MENU);
+            System.out.println("[PauseScene] Exiting to main menu...");
+
+            if (sceneManager != null) {
+                sceneManager.changeScene(new MenuScene(batch, sceneManager), GameState.MAIN_MENU);
+            } else {
+                System.err.println("[PauseScene] sceneManager is NULL! Cannot change to main menu.");
+            }
         }
     }
 
@@ -51,6 +69,8 @@ public class PauseScene extends Scene {
     public void dispose() {
         if (pauseBackground != null) {
             pauseBackground.dispose();
+            pauseBackground = null;
+            System.out.println("[PauseScene] Background texture disposed.");
         }
     }
 }
