@@ -1,4 +1,4 @@
-package io.github.some_example_name.lwjgl3.abstract_engine.scene;
+package io.github.some_example_name.lwjgl3.application_classes.scene;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -6,6 +6,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
 
 public class MenuScene extends Scene {
     private Texture backgroundTexture;

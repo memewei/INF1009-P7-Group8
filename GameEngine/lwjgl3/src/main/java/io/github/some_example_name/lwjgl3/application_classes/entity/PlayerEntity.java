@@ -1,5 +1,7 @@
 // PlayerEntity.java
-package io.github.some_example_name.lwjgl3.abstract_engine.entity;
+package io.github.some_example_name.lwjgl3.application_classes.entity;
+
+import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 
 public class PlayerEntity extends MovableEntity {
     public PlayerEntity(String entityName, float positionX, float positionY, String texturePath) {

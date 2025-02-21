@@ -1,4 +1,4 @@
-package io.github.some_example_name.lwjgl3.abstract_engine.scene;
+package io.github.some_example_name.lwjgl3.application_classes.scene;
 
 import java.util.Map;
 
@@ -12,8 +12,11 @@ import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
+import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
+import io.github.some_example_name.lwjgl3.application_classes.entity.PlayerEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.PlayerEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.StaticEntity;
 // import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;

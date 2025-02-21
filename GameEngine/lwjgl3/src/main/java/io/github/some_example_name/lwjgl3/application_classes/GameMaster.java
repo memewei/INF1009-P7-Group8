@@ -1,4 +1,4 @@
-package io.github.some_example_name.lwjgl3.abstract_engine.application_classes;
+package io.github.some_example_name.lwjgl3.application_classes;
 
 import java.util.Map;
 
@@ -15,10 +15,10 @@ import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
-import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameScene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
-import io.github.some_example_name.lwjgl3.abstract_engine.scene.MenuScene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
+import io.github.some_example_name.lwjgl3.application_classes.scene.GameScene;
+import io.github.some_example_name.lwjgl3.application_classes.scene.MenuScene;
 
 public class GameMaster extends ApplicationAdapter {
     private SceneManager sceneManager;
