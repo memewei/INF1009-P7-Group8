@@ -5,7 +5,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
@@ -15,12 +17,16 @@ public class MenuScene extends Scene {
     private Texture pressEnterTexture; // "Press ENTER to Start"
     private SpriteBatch batch;
     private SceneManager sceneManager;
+    private EntityManager entityManager;
+    private MovementManager movementManager;
     private float textY;
     private float timeElapsed;
 
-    public MenuScene(SpriteBatch batch, SceneManager sceneManager) {
+    public MenuScene(SpriteBatch batch, SceneManager sceneManager, EntityManager entityManager, MovementManager movementManager) {
         this.batch = batch;
         this.sceneManager = sceneManager;
+        this.entityManager = entityManager;
+        this.movementManager = movementManager;
         this.textY = Gdx.graphics.getHeight() / 4f; // Initial Y position for floating effect
         this.timeElapsed = 0;
     }
@@ -43,12 +49,13 @@ public class MenuScene extends Scene {
 
         if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
             System.out.println("Starting game...");
+            // Pass the entityManager and movementManager to the GameScene
             sceneManager.changeScene(new GameScene(
                     batch,
-                    sceneManager.getEntityManager(),
-                    sceneManager.getMovementManager(),
+                    entityManager,
+                    movementManager,
                     sceneManager.getWorld(),
-                    sceneManager // ✅ FIX: Pass SceneManager
+                    sceneManager
             ), GameState.RUNNING);
         } 
     }

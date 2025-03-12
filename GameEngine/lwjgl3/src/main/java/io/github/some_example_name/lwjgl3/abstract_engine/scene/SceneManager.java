@@ -6,21 +6,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.World;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
-import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
 
 public class SceneManager {
     private Stack<Scene> sceneStack = new Stack<>();
     private Scene currentScene;
-    private EntityManager entityManager;
-    private MovementManager movementManager;
     private World world;
     private GameState gameState;
     private Texture transitionTexture;
 
-    public SceneManager(EntityManager entityManager, MovementManager movementManager, World world) {
-        this.entityManager = entityManager;
-        this.movementManager = movementManager;
+    public SceneManager(World world) {
         this.world = world;
         this.gameState = GameState.MAIN_MENU;
         transitionTexture = new Texture(Gdx.files.internal("transitionFade.png"));
@@ -28,14 +22,6 @@ public class SceneManager {
 
     public World getWorld() {
         return world;
-    }
-
-    public EntityManager getEntityManager() {
-        return entityManager;
-    }
-
-    public MovementManager getMovementManager() {
-        return movementManager;
     }
 
     public GameState getGameState() {

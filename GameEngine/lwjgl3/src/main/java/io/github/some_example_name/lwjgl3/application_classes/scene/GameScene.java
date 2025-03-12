@@ -19,7 +19,6 @@ import io.github.some_example_name.lwjgl3.application_classes.entity.PlayerEntit
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.StaticEntity;
-// import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 
 public class GameScene extends Scene {
     private Texture backgroundTexture;
@@ -37,7 +36,7 @@ public class GameScene extends Scene {
         this.entityManager = entityManager;
         this.movementManager = movementManager;
         this.world = world;
-        this.sceneManager = sceneManager; // Store SceneManager
+        this.sceneManager = sceneManager;
     }
 
     @Override
@@ -84,10 +83,12 @@ public class GameScene extends Scene {
             System.err.println("[GameScene] sceneManager is NULL! Ensure it is initialized properly.");
             return;
         }
+        
         // Ensure ESC key pauses the game only if sceneManager is available
         if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
             System.out.println("[GameScene] Pausing game...");
-            sceneManager.pushScene(new PauseScene(batch, sceneManager), GameState.PAUSED);
+            // Pass the managers to the PauseScene
+            sceneManager.pushScene(new PauseScene(batch, sceneManager, entityManager, movementManager), GameState.PAUSED);
         }
 
         if (sceneManager.getGameState() == GameState.RUNNING) {
@@ -133,6 +134,9 @@ public class GameScene extends Scene {
     @Override
     public void dispose() {
         System.out.println("[GameScene] Disposing of game entities.");
-        entityManager.clearEntities(); // no duplicates for next scene created
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
+        }
+        // Don't clear entities here as they might be needed by other scenes
     }
 }

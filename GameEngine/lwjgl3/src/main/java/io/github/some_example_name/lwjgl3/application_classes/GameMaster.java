@@ -1,7 +1,5 @@
 package io.github.some_example_name.lwjgl3.application_classes;
 
-import java.util.Map;
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,7 +9,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Box2DCollisionListener;
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
@@ -44,8 +41,11 @@ public class GameMaster extends ApplicationAdapter {
         // Ensure IOManager is initialized
         IOManager.getInstance().init();
 
-        sceneManager = new SceneManager(entityManager, movementManager, world);
-        sceneManager.pushScene(new MenuScene(batch, sceneManager), GameState.MAIN_MENU);
+        // Now sceneManager only needs the world, not entityManager and movementManager
+        sceneManager = new SceneManager(world);
+        
+        // Pass the necessary managers to the MenuScene
+        sceneManager.pushScene(new MenuScene(batch, sceneManager, entityManager, movementManager), GameState.MAIN_MENU);
     }
 
     @Override
