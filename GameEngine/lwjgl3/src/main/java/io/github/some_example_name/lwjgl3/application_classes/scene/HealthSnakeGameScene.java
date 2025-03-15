@@ -47,11 +47,6 @@ public class HealthSnakeGameScene extends Scene {
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
     
-    private boolean gameOver = false;
-    private boolean playerWon = false;
-    private Texture gameOverTexture;
-    private Texture victoryTexture;
-    
     public HealthSnakeGameScene(SpriteBatch batch, EntityManager entityManager, 
                             MovementManager movementManager, World world,
                             SceneManager sceneManager) {
@@ -83,8 +78,6 @@ public class HealthSnakeGameScene extends Scene {
         // Load textures
         try {
             backgroundTexture = new Texture(Gdx.files.internal("snake_background.png"));
-            gameOverTexture = new Texture(Gdx.files.internal("game_over.png"));
-            victoryTexture = new Texture(Gdx.files.internal("victory.png"));
             System.out.println("[HealthSnakeGameScene] Textures loaded.");
         } catch (Exception e) {
             System.err.println("[HealthSnakeGameScene] Error loading textures: " + e.getMessage());
@@ -109,20 +102,55 @@ public class HealthSnakeGameScene extends Scene {
             spawnFoodInWorld();
         }
         
-        gameOver = false;
-        playerWon = false;
-        
         // Reset camera offset to center on player initially
         updateCameraPosition();
     }
     
     private void createRandomEnemyInWorld(int idNumber) {
-        // Create enemy away from player
+        Vector2 playerPos = player.getPosition();
+        
+        // Calculate maximum distances in each direction
+        float maxDistanceLeft = Math.min(1200, playerPos.x - 50);
+        float maxDistanceRight = Math.min(1200, worldWidth - 50 - playerPos.x);
+        float maxDistanceDown = Math.min(1200, playerPos.y - 50);
+        float maxDistanceUp = Math.min(1200, worldHeight - 50 - playerPos.y);
+        
         float x, y;
+        boolean tooClose;
+        int attempts = 0;
+        
         do {
-            x = MathUtils.random(50, worldWidth - 50);
-            y = MathUtils.random(50, worldHeight - 50);
-        } while (Vector2.dst(x, y, player.getPosition().x, player.getPosition().y) < 300);
+            if (maxDistanceLeft < 100 || maxDistanceRight < 100 || maxDistanceDown < 100 || maxDistanceUp < 100) {
+                // Player is near edge, use directional spawn
+                if (playerPos.x < worldWidth / 2) {
+                    x = playerPos.x + MathUtils.random(300, maxDistanceRight);
+                } else {
+                    x = playerPos.x - MathUtils.random(300, maxDistanceLeft);
+                }
+                
+                if (playerPos.y < worldHeight / 2) {
+                    y = playerPos.y + MathUtils.random(300, maxDistanceUp);
+                } else {
+                    y = playerPos.y - MathUtils.random(300, maxDistanceDown);
+                }
+            } else {
+                // Use angular distribution
+                float angle = MathUtils.random(MathUtils.PI2);
+                float distance = MathUtils.random(400, 1200);
+                
+                x = playerPos.x + MathUtils.cos(angle) * distance;
+                y = playerPos.y + MathUtils.sin(angle) * distance;
+                
+                // Adjust position if it would be outside bounds
+                if (x < 50) x = 50 + MathUtils.random(50);
+                if (x > worldWidth - 50) x = worldWidth - 50 - MathUtils.random(50);
+                if (y < 50) y = 50 + MathUtils.random(50);
+                if (y > worldHeight - 50) y = worldHeight - 50 - MathUtils.random(50);
+            }
+            
+            tooClose = Vector2.dst(x, y, playerPos.x, playerPos.y) < 300;
+            attempts++;
+        } while (tooClose && attempts < 10);
         
         // Position the enemy on the map
         EnemySnake enemy = new EnemySnake(
@@ -178,20 +206,7 @@ public class HealthSnakeGameScene extends Scene {
     
     @Override
     public void update(float deltaTime) {
-        if (gameOver) {
-            // Handle input to return to menu after game over
-            if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
-                System.out.println("[HealthSnakeGameScene] Returning to menu...");
-                sceneManager.changeScene(new HealthSnakeMenuScene(
-                        batch,
-                        sceneManager,
-                        entityManager,
-                        movementManager
-                ), GameState.MAIN_MENU);
-            }
-            return;
-        }
-        
+
         // Handle pause
         if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
             System.out.println("[HealthSnakeGameScene] Pausing game...");
@@ -202,16 +217,46 @@ public class HealthSnakeGameScene extends Scene {
         
         // Update player and check win/lose conditions
         if (player.checkWinCondition()) {
-            gameOver = true;
-            playerWon = true;
+            System.out.println("[HealthSnakeGameScene] Victory condition met, transitioning to victory scene...");
             IOManager.getInstance().getAudio().playSound("victory.mp3");
+            
+            // Calculate final score based on player stats
+            int finalScore = (int)(player.getHealthyFoodPercentage() * 1000) - (int)(player.getUnhealthyFoodPercentage() * 500);
+            
+            // Transition to victory scene
+            sceneManager.changeScene(
+                new HealthSnakeVictoryScene(
+                    batch,
+                    sceneManager,
+                    entityManager,
+                    movementManager,
+                    finalScore,
+                    player.getBodySize()
+                ),
+                GameState.GAME_OVER
+            );
             return;
         }
         
         if (player.checkLoseCondition()) {
-            gameOver = true;
-            playerWon = false;
+            System.out.println("[HealthSnakeGameScene] Lose condition met, transitioning to death scene...");
             IOManager.getInstance().getAudio().playSound("game_over.mp3");
+            
+            // Calculate final score
+            int finalScore = (int)(player.getHealthyFoodPercentage() * 500);
+            
+            // Transition to death scene
+            sceneManager.changeScene(
+                new HealthSnakeDeathScene(
+                    batch,
+                    sceneManager,
+                    entityManager,
+                    movementManager,
+                    finalScore,
+                    "Too many unhealthy foods consumed"
+                ),
+                GameState.GAME_OVER
+            );
             return;
         }
         
@@ -252,19 +297,48 @@ public class HealthSnakeGameScene extends Scene {
         for (EnemySnake enemy : enemies) {
             // Check head-to-head collision
             if (playerBounds.overlaps(enemy.getHeadBounds())) {
-                gameOver = true;
-                playerWon = false;
                 IOManager.getInstance().getAudio().playSound("collision.mp3");
+                
+                // Calculate final score
+                int finalScore = (int)(player.getHealthyFoodPercentage() * 500);
+                
+                // Transition to death scene
+                sceneManager.changeScene(
+                    new HealthSnakeDeathScene(
+                        batch,
+                        sceneManager,
+                        entityManager,
+                        movementManager,
+                        finalScore,
+                        "Collision with enemy snake head"
+                    ),
+                    GameState.GAME_OVER
+                );
+                return;
             }
             
             // Check player head against enemy body
             Array<Rectangle> enemyBodyBounds = enemy.getBodyBounds();
             for (Rectangle bodyPart : enemyBodyBounds) {
                 if (playerBounds.overlaps(bodyPart)) {
-                    gameOver = true;
-                    playerWon = false;
                     IOManager.getInstance().getAudio().playSound("collision.mp3");
-                    break;
+                    
+                    // Calculate final score
+                    int finalScore = (int)(player.getHealthyFoodPercentage() * 500);
+                    
+                    // Transition to death scene
+                    sceneManager.changeScene(
+                        new HealthSnakeDeathScene(
+                            batch,
+                            sceneManager,
+                            entityManager,
+                            movementManager,
+                            finalScore,
+                            "Collision with enemy snake body"
+                        ),
+                        GameState.GAME_OVER
+                    );
+                    return;
                 }
             }
         }
@@ -292,47 +366,96 @@ public class HealthSnakeGameScene extends Scene {
     private void repositionOffscreenFood() {
         Vector2 playerPos = player.getPosition();
         float visibleRange = 1000; // How far from player food is considered "in range"
+        Array<FoodEntity> foodsToReposition = new Array<FoodEntity>();
         
+        // First, collect all food items that are too far away
         for (FoodEntity food : foods) {
             Vector2 foodPos = food.getPosition();
             
-            // If food is too far from player, remove it and spawn a new one
+            // If food is too far from player, mark it for repositioning
             if (Vector2.dst(foodPos.x, foodPos.y, playerPos.x, playerPos.y) > visibleRange) {
-                // Remove this food
-                foods.removeValue(food, true);
-                entityManager.removeEntity(food.getEntityID());
-                
-                // Spawn a new one near the player
-                spawnFoodNearPlayer();
-                
-                // No need to continue checking this food
-                break;
+                foodsToReposition.add(food);
             }
+        }
+        
+        // Then reposition them one by one
+        for (FoodEntity food : foodsToReposition) {
+            // Remove this food from our tracking arrays
+            foods.removeValue(food, true);
+            entityManager.removeEntity(food.getEntityID());
+            
+            // Spawn a new one near the player
+            spawnFoodNearPlayer();
         }
     }
     
-    private void spawnFoodNearPlayer() {
-        Vector2 playerPos = player.getPosition();
-        float spawnDistance = MathUtils.random(300, 800);
-        float angle = MathUtils.random(MathUtils.PI2);
+    // Replace your spawnFoodNearPlayer method with this improved version:
+
+private void spawnFoodNearPlayer() {
+    Vector2 playerPos = player.getPosition();
+    
+    // Calculate the maximum possible spawn distance in each direction without going outside world bounds
+    float maxDistanceLeft = Math.min(800, playerPos.x - 50);
+    float maxDistanceRight = Math.min(800, worldWidth - 50 - playerPos.x);
+    float maxDistanceDown = Math.min(800, playerPos.y - 50);
+    float maxDistanceUp = Math.min(800, worldHeight - 50 - playerPos.y);
+    
+    // Generate position using a smarter approach
+    float x, y;
+    float spawnDistance;
+    float angle;
+    
+    // If player is too close to any edge, use a different spawn strategy
+    if (maxDistanceLeft < 100 || maxDistanceRight < 100 || maxDistanceDown < 100 || maxDistanceUp < 100) {
+        // Player is near an edge - choose a position away from the nearest edge
+        if (playerPos.x < worldWidth / 2) {
+            // Player closer to left edge, spawn to the right
+            x = playerPos.x + MathUtils.random(100, maxDistanceRight);
+        } else {
+            // Player closer to right edge, spawn to the left
+            x = playerPos.x - MathUtils.random(100, maxDistanceLeft);
+        }
         
-        float x = playerPos.x + MathUtils.cos(angle) * spawnDistance;
-        float y = playerPos.y + MathUtils.sin(angle) * spawnDistance;
-        
-        // Keep coordinates within world bounds
-        x = MathUtils.clamp(x, 50, worldWidth - 50);
-        y = MathUtils.clamp(y, 50, worldHeight - 50);
-        
-        // 70% chance for healthy food, 30% chance for unhealthy
-        boolean isHealthy = MathUtils.randomBoolean(0.7f);
-        
-        String texturePath = isHealthy ? "healthy_food.png" : "unhealthy_food.png";
-        String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
-        
-        FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
-        foods.add(food);
-        entityManager.addEntity(food);
+        if (playerPos.y < worldHeight / 2) {
+            // Player closer to bottom edge, spawn above
+            y = playerPos.y + MathUtils.random(100, maxDistanceUp);
+        } else {
+            // Player closer to top edge, spawn below
+            y = playerPos.y - MathUtils.random(100, maxDistanceDown);
+        }
+    } else {
+        // Player is far from edges - use normal radial distribution
+        // Try to find a suitable position (with retries)
+        int attempts = 0;
+        do {
+            angle = MathUtils.random(MathUtils.PI2);
+            spawnDistance = MathUtils.random(300, 800);
+            
+            x = playerPos.x + MathUtils.cos(angle) * spawnDistance;
+            y = playerPos.y + MathUtils.sin(angle) * spawnDistance;
+            
+            // Adjust position if it would be outside bounds
+            if (x < 50) x = 50 + MathUtils.random(50);
+            if (x > worldWidth - 50) x = worldWidth - 50 - MathUtils.random(50);
+            if (y < 50) y = 50 + MathUtils.random(50);
+            if (y > worldHeight - 50) y = worldHeight - 50 - MathUtils.random(50);
+            
+            attempts++;
+        } while (Vector2.dst(x, y, playerPos.x, playerPos.y) < 300 && attempts < 10);
     }
+    
+    // 70% chance for healthy food, 30% chance for unhealthy
+    boolean isHealthy = MathUtils.randomBoolean(0.7f);
+    
+    String texturePath = isHealthy ? "healthy_food.png" : "unhealthy_food.png";
+    String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
+    
+    // Create and add the new food entity
+    FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
+    foods.add(food);
+    entityManager.addEntity(food);
+    
+}
     
     private void repositionEnemyNearPlayer(EnemySnake enemy) {
         Vector2 playerPos = player.getPosition();
@@ -441,20 +564,6 @@ public class HealthSnakeGameScene extends Scene {
         font.draw(batch, "Unhealthy", Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 40);
         font.draw(batch, "Size: " + player.getBodySize(), 20, 30);
         
-        // Show game over or victory screen
-        if (gameOver) {
-            Texture overlayTexture = playerWon ? victoryTexture : gameOverTexture;
-            if (overlayTexture != null) {
-                batch.draw(overlayTexture, 
-                        (Gdx.graphics.getWidth() - overlayTexture.getWidth()) / 2f,
-                        (Gdx.graphics.getHeight() - overlayTexture.getHeight()) / 2f);
-                
-                font.draw(batch, "Press ENTER to continue",
-                        Gdx.graphics.getWidth() / 2f - 120,
-                        Gdx.graphics.getHeight() / 2f - 100);
-            }
-        }
-        
         batch.end();
     }
     
@@ -462,12 +571,6 @@ public class HealthSnakeGameScene extends Scene {
     public void dispose() {
         if (backgroundTexture != null) {
             backgroundTexture.dispose();
-        }
-        if (gameOverTexture != null) {
-            gameOverTexture.dispose();
-        }
-        if (victoryTexture != null) {
-            victoryTexture.dispose();
         }
         if (shapeRenderer != null) {
             shapeRenderer.dispose();
