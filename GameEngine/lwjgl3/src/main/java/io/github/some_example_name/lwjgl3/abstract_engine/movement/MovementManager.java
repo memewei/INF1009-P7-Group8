@@ -11,10 +11,10 @@ public class MovementManager {
     private List<IMovable> entities;
     private IOManager ioManager;
 
-    public MovementManager(World world) {
+    public MovementManager(World world, IOManager ioManager) {
         this.world = world;
         this.entities = new ArrayList<>();
-        this.ioManager = IOManager.getInstance(); // Cache IOManager
+        this.ioManager = ioManager; // Store the reference
     }
 
     public void addEntity(IMovable entity) {
