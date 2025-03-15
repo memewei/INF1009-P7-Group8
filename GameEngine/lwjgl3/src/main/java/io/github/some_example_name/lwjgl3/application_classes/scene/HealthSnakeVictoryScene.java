@@ -20,23 +20,24 @@ public class HealthSnakeVictoryScene extends Scene {
     private Texture victoryTexture;
     private Texture trophyTexture;
     private Texture healthyFoodTexture;
-    
+
     private SpriteBatch batch;
     private SceneManager sceneManager;
     private EntityManager entityManager;
     private MovementManager movementManager;
+    private IOManager ioManager;
     private BitmapFont font;
-    
+
     private String[] menuItems = {
         "Play Again",
         "Next Level",
         "Main Menu",
         "Exit Game"
     };
-    
+
     private int selectedItem = 0;
     private float timeElapsed = 0;
-    
+
     // For firework particle effects
     private float[] particleX;
     private float[] particleY;
@@ -47,7 +48,7 @@ public class HealthSnakeVictoryScene extends Scene {
     private float[] particleLifetime;
     private Color[] particleColor;
     private final int particleCount = 100;
-    
+
     // For floating healthy food icons
     private float[] foodX;
     private float[] foodY;
@@ -57,7 +58,7 @@ public class HealthSnakeVictoryScene extends Scene {
     private float[] foodRotation;
     private float[] foodRotationSpeed;
     private final int foodCount = 20;
-    
+
     private String[] victoryMessages = {
         "Congratulations!",
         "You're a Health Hero!",
@@ -66,24 +67,25 @@ public class HealthSnakeVictoryScene extends Scene {
         "Nutritional Champion!"
     };
     private String victoryMessage;
-    
+
     private final int finalScore;
     private final int snakeLength;
 
-    public HealthSnakeVictoryScene(SpriteBatch batch, SceneManager sceneManager, 
-                                 EntityManager entityManager, MovementManager movementManager,
+    public HealthSnakeVictoryScene(SpriteBatch batch, SceneManager sceneManager,
+                                 EntityManager entityManager, MovementManager movementManager, IOManager ioManager,
                                  int finalScore, int snakeLength) {
         this.batch = batch;
         this.sceneManager = sceneManager;
         this.entityManager = entityManager;
         this.movementManager = movementManager;
+        this.ioManager = ioManager;
         this.finalScore = finalScore;
         this.snakeLength = snakeLength;
-        
+
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         font.getData().setScale(1.5f);
-        
+
         // Initialize firework particles
         particleX = new float[particleCount];
         particleY = new float[particleCount];
@@ -93,7 +95,7 @@ public class HealthSnakeVictoryScene extends Scene {
         particleAlpha = new float[particleCount];
         particleLifetime = new float[particleCount];
         particleColor = new Color[particleCount];
-        
+
         // Initialize floating food
         foodX = new float[foodCount];
         foodY = new float[foodCount];
@@ -102,27 +104,27 @@ public class HealthSnakeVictoryScene extends Scene {
         foodSize = new float[foodCount];
         foodRotation = new float[foodCount];
         foodRotationSpeed = new float[foodCount];
-        
+
         initializeParticles();
         initializeFood();
-        
+
         // Select a random victory message
         victoryMessage = victoryMessages[MathUtils.random(victoryMessages.length - 1)];
     }
-    
+
     private void initializeParticles() {
         for (int i = 0; i < particleCount; i++) {
             resetParticle(i);
         }
     }
-    
+
     private void resetParticle(int i) {
         float centerX = MathUtils.random(Gdx.graphics.getWidth() * 0.2f, Gdx.graphics.getWidth() * 0.8f);
         float centerY = MathUtils.random(Gdx.graphics.getHeight() * 0.2f, Gdx.graphics.getHeight() * 0.8f);
-        
+
         float angle = MathUtils.random(MathUtils.PI2);
         float speed = MathUtils.random(50f, 150f);
-        
+
         particleX[i] = centerX;
         particleY[i] = centerY;
         particleSpeedX[i] = MathUtils.cos(angle) * speed;
@@ -130,7 +132,7 @@ public class HealthSnakeVictoryScene extends Scene {
         particleSize[i] = MathUtils.random(2f, 6f);
         particleAlpha[i] = 1.0f;
         particleLifetime[i] = MathUtils.random(0.5f, 2.0f);
-        
+
         // Random vibrant colors
         particleColor[i] = new Color(
             MathUtils.random(0.5f, 1.0f),
@@ -139,7 +141,7 @@ public class HealthSnakeVictoryScene extends Scene {
             1.0f
         );
     }
-    
+
     private void initializeFood() {
         for (int i = 0; i < foodCount; i++) {
             foodX[i] = MathUtils.random(0, Gdx.graphics.getWidth());
@@ -159,24 +161,24 @@ public class HealthSnakeVictoryScene extends Scene {
             victoryTexture = new Texture(Gdx.files.internal("victory.png"));
             trophyTexture = new Texture(Gdx.files.internal("victory.png"));
             healthyFoodTexture = new Texture(Gdx.files.internal("healthy_food.png"));
-            
+
             System.out.println("[HealthSnakeVictoryScene] Textures loaded successfully.");
         } catch (Exception e) {
             System.err.println("[HealthSnakeVictoryScene] Error loading textures: " + e.getMessage());
             // Use placeholder handling if textures fail to load
         }
-        
+
         // Play victory sound
-        IOManager.getInstance().getAudio().stopMusic();
-        IOManager.getInstance().getAudio().playSound("victory.mp3");
-        
+        ioManager.getAudio().stopMusic();
+        ioManager.getAudio().playSound("victory.mp3");
+
         // Start victory music after a delay
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
                 try {
                     Thread.sleep(1500); // Wait 1.5 seconds
-                    // IOManager.getInstance().getAudio().playMusic("victory_music.mp3");
+                    // ioManager.getAudio().playMusic("victory_music.mp3");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -187,12 +189,12 @@ public class HealthSnakeVictoryScene extends Scene {
     @Override
     public void update(float deltaTime) {
         timeElapsed += deltaTime;
-        
+
         // Trigger new fireworks occasionally
         if (MathUtils.random() < 0.05f) {
             float centerX = MathUtils.random(Gdx.graphics.getWidth() * 0.2f, Gdx.graphics.getWidth() * 0.8f);
             float centerY = MathUtils.random(Gdx.graphics.getHeight() * 0.2f, Gdx.graphics.getHeight() * 0.8f);
-            
+
             // Create a burst of particles at this location
             Color burstColor = new Color(
                 MathUtils.random(0.5f, 1.0f),
@@ -200,12 +202,12 @@ public class HealthSnakeVictoryScene extends Scene {
                 MathUtils.random(0.5f, 1.0f),
                 1.0f
             );
-            
+
             for (int i = 0; i < particleCount; i++) {
                 if (particleAlpha[i] <= 0.1f) { // Reuse "dead" particles
                     float angle = MathUtils.random(MathUtils.PI2);
                     float speed = MathUtils.random(50f, 250f);
-                    
+
                     particleX[i] = centerX;
                     particleY[i] = centerY;
                     particleSpeedX[i] = MathUtils.cos(angle) * speed;
@@ -217,72 +219,73 @@ public class HealthSnakeVictoryScene extends Scene {
                 }
             }
         }
-        
+
         // Update particles
         for (int i = 0; i < particleCount; i++) {
             if (particleAlpha[i] > 0.1f) {
                 particleX[i] += particleSpeedX[i] * deltaTime;
                 particleY[i] += particleSpeedY[i] * deltaTime;
                 particleSpeedY[i] -= 50 * deltaTime; // Gravity effect
-                
+
                 // Fade out based on lifetime
                 particleAlpha[i] -= deltaTime / particleLifetime[i];
                 if (particleAlpha[i] < 0) particleAlpha[i] = 0;
             }
         }
-        
+
         // Update floating food
         for (int i = 0; i < foodCount; i++) {
             foodX[i] += foodSpeedX[i] * deltaTime;
             foodY[i] += foodSpeedY[i] * deltaTime;
             foodRotation[i] += foodRotationSpeed[i] * deltaTime;
-            
+
             // Wrap around screen
             if (foodX[i] < -foodSize[i]) foodX[i] = Gdx.graphics.getWidth() + foodSize[i];
             if (foodX[i] > Gdx.graphics.getWidth() + foodSize[i]) foodX[i] = -foodSize[i];
             if (foodY[i] < -foodSize[i]) foodY[i] = Gdx.graphics.getHeight() + foodSize[i];
             if (foodY[i] > Gdx.graphics.getHeight() + foodSize[i]) foodY[i] = -foodSize[i];
         }
-        
+
         // Menu navigation
-        if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.UP)) {
+        if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.UP)) {
             selectedItem = (selectedItem - 1 + menuItems.length) % menuItems.length;
-            IOManager.getInstance().getAudio().playSound("menu_move.mp3");
-        } else if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.DOWN)) {
+            ioManager.getAudio().playSound("menu_move.mp3");
+        } else if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.DOWN)) {
             selectedItem = (selectedItem + 1) % menuItems.length;
-            IOManager.getInstance().getAudio().playSound("menu_move.mp3");
+            ioManager.getAudio().playSound("menu_move.mp3");
         }
-        
+
         // Menu selection
-        if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
+        if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
             handleMenuSelection();
         }
     }
-    
+
     private void handleMenuSelection() {
-        IOManager.getInstance().getAudio().playSound("menu_select.mp3");
-        
+        ioManager.getAudio().playSound("menu_select.mp3");
+
         switch (selectedItem) {
             case 0: // Play Again
                 System.out.println("[HealthSnakeVictoryScene] Starting new game...");
-                IOManager.getInstance().getAudio().stopMusic();
-                
+                ioManager.getAudio().stopMusic();
+
                 sceneManager.changeScene(
                     new HealthSnakeGameScene(
                         batch,
                         entityManager,
                         movementManager,
                         sceneManager.getWorld(),
-                        sceneManager
-                    ), 
+                        sceneManager,
+                        ioManager
+                    ),
                     GameState.RUNNING
                 );
                 break;
-                
+
             case 1: // Next Level (could be implemented in future)
                 System.out.println("[HealthSnakeVictoryScene] Next level not implemented yet, starting a new game...");
-                IOManager.getInstance().getAudio().stopMusic();
-                
+                ioManager.getAudio().stopMusic();
+
                 // For now, just start a new game with potentially different settings
                 // This could be expanded with level progression in the future
                 sceneManager.changeScene(
@@ -291,27 +294,29 @@ public class HealthSnakeVictoryScene extends Scene {
                         entityManager,
                         movementManager,
                         sceneManager.getWorld(),
-                        sceneManager
-                    ), 
+                        sceneManager,
+                        ioManager
+                    ),
                     GameState.RUNNING
                 );
                 break;
-                
+
             case 2: // Main Menu
                 System.out.println("[HealthSnakeVictoryScene] Returning to main menu...");
-                IOManager.getInstance().getAudio().stopMusic();
-                
+                ioManager.getAudio().stopMusic();
+
                 sceneManager.changeScene(
                     new HealthSnakeMenuScene(
                         batch,
                         sceneManager,
                         entityManager,
-                        movementManager
-                    ), 
+                        movementManager,
+                        ioManager
+                    ),
                     GameState.MAIN_MENU
                 );
                 break;
-                
+
             case 3: // Exit Game
                 System.out.println("[HealthSnakeVictoryScene] Exiting game...");
                 Gdx.app.exit();
@@ -322,14 +327,14 @@ public class HealthSnakeVictoryScene extends Scene {
     @Override
     public void render(SpriteBatch batch) {
         batch.begin();
-        
+
         // Draw background with a golden tint for victory
         if (backgroundTexture != null) {
             batch.setColor(1f, 0.9f, 0.6f, 1f);
             batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             batch.setColor(Color.WHITE);
         }
-        
+
         // Draw floating food
         if (healthyFoodTexture != null) {
             for (int i = 0; i < foodCount; i++) {
@@ -350,14 +355,14 @@ public class HealthSnakeVictoryScene extends Scene {
                 );
             }
         }
-        
+
         // Draw firework particles
         for (int i = 0; i < particleCount; i++) {
             if (particleAlpha[i] > 0.1f) {
                 Color color = particleColor[i].cpy();
                 color.a = particleAlpha[i];
                 batch.setColor(color);
-                
+
                 batch.draw(
                     healthyFoodTexture,  // Using food texture as particle
                     particleX[i] - particleSize[i]/2,
@@ -368,14 +373,14 @@ public class HealthSnakeVictoryScene extends Scene {
             }
         }
         batch.setColor(Color.WHITE);
-        
+
         // Draw victory text with animation
         if (victoryTexture != null) {
             // Pulsating scale effect
             float scale = 1.0f + 0.1f * (float)Math.sin(timeElapsed * 3);
             float width = victoryTexture.getWidth() * scale;
             float height = victoryTexture.getHeight() * scale;
-            
+
             batch.draw(
                 victoryTexture,
                 (Gdx.graphics.getWidth() - width) / 2,
@@ -384,16 +389,16 @@ public class HealthSnakeVictoryScene extends Scene {
                 height
             );
         }
-        
+
         // Draw trophy
         if (trophyTexture != null) {
             float trophySize = 100;
             float trophyX = Gdx.graphics.getWidth() / 2 - trophySize / 2;
             float trophyY = Gdx.graphics.getHeight() / 2 + 20;
-            
+
             // Make the trophy float up and down
             trophyY += Math.sin(timeElapsed * 2) * 10;
-            
+
             batch.draw(
                 trophyTexture,
                 trophyX,
@@ -402,7 +407,7 @@ public class HealthSnakeVictoryScene extends Scene {
                 trophySize
             );
         }
-        
+
         // Draw victory message
         font.getData().setScale(1.8f);
         font.setColor(1f, 0.8f, 0.2f, 1f);
@@ -413,11 +418,11 @@ public class HealthSnakeVictoryScene extends Scene {
             (Gdx.graphics.getWidth() - messageWidth) / 2,
             Gdx.graphics.getHeight() - 150
         );
-        
+
         // Draw statistics
         font.getData().setScale(1.5f);
         font.setColor(Color.WHITE);
-        
+
         String scoreText = "Final Score: " + finalScore;
         float scoreWidth = font.draw(batch, scoreText, 0, 0).width;
         font.draw(
@@ -426,7 +431,7 @@ public class HealthSnakeVictoryScene extends Scene {
             (Gdx.graphics.getWidth() - scoreWidth) / 2,
             Gdx.graphics.getHeight() / 2 - 20
         );
-        
+
         String lengthText = "Snake Length: " + snakeLength;
         float lengthWidth = font.draw(batch, lengthText, 0, 0).width;
         font.draw(
@@ -435,35 +440,35 @@ public class HealthSnakeVictoryScene extends Scene {
             (Gdx.graphics.getWidth() - lengthWidth) / 2,
             Gdx.graphics.getHeight() / 2 - 60
         );
-        
+
         // Draw menu items
         font.getData().setScale(1.5f);
         float menuY = Gdx.graphics.getHeight() / 2 - 130;
         float menuSpacing = 50;
-        
+
         for (int i = 0; i < menuItems.length; i++) {
             // Highlight selected item
             if (i == selectedItem) {
                 // Pulsing effect for selected item
                 float pulse = (float) Math.sin(timeElapsed * 5) * 0.2f + 0.8f;
                 font.setColor(1f, pulse, 0.2f, 1f);
-                font.draw(batch, "> " + menuItems[i] + " <", 
+                font.draw(batch, "> " + menuItems[i] + " <",
                         Gdx.graphics.getWidth() / 2 - 150,
                         menuY - i * menuSpacing);
                 font.setColor(Color.WHITE); // Reset color
             } else {
-                font.draw(batch, menuItems[i], 
+                font.draw(batch, menuItems[i],
                         Gdx.graphics.getWidth() / 2 - 100,
                         menuY - i * menuSpacing);
             }
         }
-        
+
         // Draw controls hint
         font.getData().setScale(1.0f);
-        font.draw(batch, "Arrow Keys: Navigate | Enter: Select", 
+        font.draw(batch, "Arrow Keys: Navigate | Enter: Select",
                 Gdx.graphics.getWidth() / 2 - 180,
                 50);
-        
+
         batch.end();
     }
 

@@ -49,7 +49,8 @@ public class GameMaster extends ApplicationAdapter {
                 batch,
                 sceneManager,
                 entityManager,
-                movementManager),
+                movementManager,
+                ioManager),
             GameState.MAIN_MENU);
     }
 
