@@ -8,9 +8,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.math.MathUtils;
 
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
@@ -35,9 +35,14 @@ public class HealthSnakeGameScene extends Scene {
     private Array<EnemySnake> enemies;
     private Array<FoodEntity> foods;
     
+    // Infinite world parameters
+    private float worldWidth = 2000; // Virtual world width
+    private float worldHeight = 2000; // Virtual world height
+    private Vector2 cameraOffset = new Vector2(0, 0); // Camera offset from player
+    
     private float foodSpawnTimer = 0;
     private float foodSpawnInterval = 2f; // Seconds between food spawns
-    private int maxFood = 15; // Maximum food items on screen
+    private int maxFood = 30; // Maximum food items in the world
     
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
@@ -67,9 +72,13 @@ public class HealthSnakeGameScene extends Scene {
     
     @Override
     public void initialize() {
-        System.out.println("[HealthSnakeGameScene] Initializing...");
+        System.out.println("[HealthSnakeGameScene] Initializing infinite world...");
         
         entityManager.clearEntities();
+        
+        // Stop any previous music and start game music
+        IOManager.getInstance().getAudio().stopMusic();
+        IOManager.getInstance().getAudio().playMusic("game_music.mp3");
         
         // Load textures
         try {
@@ -82,36 +91,89 @@ public class HealthSnakeGameScene extends Scene {
             // Fallback or placeholder textures could be used here
         }
         
-        // Create player in the center of the screen
+        // Create player in the center of the world
         player = new SnakePlayer("Player", 
-                            Gdx.graphics.getWidth() / 2f, 
-                            Gdx.graphics.getHeight() / 2f,
+                            worldWidth / 2f, 
+                            worldHeight / 2f,
                             "snake_head.png", 
                             "snake_body.png");
         entityManager.addEntity(player);
         
-        // Create enemy snakes
-        for (int i = 0; i < 5; i++) {
-            EnemySnake enemy = EnemySnake.createRandomEnemy(i);
-            enemies.add(enemy);
-            entityManager.addEntity(enemy);
+        // Create enemy snakes distributed throughout the world
+        for (int i = 0; i < 10; i++) {
+            createRandomEnemyInWorld(i);
         }
         
-        // Initial food items
-        for (int i = 0; i < 10; i++) {
-            spawnFood();
+        // Initial food items scattered around the world
+        for (int i = 0; i < 20; i++) {
+            spawnFoodInWorld();
         }
         
         gameOver = false;
         playerWon = false;
+        
+        // Reset camera offset to center on player initially
+        updateCameraPosition();
     }
     
-    private void spawnFood() {
+    private void createRandomEnemyInWorld(int idNumber) {
+        // Create enemy away from player
+        float x, y;
+        do {
+            x = MathUtils.random(50, worldWidth - 50);
+            y = MathUtils.random(50, worldHeight - 50);
+        } while (Vector2.dst(x, y, player.getPosition().x, player.getPosition().y) < 300);
+        
+        // Position the enemy on the map
+        EnemySnake enemy = new EnemySnake(
+            "EnemySnake_" + idNumber, 
+            x, y, 
+            "enemy_head.png", 
+            "enemy_body.png", 
+            MathUtils.random(5, 15)
+        );
+        
+        enemies.add(enemy);
+        entityManager.addEntity(enemy);
+    }
+    
+    private void spawnFoodInWorld() {
+        if (foods.size >= maxFood) return;
+        
+        // Position food randomly across the map
+        float x = MathUtils.random(50, worldWidth - 50);
+        float y = MathUtils.random(50, worldHeight - 50);
+        
         // 70% chance for healthy food, 30% chance for unhealthy
         boolean isHealthy = MathUtils.randomBoolean(0.7f);
-        FoodEntity food = FoodEntity.createRandomFood(isHealthy);
+        
+        String texturePath = isHealthy ? "healthy_food.png" : "unhealthy_food.png";
+        String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
+        
+        FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
         foods.add(food);
         entityManager.addEntity(food);
+    }
+    
+    private void updateCameraPosition() {
+        // Update camera to follow player
+        Vector2 playerPos = player.getPosition();
+        
+        // Calculate screen center
+        float screenCenterX = Gdx.graphics.getWidth() / 2f;
+        float screenCenterY = Gdx.graphics.getHeight() / 2f;
+        
+        // Set camera offset so player is at screen center
+        cameraOffset.x = playerPos.x - screenCenterX;
+        cameraOffset.y = playerPos.y - screenCenterY;
+    }
+    
+    // Convert a world position to screen position
+    private Vector2 worldToScreen(float worldX, float worldY) {
+        return new Vector2(
+            worldX - cameraOffset.x,
+            worldY - cameraOffset.y
+        );
     }
     
     @Override
@@ -156,9 +218,12 @@ public class HealthSnakeGameScene extends Scene {
         // Food spawn timer
         foodSpawnTimer += deltaTime;
         if (foodSpawnTimer >= foodSpawnInterval && foods.size < maxFood) {
-            spawnFood();
+            spawnFoodInWorld();
             foodSpawnTimer = 0;
         }
+        
+        // Check for food that is out of the visible area and reposition it
+        repositionOffscreenFood();
         
         // Check collisions with food
         Rectangle playerBounds = player.getHeadBounds();
@@ -204,30 +269,148 @@ public class HealthSnakeGameScene extends Scene {
             }
         }
         
+        // Handle world wrapping for enemies that move off-screen
+        for (EnemySnake enemy : enemies) {
+            Vector2 pos = enemy.getPosition();
+            
+            // If enemy is far from player (beyond the visible area + buffer), reposition it
+            if (Vector2.dst(pos.x, pos.y, player.getPosition().x, player.getPosition().y) > 1500) {
+                repositionEnemyNearPlayer(enemy);
+            }
+        }
+        
         // Update all entities
         player.update(deltaTime);
         for (EnemySnake enemy : enemies) {
             enemy.update(deltaTime);
         }
+        
+        // Update camera position to follow player
+        updateCameraPosition();
+    }
+    
+    private void repositionOffscreenFood() {
+        Vector2 playerPos = player.getPosition();
+        float visibleRange = 1000; // How far from player food is considered "in range"
+        
+        for (FoodEntity food : foods) {
+            Vector2 foodPos = food.getPosition();
+            
+            // If food is too far from player, remove it and spawn a new one
+            if (Vector2.dst(foodPos.x, foodPos.y, playerPos.x, playerPos.y) > visibleRange) {
+                // Remove this food
+                foods.removeValue(food, true);
+                entityManager.removeEntity(food.getEntityID());
+                
+                // Spawn a new one near the player
+                spawnFoodNearPlayer();
+                
+                // No need to continue checking this food
+                break;
+            }
+        }
+    }
+    
+    private void spawnFoodNearPlayer() {
+        Vector2 playerPos = player.getPosition();
+        float spawnDistance = MathUtils.random(300, 800);
+        float angle = MathUtils.random(MathUtils.PI2);
+        
+        float x = playerPos.x + MathUtils.cos(angle) * spawnDistance;
+        float y = playerPos.y + MathUtils.sin(angle) * spawnDistance;
+        
+        // Keep coordinates within world bounds
+        x = MathUtils.clamp(x, 50, worldWidth - 50);
+        y = MathUtils.clamp(y, 50, worldHeight - 50);
+        
+        // 70% chance for healthy food, 30% chance for unhealthy
+        boolean isHealthy = MathUtils.randomBoolean(0.7f);
+        
+        String texturePath = isHealthy ? "healthy_food.png" : "unhealthy_food.png";
+        String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
+        
+        FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
+        foods.add(food);
+        entityManager.addEntity(food);
+    }
+    
+    private void repositionEnemyNearPlayer(EnemySnake enemy) {
+        Vector2 playerPos = player.getPosition();
+        float spawnDistance = MathUtils.random(800, 1200);
+        float angle = MathUtils.random(MathUtils.PI2);
+        
+        float x = playerPos.x + MathUtils.cos(angle) * spawnDistance;
+        float y = playerPos.y + MathUtils.sin(angle) * spawnDistance;
+        
+        // Keep coordinates within world bounds
+        x = MathUtils.clamp(x, 50, worldWidth - 50);
+        y = MathUtils.clamp(y, 50, worldHeight - 50);
+        
+        enemy.setPosition(x, y);
     }
     
     @Override
     public void render(SpriteBatch batch) {
-        // Draw background
+        // Draw tiled background
         batch.begin();
         if (backgroundTexture != null) {
-            batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            // Calculate how many tiles we need to cover the screen
+            int bgWidth = backgroundTexture.getWidth();
+            int bgHeight = backgroundTexture.getHeight();
+            
+            // Calculate starting position based on camera offset
+            float startX = -(cameraOffset.x % bgWidth);
+            if (startX > 0) startX -= bgWidth;
+            
+            float startY = -(cameraOffset.y % bgHeight);
+            if (startY > 0) startY -= bgHeight;
+            
+            // Draw background tiles
+            for (float x = startX; x < Gdx.graphics.getWidth(); x += bgWidth) {
+                for (float y = startY; y < Gdx.graphics.getHeight(); y += bgHeight) {
+                    batch.draw(backgroundTexture, x, y);
+                }
+            }
         }
         
-        // Draw all entities
+        // Draw food entities
         for (FoodEntity food : foods) {
-            food.render(batch);
+            Vector2 screenPos = worldToScreen(food.getPosition().x, food.getPosition().y);
+            
+            // Only draw if on screen
+            if (screenPos.x >= -50 && screenPos.x <= Gdx.graphics.getWidth() + 50 &&
+                screenPos.y >= -50 && screenPos.y <= Gdx.graphics.getHeight() + 50) {
+                
+                // We need to draw the food at its screen position
+                float origX = food.getPosition().x;
+                float origY = food.getPosition().y;
+                
+                // Temporarily set position to screen coordinates for rendering
+                food.setPosition(screenPos.x, screenPos.y);
+                food.render(batch);
+                
+                // Restore original world position
+                food.setPosition(origX, origY);
+            }
         }
         
+        // Draw enemy snakes
         for (EnemySnake enemy : enemies) {
-            enemy.render(batch);
+            Vector2 screenPos = worldToScreen(enemy.getPosition().x, enemy.getPosition().y);
+            
+            // Only draw if on screen (use a larger margin for larger entities)
+            if (screenPos.x >= -100 && screenPos.x <= Gdx.graphics.getWidth() + 100 &&
+                screenPos.y >= -100 && screenPos.y <= Gdx.graphics.getHeight() + 100) {
+                
+                // We need to adjust the enemy's position for rendering
+                Vector2 origPos = enemy.getPosition();
+                
+                // Draw enemy at screen position
+                enemy.renderAtPosition(batch, screenPos.x, screenPos.y);
+            }
         }
         
+        // Draw player (always centered)
         player.render(batch);
         
         batch.end();

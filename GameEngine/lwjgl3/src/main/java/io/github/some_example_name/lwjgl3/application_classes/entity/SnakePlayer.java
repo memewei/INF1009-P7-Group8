@@ -33,6 +33,9 @@ public class SnakePlayer extends MovableEntity {
     private float segmentSpacing = 15f; // distance between segments
     private float bodySize = 20f; // size of body segments
     
+    // For infinite world, we center the player on screen and move the world
+    private boolean centeredOnScreen = true;
+    
     public SnakePlayer(String entityName, float positionX, float positionY, String headTexturePath, String bodyTexturePath) {
         super(entityName, positionX, positionY, headTexturePath);
         this.headTexture = new Texture(Gdx.files.internal(headTexturePath));
@@ -72,10 +75,13 @@ public class SnakePlayer extends MovableEntity {
         positionX += moveX;
         positionY += moveY;
         
-        // Keep head within screen bounds
-        float halfSize = bodySize / 2;
-        positionX = MathUtils.clamp(positionX, halfSize, Gdx.graphics.getWidth() - halfSize);
-        positionY = MathUtils.clamp(positionY, halfSize, Gdx.graphics.getHeight() - halfSize);
+        // If using infinite world, don't clamp the position
+        if (!centeredOnScreen) {
+            // Keep head within screen bounds
+            float halfSize = bodySize / 2;
+            positionX = MathUtils.clamp(positionX, halfSize, Gdx.graphics.getWidth() - halfSize);
+            positionY = MathUtils.clamp(positionY, halfSize, Gdx.graphics.getHeight() - halfSize);
+        }
         
         // Update body segments
         Vector2 prevPos = prevHeadPos;
@@ -99,20 +105,43 @@ public class SnakePlayer extends MovableEntity {
     
     @Override
     public void render(SpriteBatch batch) {
+        float screenX, screenY;
+        
+        if (centeredOnScreen) {
+            // For infinite world, the player is centered on screen
+            screenX = Gdx.graphics.getWidth() / 2f;
+            screenY = Gdx.graphics.getHeight() / 2f;
+        } else {
+            // For bounded world, use actual position
+            screenX = positionX;
+            screenY = positionY;
+        }
+        
         // Draw body segments (in reverse order so head appears on top)
         for (int i = bodySegments.size - 1; i >= 0; i--) {
             SnakeSegment segment = bodySegments.get(i);
+            
+            float segScreenX, segScreenY;
+            if (centeredOnScreen) {
+                // Calculate screen position relative to player-centered view
+                segScreenX = screenX + (segment.x - positionX);
+                segScreenY = screenY + (segment.y - positionY);
+            } else {
+                segScreenX = segment.x;
+                segScreenY = segment.y;
+            }
+            
             batch.draw(bodyTexture, 
-                    segment.x - segment.size/2, 
-                    segment.y - segment.size/2, 
+                    segScreenX - segment.size/2, 
+                    segScreenY - segment.size/2, 
                     segment.size, 
                     segment.size);
         }
         
         // Draw head
         batch.draw(headTexture, 
-                positionX - bodySize/2, 
-                positionY - bodySize/2, 
+                screenX - bodySize/2, 
+                screenY - bodySize/2, 
                 bodySize/2, // origin x
                 bodySize/2, // origin y
                 bodySize, 
@@ -215,6 +244,20 @@ public class SnakePlayer extends MovableEntity {
     
     public int getBodySize() {
         return bodySegments.size;
+    }
+    
+    /**
+     * Sets whether the player is centered on screen (infinite world) or not
+     */
+    public void setCenteredOnScreen(boolean centered) {
+        this.centeredOnScreen = centered;
+    }
+    
+    /**
+     * Checks if the player is using centered mode for infinite world
+     */
+    public boolean isCenteredOnScreen() {
+        return centeredOnScreen;
     }
     
     @Override

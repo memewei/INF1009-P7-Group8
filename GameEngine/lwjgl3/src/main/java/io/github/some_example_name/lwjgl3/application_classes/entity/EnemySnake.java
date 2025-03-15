@@ -94,9 +94,6 @@ public class EnemySnake extends Entity implements Collidable {
         positionX += moveX;
         positionY += moveY;
         
-        // Handle screen wrapping
-        wrapPosition();
-        
         // Update body segments
         Vector2 prevPos = prevHeadPos;
         for (Vector2 segment : bodySegments) {
@@ -116,14 +113,6 @@ public class EnemySnake extends Entity implements Collidable {
         }
     }
     
-    // Wrap enemy snake position around screen edges
-    private void wrapPosition() {
-        if (positionX < 0) positionX = Gdx.graphics.getWidth();
-        if (positionX > Gdx.graphics.getWidth()) positionX = 0;
-        if (positionY < 0) positionY = Gdx.graphics.getHeight();
-        if (positionY > Gdx.graphics.getHeight()) positionY = 0;
-    }
-    
     @Override
     public void render(SpriteBatch batch) {
         // Draw body segments
@@ -140,6 +129,40 @@ public class EnemySnake extends Entity implements Collidable {
         batch.draw(headTexture, 
                 positionX - bodySize/2, 
                 positionY - bodySize/2, 
+                bodySize/2, // origin x
+                bodySize/2, // origin y
+                bodySize, 
+                bodySize, 
+                1, 1, // scale x, y
+                direction * MathUtils.radiansToDegrees, // rotation
+                0, 0, // srcX, srcY
+                headTexture.getWidth(), 
+                headTexture.getHeight(), 
+                false, false); // flip x, y
+    }
+    
+    /**
+     * Renders the snake at a specific screen position (for infinite world scrolling)
+     */
+    public void renderAtPosition(SpriteBatch batch, float screenX, float screenY) {
+        // Calculate the offset from the snake's world position to the screen position
+        float offsetX = screenX - positionX;
+        float offsetY = screenY - positionY;
+        
+        // Draw body segments at offset positions
+        for (int i = bodySegments.size - 1; i >= 0; i--) {
+            Vector2 segment = bodySegments.get(i);
+            batch.draw(bodyTexture, 
+                    segment.x + offsetX - bodySize/2, 
+                    segment.y + offsetY - bodySize/2, 
+                    bodySize, 
+                    bodySize);
+        }
+        
+        // Draw head at offset position
+        batch.draw(headTexture, 
+                screenX - bodySize/2, 
+                screenY - bodySize/2, 
                 bodySize/2, // origin x
                 bodySize/2, // origin y
                 bodySize, 
