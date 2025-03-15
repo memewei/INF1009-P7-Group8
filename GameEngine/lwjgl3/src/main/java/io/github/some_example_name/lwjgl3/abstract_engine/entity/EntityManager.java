@@ -1,5 +1,9 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.entity;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -7,10 +11,6 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class EntityManager {
     private final World world;
@@ -21,7 +21,7 @@ public class EntityManager {
         this.entityMap = new HashMap<>();
     }
 
-     public Collection<Entity> getAllEntities() {
+    public Collection<Entity> getAllEntities() {
         return entityMap.values();
     }
 
