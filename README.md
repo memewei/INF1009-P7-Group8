@@ -32,3 +32,25 @@ Music:
 
 Place all these files in the assets folder:
 GameEngine/assets/
+
+Main Gameplay Images:
+
+snake_head.png - Player snake head (32x32 pixels recommended)
+snake_body.png - Player snake body segment (24x24 pixels recommended)
+enemy_head.png - Enemy snake head (32x32 pixels recommended)
+enemy_body.png - Enemy snake body segment (24x24 pixels recommended)
+healthy_food.png - Healthy food item like fruits/vegetables (24x24 pixels)
+unhealthy_food.png - Unhealthy food item like junk food (32x32 pixels - slightly larger)
+
+Scene Backgrounds:
+
+snake_background.png - Game play background (1280x720 pixels)
+snake_menu_bg.png - Menu background (1280x720 pixels)
+pause_menu.png - Semi-transparent dark overlay (1280x720 pixels)
+
+UI Elements:
+
+health_snake_title.png - Game title logo (400x100 pixels suggested)
+instructions.png - How to play screen (600x400 pixels)
+game_over.png - Game over message (400x200 pixels)
+victory.png - Victory message (400x200 pixels)
