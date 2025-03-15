@@ -20,22 +20,23 @@ public class HealthSnakeDeathScene extends Scene {
     private Texture gameOverTexture;
     private Texture snakeSkullTexture;
     private Texture unhealthyFoodTexture;
-    
+
     private SpriteBatch batch;
     private SceneManager sceneManager;
     private EntityManager entityManager;
     private MovementManager movementManager;
+    private IOManager ioManager;
     private BitmapFont font;
-    
+
     private String[] menuItems = {
         "Try Again",
         "Main Menu",
         "Exit Game"
     };
-    
+
     private int selectedItem = 0;
     private float timeElapsed = 0;
-    
+
     // For particle effects
     private float[] particleX;
     private float[] particleY;
@@ -46,7 +47,7 @@ public class HealthSnakeDeathScene extends Scene {
     private float[] particleRotationSpeed;
     private boolean[] particleIsUnhealthy;
     private final int particleCount = 30;
-    
+
     private String deathMessage;
     private String[] deathMessages = {
         "Too many unhealthy snacks!",
@@ -55,24 +56,25 @@ public class HealthSnakeDeathScene extends Scene {
         "Game Over - Try to eat more fruits!",
         "Your snake's diet was its downfall!"
     };
-    
+
     private final int finalScore;
     private final String deathCause;
 
-    public HealthSnakeDeathScene(SpriteBatch batch, SceneManager sceneManager, 
-                               EntityManager entityManager, MovementManager movementManager,
+    public HealthSnakeDeathScene(SpriteBatch batch, SceneManager sceneManager,
+                               EntityManager entityManager, MovementManager movementManager, IOManager ioManager,
                                int finalScore, String deathCause) {
         this.batch = batch;
         this.sceneManager = sceneManager;
         this.entityManager = entityManager;
         this.movementManager = movementManager;
+        this.ioManager = ioManager;
         this.finalScore = finalScore;
         this.deathCause = deathCause;
-        
+
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         font.getData().setScale(1.5f);
-        
+
         // Initialize particle system
         particleX = new float[particleCount];
         particleY = new float[particleCount];
@@ -82,13 +84,13 @@ public class HealthSnakeDeathScene extends Scene {
         particleRotation = new float[particleCount];
         particleRotationSpeed = new float[particleCount];
         particleIsUnhealthy = new boolean[particleCount];
-        
+
         initializeParticles();
-        
+
         // Select a random death message
         deathMessage = deathMessages[MathUtils.random(deathMessages.length - 1)];
     }
-    
+
     private void initializeParticles() {
         for (int i = 0; i < particleCount; i++) {
             particleX[i] = MathUtils.random(0, Gdx.graphics.getWidth());
@@ -109,24 +111,24 @@ public class HealthSnakeDeathScene extends Scene {
             gameOverTexture = new Texture(Gdx.files.internal("game_over.png"));
             snakeSkullTexture = new Texture(Gdx.files.internal("snake_skull.png"));
             unhealthyFoodTexture = new Texture(Gdx.files.internal("unhealthy_food.png"));
-            
+
             System.out.println("[HealthSnakeDeathScene] Textures loaded successfully.");
         } catch (Exception e) {
             System.err.println("[HealthSnakeDeathScene] Error loading textures: " + e.getMessage());
             // Use placeholder handling if textures fail to load
         }
-        
+
         // Play death sound
-        IOManager.getInstance().getAudio().stopMusic();
-        IOManager.getInstance().getAudio().playSound("game_over.mp3");
-        
+        ioManager.getAudio().stopMusic();
+        ioManager.getAudio().playSound("game_over.mp3");
+
         // Start sad music after a delay
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
                 try {
                     Thread.sleep(1000); // Wait 1 second
-                    IOManager.getInstance().getAudio().playMusic("sad_music.mp3");
+                    ioManager.getAudio().playMusic("sad_music.mp3");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -137,70 +139,72 @@ public class HealthSnakeDeathScene extends Scene {
     @Override
     public void update(float deltaTime) {
         timeElapsed += deltaTime;
-        
+
         // Update particles
         for (int i = 0; i < particleCount; i++) {
             particleX[i] += particleSpeedX[i] * deltaTime;
             particleY[i] += particleSpeedY[i] * deltaTime;
             particleRotation[i] += particleRotationSpeed[i] * deltaTime;
-            
+
             // Wrap particles around screen
             if (particleX[i] < -particleSize[i]) particleX[i] = Gdx.graphics.getWidth() + particleSize[i];
             if (particleX[i] > Gdx.graphics.getWidth() + particleSize[i]) particleX[i] = -particleSize[i];
             if (particleY[i] < -particleSize[i]) particleY[i] = Gdx.graphics.getHeight() + particleSize[i];
             if (particleY[i] > Gdx.graphics.getHeight() + particleSize[i]) particleY[i] = -particleSize[i];
         }
-        
+
         // Menu navigation
-        if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.UP)) {
+        if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.UP)) {
             selectedItem = (selectedItem - 1 + menuItems.length) % menuItems.length;
-            IOManager.getInstance().getAudio().playSound("menu_move.mp3");
-        } else if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.DOWN)) {
+            ioManager.getAudio().playSound("menu_move.mp3");
+        } else if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.DOWN)) {
             selectedItem = (selectedItem + 1) % menuItems.length;
-            IOManager.getInstance().getAudio().playSound("menu_move.mp3");
+            ioManager.getAudio().playSound("menu_move.mp3");
         }
-        
+
         // Menu selection
-        if (IOManager.getInstance().getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
+        if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
             handleMenuSelection();
         }
     }
-    
+
     private void handleMenuSelection() {
-        IOManager.getInstance().getAudio().playSound("menu_select.mp3");
-        
+        ioManager.getAudio().playSound("menu_select.mp3");
+
         switch (selectedItem) {
             case 0: // Try Again
                 System.out.println("[HealthSnakeDeathScene] Restarting game...");
-                IOManager.getInstance().getAudio().stopMusic();
-                
+                ioManager.getAudio().stopMusic();
+
                 sceneManager.changeScene(
                     new HealthSnakeGameScene(
                         batch,
                         entityManager,
                         movementManager,
                         sceneManager.getWorld(),
-                        sceneManager
-                    ), 
+                        sceneManager,
+                        ioManager
+                    ),
                     GameState.RUNNING
                 );
                 break;
-                
+
             case 1: // Main Menu
                 System.out.println("[HealthSnakeDeathScene] Returning to main menu...");
-                IOManager.getInstance().getAudio().stopMusic();
-                
+                ioManager.getAudio().stopMusic();
+
                 sceneManager.changeScene(
                     new HealthSnakeMenuScene(
                         batch,
                         sceneManager,
                         entityManager,
-                        movementManager
-                    ), 
+                        movementManager,
+                        ioManager
+                    ),
                     GameState.MAIN_MENU
                 );
                 break;
-                
+
             case 2: // Exit Game
                 System.out.println("[HealthSnakeDeathScene] Exiting game...");
                 Gdx.app.exit();
@@ -211,7 +215,7 @@ public class HealthSnakeDeathScene extends Scene {
     @Override
     public void render(SpriteBatch batch) {
         batch.begin();
-        
+
         // Draw background
         if (backgroundTexture != null) {
             // Tint the background darker for death scene
@@ -219,7 +223,7 @@ public class HealthSnakeDeathScene extends Scene {
             batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             batch.setColor(Color.WHITE);
         }
-        
+
         // Draw particles (food items floating in background)
         for (int i = 0; i < particleCount; i++) {
             Texture particleTexture = particleIsUnhealthy[i] ? unhealthyFoodTexture : snakeSkullTexture;
@@ -241,7 +245,7 @@ public class HealthSnakeDeathScene extends Scene {
                 );
             }
         }
-        
+
         // Draw game over text
         if (gameOverTexture != null) {
             float scale = 0.8f + 0.2f * (float)Math.sin(timeElapsed * 2);
@@ -255,7 +259,7 @@ public class HealthSnakeDeathScene extends Scene {
                 height
             );
         }
-        
+
         // Draw death message
         font.getData().setScale(1.8f);
         float messageWidth = font.draw(batch, deathMessage, 0, 0).width;
@@ -266,7 +270,7 @@ public class HealthSnakeDeathScene extends Scene {
             (Gdx.graphics.getWidth() - messageWidth) / 2,
             Gdx.graphics.getHeight() - 150
         );
-        
+
         // Draw final score
         font.getData().setScale(1.5f);
         font.setColor(Color.WHITE);
@@ -278,7 +282,7 @@ public class HealthSnakeDeathScene extends Scene {
             (Gdx.graphics.getWidth() - scoreWidth) / 2,
             Gdx.graphics.getHeight() - 200
         );
-        
+
         // Draw death cause if provided
         if (deathCause != null && !deathCause.isEmpty()) {
             font.getData().setScale(1.2f);
@@ -290,35 +294,35 @@ public class HealthSnakeDeathScene extends Scene {
                 Gdx.graphics.getHeight() - 230
             );
         }
-        
+
         // Draw menu items
         font.getData().setScale(1.5f);
         float menuY = Gdx.graphics.getHeight() / 2 - 50;
         float menuSpacing = 50;
-        
+
         for (int i = 0; i < menuItems.length; i++) {
             // Highlight selected item
             if (i == selectedItem) {
                 // Pulsing effect for selected item
                 float pulse = (float) Math.sin(timeElapsed * 5) * 0.2f + 0.8f;
                 font.setColor(1f, pulse, pulse, 1f);
-                font.draw(batch, "> " + menuItems[i] + " <", 
+                font.draw(batch, "> " + menuItems[i] + " <",
                         Gdx.graphics.getWidth() / 2 - 150,
                         menuY - i * menuSpacing);
                 font.setColor(Color.WHITE); // Reset color
             } else {
-                font.draw(batch, menuItems[i], 
+                font.draw(batch, menuItems[i],
                         Gdx.graphics.getWidth() / 2 - 100,
                         menuY - i * menuSpacing);
             }
         }
-        
+
         // Draw controls hint
         font.getData().setScale(1.0f);
-        font.draw(batch, "Arrow Keys: Navigate | Enter: Select", 
+        font.draw(batch, "Arrow Keys: Navigate | Enter: Select",
                 Gdx.graphics.getWidth() / 2 - 180,
                 50);
-        
+
         batch.end();
     }
 

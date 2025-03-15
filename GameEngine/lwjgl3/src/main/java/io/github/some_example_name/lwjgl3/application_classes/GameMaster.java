@@ -22,32 +22,35 @@ public class GameMaster extends ApplicationAdapter {
     private World world;
     private SpriteBatch batch;
     private EntityManager entityManager;
+    private IOManager ioManager;
 
     public GameMaster() {
         Box2D.init();
         this.world = new World(new com.badlogic.gdx.math.Vector2(0, 0f), true);
         world.setContactListener(new Box2DCollisionListener());
 
+        ioManager = IOManager.getInstance();
         this.entityManager = new EntityManager(world);
-        this.movementManager = new MovementManager(world);
+        this.movementManager = new MovementManager(world,ioManager);
     }
 
     @Override
     public void create() {
         batch = new SpriteBatch();
 
-        // Ensure IOManager is initialized
-        IOManager.getInstance().init();
+        // Ensure IOManager is initialized after GDX initialized
+        ioManager.init();
 
         // Initialize scene manager
         sceneManager = new SceneManager(world);
-        
+
         // Load our health snake menu scene
         sceneManager.pushScene(new HealthSnakeMenuScene(
-                batch, 
-                sceneManager, 
-                entityManager, 
-                movementManager), 
+                batch,
+                sceneManager,
+                entityManager,
+                movementManager,
+                ioManager),
             GameState.MAIN_MENU);
     }
 
@@ -64,7 +67,7 @@ public class GameMaster extends ApplicationAdapter {
         // Scene updates and rendering are handled by the SceneManager
         sceneManager.update(deltaTime);
         sceneManager.render(batch);
-        
+
         // Show input feedback
         IOManager.getInstance().getDynamicInput().drawInputText();
 

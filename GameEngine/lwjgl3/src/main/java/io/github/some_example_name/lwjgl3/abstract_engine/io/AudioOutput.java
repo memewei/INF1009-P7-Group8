@@ -9,13 +9,15 @@ import java.util.Map;
 public class AudioOutput {
     private final Map<String, Sound> soundEffects = new HashMap<>();
     private Music backgroundMusic;
-    private float volume = 1.0f;
+    private Sound sound;
+    private float musicVolume = 1.0f;
+    private float soundVolume = 1.0f;
     private boolean isMusicPlaying = false; // track music state
 
     public void playSound(String file) {
-        Sound sound = soundEffects.computeIfAbsent(file, f -> Gdx.audio.newSound(Gdx.files.internal(f)));
+        sound = soundEffects.computeIfAbsent(file, f -> Gdx.audio.newSound(Gdx.files.internal(f)));
         sound.stop(); //stop sounds that are playing already so that sounds do not overlap
-        sound.play(volume);
+        sound.play(soundVolume);
     }
 
     public void playMusic(String file) {
@@ -32,7 +34,7 @@ public class AudioOutput {
         // load and start music file
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(file));
         backgroundMusic.setLooping(true);
-        backgroundMusic.setVolume(volume);
+        backgroundMusic.setVolume(musicVolume);
         backgroundMusic.play();
 
         // mark that the music is playing
@@ -46,11 +48,15 @@ public class AudioOutput {
         }
     }
 
-    public void setVolume(float v) {
-        volume = v;
+    public void setMusicVolume(float v) {
+        musicVolume = v;
         if (backgroundMusic != null) {
-            backgroundMusic.setVolume(volume);
+            backgroundMusic.setVolume(musicVolume);
         }
+    }
+
+    public void setSoundVolume(float v) {
+        soundVolume = v;
     }
 
     public void dispose() {
