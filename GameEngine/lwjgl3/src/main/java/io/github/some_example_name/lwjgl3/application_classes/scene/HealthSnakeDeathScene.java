@@ -71,9 +71,9 @@ public class HealthSnakeDeathScene extends Scene {
         this.finalScore = finalScore;
         this.deathCause = deathCause;
 
-        font = new BitmapFont();
+        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
         font.setColor(Color.WHITE);
-        font.getData().setScale(1.5f);
+        font.getData().setScale(0.3f);
 
         // Initialize particle system
         particleX = new float[particleCount];
@@ -261,7 +261,7 @@ public class HealthSnakeDeathScene extends Scene {
         }
 
         // Draw death message
-        font.getData().setScale(1.8f);
+        font.getData().setScale(0.3f);
         float messageWidth = font.draw(batch, deathMessage, 0, 0).width;
         font.setColor(1f, 0.3f, 0.3f, 1f);
         font.draw(
@@ -272,8 +272,8 @@ public class HealthSnakeDeathScene extends Scene {
         );
 
         // Draw final score
-        font.getData().setScale(1.5f);
-        font.setColor(Color.WHITE);
+        font.getData().setScale(0.3f);
+        font.setColor(1f, 1f, 1f, 1f);
         String scoreText = "Final Score: " + finalScore;
         float scoreWidth = font.draw(batch, scoreText, 0, 0).width;
         font.draw(
@@ -285,7 +285,7 @@ public class HealthSnakeDeathScene extends Scene {
 
         // Draw death cause if provided
         if (deathCause != null && !deathCause.isEmpty()) {
-            font.getData().setScale(1.2f);
+            font.getData().setScale(0.3f);
             float causeWidth = font.draw(batch, "Cause: " + deathCause, 0, 0).width;
             font.draw(
                 batch,
@@ -296,7 +296,7 @@ public class HealthSnakeDeathScene extends Scene {
         }
 
         // Draw menu items
-        font.getData().setScale(1.5f);
+        font.getData().setScale(0.3f);
         float menuY = Gdx.graphics.getHeight() / 2 - 50;
         float menuSpacing = 50;
 
@@ -318,9 +318,9 @@ public class HealthSnakeDeathScene extends Scene {
         }
 
         // Draw controls hint
-        font.getData().setScale(1.0f);
+        font.getData().setScale(0.3f);
         font.draw(batch, "Arrow Keys: Navigate | Enter: Select",
-                Gdx.graphics.getWidth() / 2 - 180,
+                Gdx.graphics.getWidth() / 2 - 225,
                 50);
 
         batch.end();

@@ -56,9 +56,9 @@ public class HealthSnakeMenuScene extends Scene {
         this.ioManager = ioManager;
         this.timeElapsed = 0;
 
-        font = new BitmapFont();
+        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
         font.setColor(Color.WHITE);
-        font.getData().setScale(2.0f);
+        font.getData().setScale(0.3f);
 
         // Initialize background animation arrays
         backgroundSnakes = new Array<MenuSnake>();
@@ -374,11 +374,10 @@ public class HealthSnakeMenuScene extends Scene {
             }
 
             // Draw controls hint
-            font.getData().setScale(1.0f);
+            font.getData().setScale(0.3f);
             font.draw(batch, "Arrow Keys: Navigate | Enter: Select",
-                    Gdx.graphics.getWidth() / 2 - 180,
+                    Gdx.graphics.getWidth() / 2 - 225,
                     50);
-            font.getData().setScale(2.0f);
         }
 
         batch.end();

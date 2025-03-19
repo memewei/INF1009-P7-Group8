@@ -59,9 +59,9 @@ public class HealthSnakeGameScene extends Scene {
         this.ioManager = ioManager;
 
         shapeRenderer = new ShapeRenderer();
-        font = new BitmapFont();
+        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
         font.setColor(Color.WHITE);
-        font.getData().setScale(1.5f);
+        font.getData().setScale(0.3f);
 
         enemies = new Array<EnemySnake>();
         foods = new Array<FoodEntity>();

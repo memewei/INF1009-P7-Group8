@@ -1,7 +1,7 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.io;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -49,8 +49,8 @@ public class DynamicInput extends InputAdapter {
        BitmapFont font;
 
        batch = new SpriteBatch();
-        font = new BitmapFont();
-        font.getData().setScale(1f);
+        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
+        font.getData().setScale(0.2f);
 
         String input = currentInput;
         if (!input.isEmpty()) {

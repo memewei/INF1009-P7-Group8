@@ -82,9 +82,9 @@ public class HealthSnakeVictoryScene extends Scene {
         this.finalScore = finalScore;
         this.snakeLength = snakeLength;
 
-        font = new BitmapFont();
+        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
         font.setColor(Color.WHITE);
-        font.getData().setScale(1.5f);
+        font.getData().setScale(0.3f);
 
         // Initialize firework particles
         particleX = new float[particleCount];
@@ -409,7 +409,7 @@ public class HealthSnakeVictoryScene extends Scene {
         }
 
         // Draw victory message
-        font.getData().setScale(1.8f);
+        font.getData().setScale(0.3f);
         font.setColor(1f, 0.8f, 0.2f, 1f);
         float messageWidth = font.draw(batch, victoryMessage, 0, 0).width;
         font.draw(
@@ -420,7 +420,7 @@ public class HealthSnakeVictoryScene extends Scene {
         );
 
         // Draw statistics
-        font.getData().setScale(1.5f);
+        font.getData().setScale(0.3f);
         font.setColor(Color.WHITE);
 
         String scoreText = "Final Score: " + finalScore;
@@ -442,7 +442,7 @@ public class HealthSnakeVictoryScene extends Scene {
         );
 
         // Draw menu items
-        font.getData().setScale(1.5f);
+        font.getData().setScale(0.3f);
         float menuY = Gdx.graphics.getHeight() / 2 - 130;
         float menuSpacing = 50;
 
@@ -464,9 +464,9 @@ public class HealthSnakeVictoryScene extends Scene {
         }
 
         // Draw controls hint
-        font.getData().setScale(1.0f);
+        font.getData().setScale(0.3f);
         font.draw(batch, "Arrow Keys: Navigate | Enter: Select",
-                Gdx.graphics.getWidth() / 2 - 180,
+                Gdx.graphics.getWidth() / 2 - 225,
                 50);
 
         batch.end();
