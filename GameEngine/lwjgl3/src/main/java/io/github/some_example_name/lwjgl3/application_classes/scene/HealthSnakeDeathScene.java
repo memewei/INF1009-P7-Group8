@@ -16,10 +16,11 @@ import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
 
 public class HealthSnakeDeathScene extends Scene {
+
     private Texture backgroundTexture;
     private Texture gameOverTexture;
     private Texture snakeSkullTexture;
-    private Texture unhealthyFoodTexture;
+    private Texture[] unhealthyFoodTextures;
 
     private SpriteBatch batch;
     private SceneManager sceneManager;
@@ -45,6 +46,7 @@ public class HealthSnakeDeathScene extends Scene {
     private float[] particleSize;
     private float[] particleRotation;
     private float[] particleRotationSpeed;
+    private int[] particleTextureIndex;
     private boolean[] particleIsUnhealthy;
     private final int particleCount = 30;
 
@@ -61,8 +63,8 @@ public class HealthSnakeDeathScene extends Scene {
     private final String deathCause;
 
     public HealthSnakeDeathScene(SpriteBatch batch, SceneManager sceneManager,
-                               EntityManager entityManager, MovementManager movementManager, IOManager ioManager,
-                               int finalScore, String deathCause) {
+            EntityManager entityManager, MovementManager movementManager, IOManager ioManager,
+            int finalScore, String deathCause) {
         this.batch = batch;
         this.sceneManager = sceneManager;
         this.entityManager = entityManager;
@@ -110,7 +112,17 @@ public class HealthSnakeDeathScene extends Scene {
             backgroundTexture = new Texture(Gdx.files.internal("snake_background.png"));
             gameOverTexture = new Texture(Gdx.files.internal("game_over.png"));
             snakeSkullTexture = new Texture(Gdx.files.internal("snake_skull.png"));
-            unhealthyFoodTexture = new Texture(Gdx.files.internal("unhealthy_food.png"));
+            unhealthyFoodTextures = new Texture[5];
+            for (int i = 0; i < 5; i++) {
+                unhealthyFoodTextures[i] = new Texture(Gdx.files.internal("unhealthy_" + (i + 1) + ".png"));
+            }
+
+            particleTextureIndex = new int[particleCount];
+            for (int i = 0; i < particleCount; i++) {
+                if (particleIsUnhealthy[i]) {
+                    particleTextureIndex[i] = MathUtils.random(unhealthyFoodTextures.length - 1);
+                }
+            }
 
             System.out.println("[HealthSnakeDeathScene] Textures loaded successfully.");
         } catch (Exception e) {
@@ -147,10 +159,18 @@ public class HealthSnakeDeathScene extends Scene {
             particleRotation[i] += particleRotationSpeed[i] * deltaTime;
 
             // Wrap particles around screen
-            if (particleX[i] < -particleSize[i]) particleX[i] = Gdx.graphics.getWidth() + particleSize[i];
-            if (particleX[i] > Gdx.graphics.getWidth() + particleSize[i]) particleX[i] = -particleSize[i];
-            if (particleY[i] < -particleSize[i]) particleY[i] = Gdx.graphics.getHeight() + particleSize[i];
-            if (particleY[i] > Gdx.graphics.getHeight() + particleSize[i]) particleY[i] = -particleSize[i];
+            if (particleX[i] < -particleSize[i]) {
+                particleX[i] = Gdx.graphics.getWidth() + particleSize[i];
+            }
+            if (particleX[i] > Gdx.graphics.getWidth() + particleSize[i]) {
+                particleX[i] = -particleSize[i];
+            }
+            if (particleY[i] < -particleSize[i]) {
+                particleY[i] = Gdx.graphics.getHeight() + particleSize[i];
+            }
+            if (particleY[i] > Gdx.graphics.getHeight() + particleSize[i]) {
+                particleY[i] = -particleSize[i];
+            }
         }
 
         // Menu navigation
@@ -177,15 +197,15 @@ public class HealthSnakeDeathScene extends Scene {
                 ioManager.getAudio().stopMusic();
 
                 sceneManager.changeScene(
-                    new HealthSnakeGameScene(
-                        batch,
-                        entityManager,
-                        movementManager,
-                        sceneManager.getWorld(),
-                        sceneManager,
-                        ioManager
-                    ),
-                    GameState.RUNNING
+                        new HealthSnakeGameScene(
+                                batch,
+                                entityManager,
+                                movementManager,
+                                sceneManager.getWorld(),
+                                sceneManager,
+                                ioManager
+                        ),
+                        GameState.RUNNING
                 );
                 break;
 
@@ -194,14 +214,14 @@ public class HealthSnakeDeathScene extends Scene {
                 ioManager.getAudio().stopMusic();
 
                 sceneManager.changeScene(
-                    new HealthSnakeMenuScene(
-                        batch,
-                        sceneManager,
-                        entityManager,
-                        movementManager,
-                        ioManager
-                    ),
-                    GameState.MAIN_MENU
+                        new HealthSnakeMenuScene(
+                                batch,
+                                sceneManager,
+                                entityManager,
+                                movementManager,
+                                ioManager
+                        ),
+                        GameState.MAIN_MENU
                 );
                 break;
 
@@ -226,37 +246,43 @@ public class HealthSnakeDeathScene extends Scene {
 
         // Draw particles (food items floating in background)
         for (int i = 0; i < particleCount; i++) {
-            Texture particleTexture = particleIsUnhealthy[i] ? unhealthyFoodTexture : snakeSkullTexture;
+            Texture particleTexture;
+            if (particleIsUnhealthy[i]) {
+                particleTexture = unhealthyFoodTextures[particleTextureIndex[i]];
+            } else {
+                particleTexture = snakeSkullTexture;
+            }
+
             if (particleTexture != null) {
                 batch.draw(
-                    particleTexture,
-                    particleX[i] - particleSize[i]/2,
-                    particleY[i] - particleSize[i]/2,
-                    particleSize[i]/2, // origin x
-                    particleSize[i]/2, // origin y
-                    particleSize[i],
-                    particleSize[i],
-                    1, 1, // scale
-                    particleRotation[i],
-                    0, 0, // src xy
-                    particleTexture.getWidth(),
-                    particleTexture.getHeight(),
-                    false, false // flip xy
+                        particleTexture,
+                        particleX[i] - particleSize[i] / 2,
+                        particleY[i] - particleSize[i] / 2,
+                        particleSize[i] / 2, // origin x
+                        particleSize[i] / 2, // origin y
+                        particleSize[i],
+                        particleSize[i],
+                        1, 1, // scale
+                        particleRotation[i],
+                        0, 0, // src xy
+                        particleTexture.getWidth(),
+                        particleTexture.getHeight(),
+                        false, false // flip xy
                 );
             }
         }
 
         // Draw game over text
         if (gameOverTexture != null) {
-            float scale = 0.8f + 0.2f * (float)Math.sin(timeElapsed * 2);
+            float scale = 0.8f + 0.2f * (float) Math.sin(timeElapsed * 2);
             float width = gameOverTexture.getWidth() * scale;
             float height = gameOverTexture.getHeight() * scale;
             batch.draw(
-                gameOverTexture,
-                (Gdx.graphics.getWidth() - width) / 2,
-                Gdx.graphics.getHeight() - height - 50,
-                width,
-                height
+                    gameOverTexture,
+                    (Gdx.graphics.getWidth() - width) / 2,
+                    Gdx.graphics.getHeight() - height - 50,
+                    width,
+                    height
             );
         }
 
@@ -265,10 +291,10 @@ public class HealthSnakeDeathScene extends Scene {
         float messageWidth = font.draw(batch, deathMessage, 0, 0).width;
         font.setColor(1f, 0.3f, 0.3f, 1f);
         font.draw(
-            batch,
-            deathMessage,
-            (Gdx.graphics.getWidth() - messageWidth) / 2,
-            Gdx.graphics.getHeight() - 150
+                batch,
+                deathMessage,
+                (Gdx.graphics.getWidth() - messageWidth) / 2,
+                Gdx.graphics.getHeight() - 150
         );
 
         // Draw final score
@@ -277,10 +303,10 @@ public class HealthSnakeDeathScene extends Scene {
         String scoreText = "Final Score: " + finalScore;
         float scoreWidth = font.draw(batch, scoreText, 0, 0).width;
         font.draw(
-            batch,
-            scoreText,
-            (Gdx.graphics.getWidth() - scoreWidth) / 2,
-            Gdx.graphics.getHeight() - 200
+                batch,
+                scoreText,
+                (Gdx.graphics.getWidth() - scoreWidth) / 2,
+                Gdx.graphics.getHeight() - 200
         );
 
         // Draw death cause if provided
@@ -288,10 +314,10 @@ public class HealthSnakeDeathScene extends Scene {
             font.getData().setScale(0.3f);
             float causeWidth = font.draw(batch, "Cause: " + deathCause, 0, 0).width;
             font.draw(
-                batch,
-                "Cause: " + deathCause,
-                (Gdx.graphics.getWidth() - causeWidth) / 2,
-                Gdx.graphics.getHeight() - 230
+                    batch,
+                    "Cause: " + deathCause,
+                    (Gdx.graphics.getWidth() - causeWidth) / 2,
+                    Gdx.graphics.getHeight() - 230
             );
         }
 
@@ -337,8 +363,10 @@ public class HealthSnakeDeathScene extends Scene {
         if (snakeSkullTexture != null) {
             snakeSkullTexture.dispose();
         }
-        if (unhealthyFoodTexture != null) {
-            unhealthyFoodTexture.dispose();
+        if (unhealthyFoodTextures != null) {
+            for (Texture texture : unhealthyFoodTextures) {
+                texture.dispose();
+            }
         }
         if (font != null) {
             font.dispose();

@@ -1,19 +1,42 @@
 package io.github.some_example_name.lwjgl3.application_classes.entity;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
+import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 
 public class FoodEntity extends Entity implements Collidable {
     private boolean isHealthy;
     private float foodSize;
     private boolean active = true;
+
+    private static final String[] HEALTHY_TEXTURES = {
+        "healthy_1.png",
+        "healthy_2.png",
+        "healthy_3.png",
+        "healthy_4.png",
+        "healthy_5.png"
+    };
+    
+    private static final String[] UNHEALTHY_TEXTURES = {
+        "unhealthy_1.png",
+        "unhealthy_2.png",
+        "unhealthy_3.png",
+        "unhealthy_4.png",
+        "unhealthy_5.png"
+    };
+    
+    public static String getRandomTexturePath(boolean isHealthy) {
+        if (isHealthy) {
+            return HEALTHY_TEXTURES[MathUtils.random(HEALTHY_TEXTURES.length - 1)];
+        } else {
+            return UNHEALTHY_TEXTURES[MathUtils.random(UNHEALTHY_TEXTURES.length - 1)];
+        }
+    }    
     
     public FoodEntity(String entityName, float positionX, float positionY, boolean isHealthy, String texturePath) {
         super(entityName, positionX, positionY, texturePath);
@@ -28,7 +51,7 @@ public class FoodEntity extends Entity implements Collidable {
         float x = MathUtils.random(50, Gdx.graphics.getWidth() - 50);
         float y = MathUtils.random(50, Gdx.graphics.getHeight() - 50);
         
-        String texturePath = isHealthy ? "healthy_food.png" : "unhealthy_food.png";
+        String texturePath = getRandomTexturePath(isHealthy);
         String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
         
         return new FoodEntity(name, x, y, isHealthy, texturePath);
@@ -41,7 +64,7 @@ public class FoodEntity extends Entity implements Collidable {
         float x = MathUtils.random(50, worldWidth - 50);
         float y = MathUtils.random(50, worldHeight - 50);
         
-        String texturePath = isHealthy ? "healthy_food.png" : "unhealthy_food.png";
+        String texturePath = getRandomTexturePath(isHealthy);
         String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
         
         return new FoodEntity(name, x, y, isHealthy, texturePath);
@@ -57,7 +80,7 @@ public class FoodEntity extends Entity implements Collidable {
         float x = centerX + MathUtils.cos(angle) * distance;
         float y = centerY + MathUtils.sin(angle) * distance;
         
-        String texturePath = isHealthy ? "healthy_food.png" : "unhealthy_food.png";
+        String texturePath = getRandomTexturePath(isHealthy);
         String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
         
         return new FoodEntity(name, x, y, isHealthy, texturePath);
