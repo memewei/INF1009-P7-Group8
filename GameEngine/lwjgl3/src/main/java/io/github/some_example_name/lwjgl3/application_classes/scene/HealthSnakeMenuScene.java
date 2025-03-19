@@ -159,7 +159,8 @@ public class HealthSnakeMenuScene extends Scene {
 
         boolean isHealthy = MathUtils.randomBoolean(0.7f); // 70% chance for healthy food
 
-        Texture foodTexture = new Texture(Gdx.files.internal(isHealthy ? "healthy_food.png" : "unhealthy_food.png"));
+        String texturePath = FoodEntity.getRandomTexturePath(isHealthy);
+        Texture foodTexture = new Texture(texturePath);
         float size = isHealthy ? 20f : 30f;
 
         MenuFood food = new MenuFood(x, y, foodTexture, size);

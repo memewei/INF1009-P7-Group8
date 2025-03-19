@@ -177,7 +177,7 @@ public class HealthSnakeGameScene extends Scene {
         // 70% chance for healthy food, 30% chance for unhealthy
         boolean isHealthy = MathUtils.randomBoolean(0.7f);
 
-        String texturePath = isHealthy ? "healthy_food.png" : "unhealthy_food.png";
+        String texturePath = FoodEntity.getRandomTexturePath(isHealthy);
         String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
 
         FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
@@ -453,7 +453,7 @@ private void spawnFoodNearPlayer() {
     // 70% chance for healthy food, 30% chance for unhealthy
     boolean isHealthy = MathUtils.randomBoolean(0.7f);
 
-    String texturePath = isHealthy ? "healthy_food.png" : "unhealthy_food.png";
+    String texturePath = FoodEntity.getRandomTexturePath(isHealthy);
     String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
 
     // Create and add the new food entity
