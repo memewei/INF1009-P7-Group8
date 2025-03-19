@@ -41,9 +41,9 @@ public class SnakePauseScene extends Scene {
         this.movementManager = movementManager;
         this.ioManager = ioManager;
 
-        font = new BitmapFont();
+        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
         font.setColor(Color.WHITE);
-        font.getData().setScale(1.5f);
+        font.getData().setScale(0.3f);
     }
 
     @Override
@@ -154,14 +154,14 @@ public class SnakePauseScene extends Scene {
         }
 
         // Draw pause title
-        font.getData().setScale(2.5f);
+        font.getData().setScale(0.3f);
         font.setColor(1, 1, 1, 1);
         font.draw(batch, "GAME PAUSED",
                 Gdx.graphics.getWidth() / 2 - 120,
                 Gdx.graphics.getHeight() - 100);
 
         // Draw menu items
-        font.getData().setScale(1.5f);
+        font.getData().setScale(0.3f);
         float menuY = Gdx.graphics.getHeight() / 2 + 50;
         float menuSpacing = 50;
 
@@ -183,9 +183,9 @@ public class SnakePauseScene extends Scene {
         }
 
         // Draw controls hint
-        font.getData().setScale(1.0f);
+        font.getData().setScale(0.3f);
         font.draw(batch, "Arrow Keys: Navigate | Enter: Select | Esc: Resume",
-                Gdx.graphics.getWidth() / 2 - 220,
+                Gdx.graphics.getWidth() / 2 - 310,
                 50);
 
         batch.end();
