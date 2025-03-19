@@ -58,10 +58,10 @@ public class SnakePlayer extends MovableEntity {
     public void update(float deltaTime) {
         // Handle turning with arrow keys
         if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.LEFT)) {
-            direction -= turnSpeed * deltaTime;
+            direction += turnSpeed * deltaTime;
         }
         if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.RIGHT)) {
-            direction += turnSpeed * deltaTime;
+            direction -= turnSpeed * deltaTime;
         }
         
         // Calculate new position based on direction and speed
