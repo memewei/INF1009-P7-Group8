@@ -36,6 +36,9 @@ public class SnakePlayer extends MovableEntity {
     // For infinite world, we center the player on screen and move the world
     private boolean centeredOnScreen = true;
     
+    // Vector to store last movement input
+    private Vector2 movementInput = new Vector2(0, 0);
+    
     public SnakePlayer(String entityName, float positionX, float positionY, String headTexturePath, String bodyTexturePath) {
         super(entityName, positionX, positionY, headTexturePath);
         this.headTexture = new Texture(Gdx.files.internal(headTexturePath));
@@ -56,14 +59,6 @@ public class SnakePlayer extends MovableEntity {
     
     @Override
     public void update(float deltaTime) {
-        // Handle turning with arrow keys
-        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.LEFT)) {
-            direction += turnSpeed * deltaTime;
-        }
-        if (IOManager.getInstance().getDynamicInput().isKeyPressed(Input.Keys.RIGHT)) {
-            direction -= turnSpeed * deltaTime;
-        }
-        
         // Calculate new position based on direction and speed
         float moveX = MathUtils.cos(direction) * speed * deltaTime;
         float moveY = MathUtils.sin(direction) * speed * deltaTime;
@@ -156,12 +151,27 @@ public class SnakePlayer extends MovableEntity {
     
     @Override
     public void move(float forceX, float forceY) {
-        // This is handled in update() for smoother movement
+        // Store the movement input for reference
+        movementInput.x = forceX;
+        movementInput.y = forceY;
+        
+        // Handle turning based on left/right input
+        if (forceX < 0) {
+            // Turn left (counter-clockwise)
+            direction += turnSpeed * Gdx.graphics.getDeltaTime();
+        } else if (forceX > 0) {
+            // Turn right (clockwise)
+            direction -= turnSpeed * Gdx.graphics.getDeltaTime();
+        }
+        
+        // Note: We don't use forceY in this implementation as snake movement
+        // is direction-based rather than directly responding to up/down input
     }
     
     @Override
     public void stop() {
-        // Snake should not stop completely
+        // Snake should not stop completely, so this is a no-op
+        movementInput.set(0, 0);
     }
     
     public void eatFood(FoodEntity food) {

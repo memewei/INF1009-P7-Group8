@@ -93,6 +93,9 @@ public class HealthSnakeGameScene extends Scene {
                             "snake_head.png",
                             "snake_body.png");
         entityManager.addEntity(player);
+        
+        // Add player to movement manager
+        movementManager.addEntity(player);
 
         // Create enemy snakes distributed throughout the world
         for (int i = 0; i < 10; i++) {
@@ -212,10 +215,12 @@ public class HealthSnakeGameScene extends Scene {
         // Handle pause
         if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
             System.out.println("[HealthSnakeGameScene] Pausing game...");
-            sceneManager.pushScene(new SnakePauseScene(batch, sceneManager, entityManager, movementManager,ioManager),
+            sceneManager.pushScene(new SnakePauseScene(batch, sceneManager, entityManager, movementManager, ioManager),
                                 GameState.PAUSED);
             return;
         }
+
+        movementManager.updateMovement(deltaTime);
 
         // Update player and check win/lose conditions
         if (player.checkWinCondition()) {
