@@ -14,6 +14,8 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManag
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
+import io.github.some_example_name.lwjgl3.application_classes.game.NutritionManager;
+import io.github.some_example_name.lwjgl3.application_classes.game.LevelManager;
 
 public class HealthSnakeDeathScene extends Scene {
 
@@ -28,6 +30,7 @@ public class HealthSnakeDeathScene extends Scene {
     private MovementManager movementManager;
     private IOManager ioManager;
     private BitmapFont font;
+    private LevelManager levelManager;
 
     private String[] menuItems = {
         "Try Again",
@@ -58,20 +61,41 @@ public class HealthSnakeDeathScene extends Scene {
         "Game Over - Try to eat more fruits!",
         "Your snake's diet was its downfall!"
     };
+    
+    private String educationalTip;
 
-    private final int finalScore;
+    private final int healthyCalories;
+    private final int unhealthyCalories;
+    private final int healthyCount;
+    private final int unhealthyCount;
     private final String deathCause;
+    private final int level;
+    private final boolean isUnhealthyPath;
 
     public HealthSnakeDeathScene(SpriteBatch batch, SceneManager sceneManager,
             EntityManager entityManager, MovementManager movementManager, IOManager ioManager,
-            int finalScore, String deathCause) {
+            int healthyCalories, int unhealthyCalories, int healthyCount, int unhealthyCount, String deathCause) {
+        this(batch, sceneManager, entityManager, movementManager, ioManager, 
+             healthyCalories, unhealthyCalories, healthyCount, unhealthyCount, deathCause, new LevelManager());
+    }
+    
+    public HealthSnakeDeathScene(SpriteBatch batch, SceneManager sceneManager,
+            EntityManager entityManager, MovementManager movementManager, IOManager ioManager,
+            int healthyCalories, int unhealthyCalories, int healthyCount, int unhealthyCount, 
+            String deathCause, LevelManager levelManager) {
         this.batch = batch;
         this.sceneManager = sceneManager;
         this.entityManager = entityManager;
         this.movementManager = movementManager;
         this.ioManager = ioManager;
-        this.finalScore = finalScore;
+        this.healthyCalories = healthyCalories;
+        this.unhealthyCalories = unhealthyCalories;
+        this.healthyCount = healthyCount;
+        this.unhealthyCount = unhealthyCount;
         this.deathCause = deathCause;
+        this.levelManager = levelManager;
+        this.level = levelManager.getCurrentLevel();
+        this.isUnhealthyPath = levelManager.isUnhealthyPath();
 
         font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
         font.setColor(Color.WHITE);
@@ -91,6 +115,9 @@ public class HealthSnakeDeathScene extends Scene {
 
         // Select a random death message
         deathMessage = deathMessages[MathUtils.random(deathMessages.length - 1)];
+        
+        // Get educational tip about nutrition
+        educationalTip = NutritionManager.getInstance().getRandomHealthyEatingFact();
     }
 
     private void initializeParticles() {
@@ -195,7 +222,10 @@ public class HealthSnakeDeathScene extends Scene {
             case 0: // Try Again
                 System.out.println("[HealthSnakeDeathScene] Restarting game...");
                 ioManager.getAudio().stopMusic();
-
+                
+                // Reset to level 1
+                levelManager.resetToLevel(1, false);
+                
                 sceneManager.changeScene(
                         new HealthSnakeGameScene(
                                 batch,
@@ -203,7 +233,8 @@ public class HealthSnakeDeathScene extends Scene {
                                 movementManager,
                                 sceneManager.getWorld(),
                                 sceneManager,
-                                ioManager
+                                ioManager,
+                                levelManager
                         ),
                         GameState.RUNNING
                 );
@@ -285,45 +316,89 @@ public class HealthSnakeDeathScene extends Scene {
                     height
             );
         }
+        
+        // Draw level info
+        font.getData().setScale(0.4f);
+        String levelText = "Level " + level;
+        float levelWidth = font.draw(batch, levelText, 0, 0).width * 0.4f;
+        font.setColor(1f, 0.5f, 0.5f, 1f);
+        font.draw(
+                batch,
+                levelText,
+                (Gdx.graphics.getWidth() - levelWidth) / 2,
+                Gdx.graphics.getHeight() - 130
+        );
 
         // Draw death message
         font.getData().setScale(0.3f);
-        float messageWidth = font.draw(batch, deathMessage, 0, 0).width;
+        float messageWidth = font.draw(batch, deathMessage, 0, 0).width * 0.3f;
         font.setColor(1f, 0.3f, 0.3f, 1f);
         font.draw(
                 batch,
                 deathMessage,
                 (Gdx.graphics.getWidth() - messageWidth) / 2,
-                Gdx.graphics.getHeight() - 150
+                Gdx.graphics.getHeight() - 180
         );
 
-        // Draw final score
+        // Draw calorie counts separately
         font.getData().setScale(0.3f);
-        font.setColor(1f, 1f, 1f, 1f);
-        String scoreText = "Final Score: " + finalScore;
-        float scoreWidth = font.draw(batch, scoreText, 0, 0).width;
+        
+        // Healthy calories (green)
+        font.setColor(0.3f, 0.9f, 0.3f, 1f);
+        String healthyText = "Healthy Food: " + healthyCount + " items (" + healthyCalories + " kcal)";
+        float healthyWidth = font.draw(batch, healthyText, 0, 0).width * 0.3f;
         font.draw(
                 batch,
-                scoreText,
-                (Gdx.graphics.getWidth() - scoreWidth) / 2,
-                Gdx.graphics.getHeight() - 200
+                healthyText,
+                (Gdx.graphics.getWidth() - healthyWidth) / 2,
+                Gdx.graphics.getHeight() - 220
+        );
+        
+        // Unhealthy calories (red)
+        font.setColor(0.9f, 0.3f, 0.3f, 1f);
+        String unhealthyText = "Unhealthy Food: " + unhealthyCount + " items (" + unhealthyCalories + " kcal)";
+        float unhealthyWidth = font.draw(batch, unhealthyText, 0, 0).width * 0.3f;
+        font.draw(
+                batch,
+                unhealthyText,
+                (Gdx.graphics.getWidth() - unhealthyWidth) / 2,
+                Gdx.graphics.getHeight() - 250
+        );
+        
+        // Total calories
+        font.setColor(1f, 1f, 1f, 1f);
+        String totalText = "Total: " + (healthyCalories + unhealthyCalories) + " kcal consumed";
+        float totalWidth = font.draw(batch, totalText, 0, 0).width * 0.3f;
+        font.draw(
+                batch,
+                totalText,
+                (Gdx.graphics.getWidth() - totalWidth) / 2,
+                Gdx.graphics.getHeight() - 280
         );
 
         // Draw death cause if provided
         if (deathCause != null && !deathCause.isEmpty()) {
             font.getData().setScale(0.3f);
-            float causeWidth = font.draw(batch, "Cause: " + deathCause, 0, 0).width;
+            float causeWidth = font.draw(batch, "Cause: " + deathCause, 0, 0).width * 0.3f;
             font.draw(
                     batch,
                     "Cause: " + deathCause,
                     (Gdx.graphics.getWidth() - causeWidth) / 2,
-                    Gdx.graphics.getHeight() - 230
+                    Gdx.graphics.getHeight() - 320
             );
         }
+        
+        // Draw educational tip
+        font.setColor(0.9f, 0.9f, 1.0f, 1.0f);
+        font.getData().setScale(0.25f);
+        String tipHeader = "Nutrition Tip:";
+        font.draw(batch, tipHeader, Gdx.graphics.getWidth() / 2 - 250, Gdx.graphics.getHeight() / 2 - 20);
+        font.draw(batch, educationalTip, Gdx.graphics.getWidth() / 2 - 250, Gdx.graphics.getHeight() / 2 - 50, 500, -1, true);
 
         // Draw menu items
+        font.setColor(Color.WHITE);
         font.getData().setScale(0.3f);
-        float menuY = Gdx.graphics.getHeight() / 2 - 50;
+        float menuY = Gdx.graphics.getHeight() / 2 - 130;
         float menuSpacing = 50;
 
         for (int i = 0; i < menuItems.length; i++) {
@@ -365,7 +440,9 @@ public class HealthSnakeDeathScene extends Scene {
         }
         if (unhealthyFoodTextures != null) {
             for (Texture texture : unhealthyFoodTextures) {
-                texture.dispose();
+                if (texture != null) {
+                    texture.dispose();
+                }
             }
         }
         if (font != null) {

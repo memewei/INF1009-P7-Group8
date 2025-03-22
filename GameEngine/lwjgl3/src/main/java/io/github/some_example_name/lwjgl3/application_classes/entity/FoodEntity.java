@@ -8,11 +8,16 @@ import com.badlogic.gdx.math.Vector2;
 
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
+import io.github.some_example_name.lwjgl3.application_classes.game.NutritionManager;
+import io.github.some_example_name.lwjgl3.application_classes.game.LevelManager;
 
 public class FoodEntity extends Entity implements Collidable {
     private boolean isHealthy;
     private float foodSize;
     private boolean active = true;
+    private int calories;
+    private String foodName;
+    private String educationalFact;
 
     private static final String[] HEALTHY_TEXTURES = {
         "healthy_1.png",
@@ -42,6 +47,12 @@ public class FoodEntity extends Entity implements Collidable {
         super(entityName, positionX, positionY, texturePath);
         this.isHealthy = isHealthy;
         this.foodSize = isHealthy ? 20f : 30f; // Unhealthy food is larger
+        
+        // Get food information from the manager
+        NutritionManager.FoodInfo info = NutritionManager.getInstance().getFoodInfo(texturePath, isHealthy);
+        this.calories = info.getCalories();
+        this.foodName = info.getFoodName();
+        this.educationalFact = info.getEducationalFact();
     }
     
     /**
@@ -86,6 +97,25 @@ public class FoodEntity extends Entity implements Collidable {
         return new FoodEntity(name, x, y, isHealthy, texturePath);
     }
     
+    /**
+     * Creates food with calories scaled by level
+     */
+    public static FoodEntity createLevelScaledFood(boolean isHealthy, float x, float y, LevelManager levelManager) {
+        String texturePath = getRandomTexturePath(isHealthy);
+        String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
+        
+        FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
+        
+        // Scale calories based on level
+        if (isHealthy) {
+            food.calories = levelManager.getHealthyCalories();
+        } else {
+            food.calories = levelManager.getUnhealthyCalories();
+        }
+        
+        return food;
+    }
+    
     @Override
     public void update(float deltaTime) {
         // Food doesn't need to update, it's static
@@ -127,6 +157,18 @@ public class FoodEntity extends Entity implements Collidable {
     
     public void deactivate() {
         active = false;
+    }
+    
+    public int getCalories() {
+        return calories;
+    }
+    
+    public String getFoodName() {
+        return foodName;
+    }
+    
+    public String getEducationalFact() {
+        return educationalFact;
     }
     
     @Override

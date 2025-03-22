@@ -1,7 +1,6 @@
 package io.github.some_example_name.lwjgl3.application_classes.entity;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
+import io.github.some_example_name.lwjgl3.application_classes.game.LevelManager;
 
 public class SnakePlayer extends MovableEntity {
     private Array<SnakeSegment> bodySegments;
@@ -22,16 +22,21 @@ public class SnakePlayer extends MovableEntity {
     private float maxSpeed = 300f;
     private float turnSpeed = 3.0f; // radians per second
     
+    // Food tracking
     private int healthyFoodCount = 0;
     private int unhealthyFoodCount = 0;
-    private int healthyFoodGoal = 15;
-    private int unhealthyFoodGoal = 10;
+    private int healthyCalories = 0;
+    private int unhealthyCalories = 0;
+    
+    // Level management
+    private LevelManager levelManager;
     
     private Texture headTexture;
     private Texture bodyTexture;
     
     private float segmentSpacing = 15f; // distance between segments
-    private float bodySize = 20f; // size of body segments
+    private float baseBodySize = 20f; // base size of body segments
+    private float currentBodySize; // current size after applying multipliers
     
     // For infinite world, we center the player on screen and move the world
     private boolean centeredOnScreen = true;
@@ -39,11 +44,16 @@ public class SnakePlayer extends MovableEntity {
     // Vector to store last movement input
     private Vector2 movementInput = new Vector2(0, 0);
     
-    public SnakePlayer(String entityName, float positionX, float positionY, String headTexturePath, String bodyTexturePath) {
+    public SnakePlayer(String entityName, float positionX, float positionY, String headTexturePath, String bodyTexturePath, LevelManager levelManager) {
         super(entityName, positionX, positionY, headTexturePath);
         this.headTexture = new Texture(Gdx.files.internal(headTexturePath));
         this.bodyTexture = new Texture(Gdx.files.internal(bodyTexturePath));
-        this.speed = initialSpeed;
+        this.levelManager = levelManager;
+        
+        // Apply level-specific settings
+        this.speed = levelManager.getSnakeSpeed();
+        this.currentBodySize = baseBodySize * levelManager.getSnakeSizeMultiplier();
+        
         this.direction = 0f; // start facing right
         
         // Initialize body segments
@@ -52,7 +62,7 @@ public class SnakePlayer extends MovableEntity {
         // Add initial body segments
         for (int i = 0; i < 5; i++) {
             float xPos = positionX - (i + 1) * segmentSpacing;
-            SnakeSegment segment = new SnakeSegment(xPos, positionY, bodySize);
+            SnakeSegment segment = new SnakeSegment(xPos, positionY, currentBodySize);
             bodySegments.add(segment);
         }
     }
@@ -73,7 +83,7 @@ public class SnakePlayer extends MovableEntity {
         // If using infinite world, don't clamp the position
         if (!centeredOnScreen) {
             // Keep head within screen bounds
-            float halfSize = bodySize / 2;
+            float halfSize = currentBodySize / 2;
             positionX = MathUtils.clamp(positionX, halfSize, Gdx.graphics.getWidth() - halfSize);
             positionY = MathUtils.clamp(positionY, halfSize, Gdx.graphics.getHeight() - halfSize);
         }
@@ -135,12 +145,12 @@ public class SnakePlayer extends MovableEntity {
         
         // Draw head
         batch.draw(headTexture, 
-                screenX - bodySize/2, 
-                screenY - bodySize/2, 
-                bodySize/2, // origin x
-                bodySize/2, // origin y
-                bodySize, 
-                bodySize, 
+                screenX - currentBodySize/2, 
+                screenY - currentBodySize/2, 
+                currentBodySize/2, // origin x
+                currentBodySize/2, // origin y
+                currentBodySize, 
+                currentBodySize, 
                 1, 1, // scale x, y
                 direction * MathUtils.radiansToDegrees, // rotation
                 0, 0, // srcX, srcY
@@ -163,9 +173,6 @@ public class SnakePlayer extends MovableEntity {
             // Turn right (clockwise)
             direction -= turnSpeed * Gdx.graphics.getDeltaTime();
         }
-        
-        // Note: We don't use forceY in this implementation as snake movement
-        // is direction-based rather than directly responding to up/down input
     }
     
     @Override
@@ -179,11 +186,12 @@ public class SnakePlayer extends MovableEntity {
             // Eat healthy food
             healthyFoodCount++;
             
+            // Add calories
+            int calories = food.getCalories();
+            healthyCalories += calories;
+            
             // Grow slightly
             addBodySegment(1);
-            
-            // Increase speed (with cap)
-            speed = Math.min(speed * 1.05f, maxSpeed);
             
             // Play positive sound
             IOManager.getInstance().getAudio().playSound("healthy_food.mp3");
@@ -191,11 +199,13 @@ public class SnakePlayer extends MovableEntity {
             // Eat unhealthy food
             unhealthyFoodCount++;
             
-            // Grow more
-            addBodySegment(3);
+            // Add calories
+            int calories = food.getCalories();
+            unhealthyCalories += calories;
             
-            // Decrease speed (with floor)
-            speed = Math.max(speed * 0.95f, minSpeed);
+            // Grow more (based on level)
+            int segmentsToAdd = levelManager.isUnhealthyPath() ? 4 : 3;
+            addBodySegment(segmentsToAdd);
             
             // Play negative sound
             IOManager.getInstance().getAudio().playSound("unhealthy_food.mp3");
@@ -219,12 +229,53 @@ public class SnakePlayer extends MovableEntity {
                 newY = positionY + MathUtils.sin(oppositeDirection) * segmentSpacing;
             }
             
-            bodySegments.add(new SnakeSegment(newX, newY, bodySize));
+            bodySegments.add(new SnakeSegment(newX, newY, currentBodySize));
+        }
+    }
+    
+    /**
+     * Apply level settings to the snake (after level change)
+     */
+    public void applyLevelSettings() {
+        this.speed = levelManager.getSnakeSpeed();
+        this.currentBodySize = baseBodySize * levelManager.getSnakeSizeMultiplier();
+        
+        // Update all segment sizes
+        for (SnakeSegment segment : bodySegments) {
+            segment.size = currentBodySize;
+        }
+    }
+    
+    /**
+     * Reset the player for a new level but keep the current body size
+     */
+    public void resetForNewLevel(float posX, float posY) {
+        // Clear food counters
+        healthyFoodCount = 0;
+        unhealthyFoodCount = 0;
+        healthyCalories = 0;
+        unhealthyCalories = 0;
+        
+        // Reset position
+        this.positionX = posX;
+        this.positionY = posY;
+        this.direction = 0f;
+        
+        // Apply new level settings
+        applyLevelSettings();
+        
+        // Keep existing body segments but reposition them
+        for (int i = 0; i < bodySegments.size; i++) {
+            SnakeSegment segment = bodySegments.get(i);
+            segment.x = positionX - (i + 1) * segmentSpacing;
+            segment.y = positionY;
+            // Update size based on new level settings
+            segment.size = currentBodySize;
         }
     }
     
     public Rectangle getHeadBounds() {
-        return new Rectangle(positionX - bodySize/2, positionY - bodySize/2, bodySize, bodySize);
+        return new Rectangle(positionX - currentBodySize/2, positionY - currentBodySize/2, currentBodySize, currentBodySize);
     }
     
     public Array<Rectangle> getBodyBounds() {
@@ -237,23 +288,47 @@ public class SnakePlayer extends MovableEntity {
     }
     
     public boolean checkWinCondition() {
-        return healthyFoodCount >= healthyFoodGoal;
+        return healthyFoodCount >= levelManager.getHealthyFoodGoal();
     }
     
     public boolean checkLoseCondition() {
-        return unhealthyFoodCount >= unhealthyFoodGoal;
+        return unhealthyFoodCount >= levelManager.getUnhealthyFoodGoal();
     }
     
     public float getHealthyFoodPercentage() {
-        return (float) healthyFoodCount / healthyFoodGoal;
+        return (float) healthyFoodCount / levelManager.getHealthyFoodGoal();
     }
     
     public float getUnhealthyFoodPercentage() {
-        return (float) unhealthyFoodCount / unhealthyFoodGoal;
+        return (float) unhealthyFoodCount / levelManager.getUnhealthyFoodGoal();
+    }
+    
+    public int getHealthyFoodCount() {
+        return healthyFoodCount;
+    }
+    
+    public int getUnhealthyFoodCount() {
+        return unhealthyFoodCount;
+    }
+    
+    public int getHealthyCalories() {
+        return healthyCalories;
+    }
+    
+    public int getUnhealthyCalories() {
+        return unhealthyCalories;
+    }
+    
+    public int getTotalCalories() {
+        return healthyCalories + unhealthyCalories;
     }
     
     public int getBodySize() {
         return bodySegments.size;
+    }
+    
+    public float getCurrentBodySize() {
+        return currentBodySize;
     }
     
     /**

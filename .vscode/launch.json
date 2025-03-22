@@ -9,6 +9,13 @@
             "name": "Lwjgl3Launcher",
             "request": "launch",
             "mainClass": "io.github.some_example_name.lwjgl3.Lwjgl3Launcher",
+            "projectName": "GameEngine_Team8-lwjgl3"
+        },
+        {
+            "type": "java",
+            "name": "Lwjgl3Launcher",
+            "request": "launch",
+            "mainClass": "io.github.some_example_name.lwjgl3.Lwjgl3Launcher",
             "projectName": "lwjgl3"
         }
     ]
