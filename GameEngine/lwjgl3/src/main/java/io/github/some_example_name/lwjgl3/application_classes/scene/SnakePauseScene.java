@@ -26,6 +26,7 @@ public class SnakePauseScene extends Scene {
     private String[] menuItems = {
         "Resume Game",
         "Restart Game",
+        "Setting",
         "Return to Main Menu",
         "Exit Game"
     };
@@ -112,8 +113,21 @@ public class SnakePauseScene extends Scene {
                     GameState.RUNNING
                 );
                 break;
+            case 2: // Setting
+                System.out.println("[SnakePauseScene] Opening settings...");
+                sceneManager.pushScene(
+                    new SnakeSettingScene(
+                        batch,
+                        sceneManager,
+                        entityManager,
+                        movementManager,
+                        ioManager
+                    ),
+                    GameState.PAUSED
+                );
+                break;   
 
-            case 2: // Return to Main Menu
+            case 3: // Return to Main Menu
                 System.out.println("[SnakePauseScene] Returning to main menu...");
                 sceneManager.changeScene(
                     new HealthSnakeMenuScene(
@@ -127,7 +141,7 @@ public class SnakePauseScene extends Scene {
                 );
                 break;
 
-            case 3: // Exit Game
+            case 4: // Exit Game
                 System.out.println("[SnakePauseScene] Exiting game...");
                 Gdx.app.exit();
                 break;
