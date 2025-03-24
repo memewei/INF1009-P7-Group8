@@ -77,7 +77,7 @@ public class SnakeSettingScene extends Scene{
 
             //Music Slider
             Slider musicSlider = new Slider(0, 100, 1, false, sliderStyle);
-            musicSlider.setValue(50); // Default volume level
+            musicSlider.setValue(100); // Default volume level
             musicSlider.setSize(200, 20);
 
             //Music Label to display slider value
@@ -86,12 +86,14 @@ public class SnakeSettingScene extends Scene{
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     musicLabel.setText("Music Volume: " + (int) musicSlider.getValue());
+                    float v = musicSlider.getValue()/100;
+                    ioManager.getAudio().setMusicVolume(v);
                 }
             });
 
             //Sound Slider
             Slider soundSlider = new Slider(0, 100, 1, false, sliderStyle);
-            soundSlider.setValue(50); // Default volume level
+            soundSlider.setValue(100); // Default volume level
             soundSlider.setSize(200, 20);
 
             //Sound Label to display slider value
@@ -100,6 +102,8 @@ public class SnakeSettingScene extends Scene{
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     soundLabel.setText("Sound Volume: " + (int) soundSlider.getValue());
+                    float v = soundSlider.getValue()/100;
+                    ioManager.getAudio().setSoundVolume(v);
                 }
             });
 
