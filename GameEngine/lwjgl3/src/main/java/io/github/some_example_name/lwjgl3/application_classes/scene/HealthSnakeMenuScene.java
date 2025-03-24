@@ -67,10 +67,10 @@ public class HealthSnakeMenuScene extends Scene {
     private Texture snakeTexture;
     private Texture soundSlider;
     private Texture soundBar;
-    
+
     private Viewport viewport;
     private Stage stage;
-    
+
     private Skin skin;
 
     public HealthSnakeMenuScene(SpriteBatch batch, SceneManager sceneManager,
@@ -101,8 +101,13 @@ public class HealthSnakeMenuScene extends Scene {
             soundBar = new Texture(Gdx.files.internal("sound_bar.png"));
             snakeTexture = new Texture(Gdx.files.internal("snake_head.png")); // Default color
             skin = new Skin(Gdx.files.internal("uiskin.json"));
-            
-            //Settings 
+            // Stop any currently playing music first
+            ioManager.getAudio().stopMusic();
+
+            // Then start menu music
+            ioManager.getAudio().playMusic("menu_music.mp3");
+
+            //Settings
             viewport = new ScreenViewport();  // Ensures correct resizing
             stage = new Stage(viewport);
             Gdx.input.setInputProcessor(stage); // Ensure input handling
@@ -111,36 +116,40 @@ public class HealthSnakeMenuScene extends Scene {
             SliderStyle sliderStyle = new SliderStyle();
             sliderStyle.background = new TextureRegionDrawable(new TextureRegion(soundBar));
             sliderStyle.knob = new TextureRegionDrawable(new TextureRegion(soundSlider));
-            
+
             //Music Slider
             Slider musicSlider = new Slider(0, 100, 1, false, sliderStyle);
-            musicSlider.setValue(50); // Default volume level
+            musicSlider.setValue(ioManager.getAudio().getMusicVolume()); //get volume from ioManager
             musicSlider.setSize(200, 20);
-            
+
             //Music Label to display slider value
-            Label musicLabel = new Label("Volume: " + (int) musicSlider.getValue(), skin);
+            Label musicLabel = new Label("Music Volume: " + (int) musicSlider.getValue(), skin);
             musicSlider.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                    musicLabel.setText("Volume: " + (int) musicSlider.getValue());
-                }
-            });
-            
-            //Sound Slider
-            Slider soundSlider = new Slider(0, 100, 1, false, sliderStyle);
-            soundSlider.setValue(50); // Default volume level
-            soundSlider.setSize(200, 20);
-            
-            //Sound Label to display slider value
-            Label soundLabel = new Label("Volume: " + (int) soundSlider.getValue(), skin);
-            soundSlider.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    soundLabel.setText("Volume: " + (int) soundSlider.getValue());
+                    musicLabel.setText("Music Volume: " + (int) musicSlider.getValue());
+                    float v = musicSlider.getValue()/100;
+                    ioManager.getAudio().setMusicVolume(v);
                 }
             });
 
-            
+            //Sound Slider
+            Slider soundSlider = new Slider(0, 100, 1, false, sliderStyle);
+            soundSlider.setValue(ioManager.getAudio().getSoundVolume()); //get volume from ioManager
+            soundSlider.setSize(200, 20);
+
+            //Sound Label to display slider value
+            Label soundLabel = new Label("Sound Volume: " + (int) soundSlider.getValue(), skin);
+            soundSlider.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    soundLabel.setText("Sound Volume: " + (int) soundSlider.getValue());
+                    float v = soundSlider.getValue()/100;
+                    ioManager.getAudio().setSoundVolume(v);
+                }
+            });
+
+
 
             // Snake Color Buttons
             TextButton redButton = new TextButton("Red Snake", skin);
@@ -151,7 +160,7 @@ public class HealthSnakeMenuScene extends Scene {
 //            redButton.addListener(new ChangeListener() {
 //                @Override
 //                public void changed(ChangeEvent event, Actor actor) {
-//                    snakeTexture.dispose(); 
+//                    snakeTexture.dispose();
 //                    snakeTexture = new Texture(Gdx.files.internal("snake_red.png"));
 //                }
 //            });
@@ -199,12 +208,6 @@ public class HealthSnakeMenuScene extends Scene {
             System.err.println("[HealthSnakeMenuScene] Error loading textures: " + e.getMessage());
             // Fallback textures or placeholder handling
         }
-
-        // Stop any currently playing music first
-        IOManager.getInstance().getAudio().stopMusic();
-
-        // Then start menu music
-        IOManager.getInstance().getAudio().playMusic("menu_music.mp3");
 
         // Create initial background snakes and food
         createInitialBackgroundElements();
@@ -295,9 +298,9 @@ public class HealthSnakeMenuScene extends Scene {
 
         // Update background animation
         updateBackgroundAnimation(deltaTime);
-        
+
         // Update UI interactions
-        stage.act(deltaTime); 
+        stage.act(deltaTime);
 
         if (showingInstructions) {
             // If instructions are showing, pressing any key returns to menu
@@ -306,10 +309,10 @@ public class HealthSnakeMenuScene extends Scene {
             }
             return;
         }
-        
+
         if (showingSettings) {
-            // If settings are showing, pressing ENTER to save and returns to menu
-            if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
+            // If settings are showing, pressing ESCAPE to save and returns to menu
+            if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
             	showingSettings = false;
             }
             return;
@@ -410,26 +413,26 @@ public class HealthSnakeMenuScene extends Scene {
             case 1: // How to Play
                 showingInstructions = true;
                 break;
-                
+
             case 2://Settings
             	showingSettings = true;
                 break;
-            	
+
             case 3: // Exit
                 System.out.println("[HealthSnakeMenuScene] Exiting game...");
                 // Dispose resources before exiting
                 disposeBackgroundElements();
                 Gdx.app.exit();
                 break;
-            
-            	
+
+
         }
     }
 
     @Override
     public void render(SpriteBatch batch) {
         batch.begin();
-        
+
 
         // Draw background
         if (backgroundTexture != null) {
@@ -485,29 +488,29 @@ public class HealthSnakeMenuScene extends Scene {
             font.draw(batch, "Press any key to return",
                     Gdx.graphics.getWidth() / 2 - 150,
                     80);
-        } 
+        }
         else if(showingSettings){
         	stage.draw();
-        	
+
         	// Ensure viewport updates on resize
         	viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-        	
+
         	// Draw pause title
         	GlyphLayout settingTitle = new GlyphLayout();
         	settingTitle.setText(font, "SETTINGS");
-        	
+
             font.getData().setScale(0.3f);
             font.setColor(1, 1, 1, 1);
             font.draw(batch, "SETTINGS",
             		(viewport.getWorldWidth() - settingTitle.width) / 2,
                     Gdx.graphics.getHeight() - 100);
-        	
+
             // Draw "Press enter to save and return to main menu" text
         	GlyphLayout layout = new GlyphLayout();
-        	layout.setText(font, "Press enter to save and return to main menu");
-            
+        	layout.setText(font, "Press Esc key to return to main menu");
+
         	// Correctly position text even after resizing
-        	font.draw(batch, "Press enter to save and return to main menu",
+        	font.draw(batch, "Press Esc key to return to main menu",
         	          (viewport.getWorldWidth() - layout.width) / 2,  // Always centers text
         	          80);
         }
@@ -588,11 +591,11 @@ public class HealthSnakeMenuScene extends Scene {
         if (snakeTexture != null) {
         	snakeTexture.dispose();
         }
-        
+
      // Dispose the UI stage
         if (stage != null) stage.dispose();
 
-        
+
         // Dispose background animation resources
         disposeBackgroundElements();
     }
@@ -694,7 +697,7 @@ public class HealthSnakeMenuScene extends Scene {
             if (bodyTexture != null) {
                 bodyTexture.dispose();
             }
-            
+
         }
     }
 

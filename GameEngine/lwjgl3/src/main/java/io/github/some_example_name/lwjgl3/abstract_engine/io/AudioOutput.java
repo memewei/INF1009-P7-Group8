@@ -47,12 +47,19 @@ public class AudioOutput {
             isMusicPlaying = false;  // reset flag when music stops
         }
     }
+    public float getMusicVolume(){
+        return backgroundMusic.getVolume()*100; // to give volume from 0 to 100 instead of 0.0 to 1.0
+    }
 
     public void setMusicVolume(float v) {
         musicVolume = v;
         if (backgroundMusic != null) {
             backgroundMusic.setVolume(musicVolume);
         }
+    }
+
+    public float getSoundVolume(){
+        return soundVolume*100; // to give volume from 0 to 100 instead of 0.0 to 1.0
     }
 
     public void setSoundVolume(float v) {

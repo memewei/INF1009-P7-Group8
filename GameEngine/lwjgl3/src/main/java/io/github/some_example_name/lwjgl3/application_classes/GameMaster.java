@@ -68,8 +68,6 @@ public class GameMaster extends ApplicationAdapter {
         sceneManager.update(deltaTime);
         sceneManager.render(batch);
 
-        // Show input feedback
-        IOManager.getInstance().getDynamicInput().drawInputText();
 
         super.render();
     }
@@ -78,7 +76,7 @@ public class GameMaster extends ApplicationAdapter {
     public void dispose() {
         batch.dispose();
         sceneManager.dispose();
-        IOManager.getInstance().dispose();
+        ioManager.dispose();
         world.dispose();
     }
 }
