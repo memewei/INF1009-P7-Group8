@@ -101,6 +101,11 @@ public class HealthSnakeMenuScene extends Scene {
             soundBar = new Texture(Gdx.files.internal("sound_bar.png"));
             snakeTexture = new Texture(Gdx.files.internal("snake_head.png")); // Default color
             skin = new Skin(Gdx.files.internal("uiskin.json"));
+            // Stop any currently playing music first
+            ioManager.getAudio().stopMusic();
+
+            // Then start menu music
+            ioManager.getAudio().playMusic("menu_music.mp3");
 
             //Settings
             viewport = new ScreenViewport();  // Ensures correct resizing
@@ -114,7 +119,7 @@ public class HealthSnakeMenuScene extends Scene {
 
             //Music Slider
             Slider musicSlider = new Slider(0, 100, 1, false, sliderStyle);
-            musicSlider.setValue(100); // Default volume level
+            musicSlider.setValue(ioManager.getAudio().getMusicVolume()); //get volume from ioManager
             musicSlider.setSize(200, 20);
 
             //Music Label to display slider value
@@ -130,7 +135,7 @@ public class HealthSnakeMenuScene extends Scene {
 
             //Sound Slider
             Slider soundSlider = new Slider(0, 100, 1, false, sliderStyle);
-            soundSlider.setValue(100); // Default volume level
+            soundSlider.setValue(ioManager.getAudio().getSoundVolume()); //get volume from ioManager
             soundSlider.setSize(200, 20);
 
             //Sound Label to display slider value
@@ -203,12 +208,6 @@ public class HealthSnakeMenuScene extends Scene {
             System.err.println("[HealthSnakeMenuScene] Error loading textures: " + e.getMessage());
             // Fallback textures or placeholder handling
         }
-
-        // Stop any currently playing music first
-        IOManager.getInstance().getAudio().stopMusic();
-
-        // Then start menu music
-        IOManager.getInstance().getAudio().playMusic("menu_music.mp3");
 
         // Create initial background snakes and food
         createInitialBackgroundElements();
