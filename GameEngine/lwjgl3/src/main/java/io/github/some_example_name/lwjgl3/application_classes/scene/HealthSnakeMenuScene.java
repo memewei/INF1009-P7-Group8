@@ -311,8 +311,8 @@ public class HealthSnakeMenuScene extends Scene {
         }
 
         if (showingSettings) {
-            // If settings are showing, pressing ENTER to save and returns to menu
-            if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
+            // If settings are showing, pressing ESCAPE to save and returns to menu
+            if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
             	showingSettings = false;
             }
             return;
@@ -507,10 +507,10 @@ public class HealthSnakeMenuScene extends Scene {
 
             // Draw "Press enter to save and return to main menu" text
         	GlyphLayout layout = new GlyphLayout();
-        	layout.setText(font, "Press enter to save and return to main menu");
+        	layout.setText(font, "Press Esc key to return to main menu");
 
         	// Correctly position text even after resizing
-        	font.draw(batch, "Press enter to save and return to main menu",
+        	font.draw(batch, "Press Esc key to return to main menu",
         	          (viewport.getWorldWidth() - layout.width) / 2,  // Always centers text
         	          80);
         }

@@ -183,7 +183,7 @@ public class SnakeSettingScene extends Scene{
         }
 
         // Resume Game (Settings saved)
-        if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
+        if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
         	resumeGame();
             return;
         }
@@ -221,10 +221,10 @@ public class SnakeSettingScene extends Scene{
 
         // Draw "Press enter to save and return to main menu" text
     	GlyphLayout layout = new GlyphLayout();
-    	layout.setText(font, "Press enter to save and return to main menu");
+    	layout.setText(font, "Press Esc key to return to pause screen");
 
     	// Correctly position text even after resizing
-    	font.draw(batch, "Press enter to save and return to main menu",
+    	font.draw(batch, "Press Esc key to return to pause screen",
     	          (viewport.getWorldWidth() - layout.width) / 2,  // Always centers text
     	          80);
 
