@@ -77,7 +77,7 @@ public class SnakeSettingScene extends Scene{
 
             //Music Slider
             Slider musicSlider = new Slider(0, 100, 1, false, sliderStyle);
-            musicSlider.setValue(100); // Default volume level
+            musicSlider.setValue(ioManager.getAudio().getMusicVolume()); // get Volume from ioManager
             musicSlider.setSize(200, 20);
 
             //Music Label to display slider value
@@ -93,7 +93,7 @@ public class SnakeSettingScene extends Scene{
 
             //Sound Slider
             Slider soundSlider = new Slider(0, 100, 1, false, sliderStyle);
-            soundSlider.setValue(100); // Default volume level
+            soundSlider.setValue(ioManager.getAudio().getSoundVolume()); // get Volume from ioManager
             soundSlider.setSize(200, 20);
 
             //Sound Label to display slider value
