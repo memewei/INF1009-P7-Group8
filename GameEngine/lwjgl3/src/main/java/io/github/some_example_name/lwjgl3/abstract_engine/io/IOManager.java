@@ -1,11 +1,13 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.io;
 
 import com.badlogic.gdx.Gdx;
+import io.github.some_example_name.lwjgl3.abstract_engine.control.ControlMode;
 
 public class IOManager {
     private static IOManager instance;
     private AudioOutput audio;
     private DynamicInput dynamicInput;
+    private ControlMode controlMode = ControlMode.KEYBOARD;
 
     private IOManager() {
         //initialize non-Gdx components
@@ -33,6 +35,14 @@ public class IOManager {
 
     public DynamicInput getDynamicInput() {
         return dynamicInput;
+    }
+
+    public ControlMode getControlMode() {
+        return controlMode;
+    }
+
+    public void setControlMode(ControlMode mode) {
+        this.controlMode = mode;
     }
 
     public void dispose() {

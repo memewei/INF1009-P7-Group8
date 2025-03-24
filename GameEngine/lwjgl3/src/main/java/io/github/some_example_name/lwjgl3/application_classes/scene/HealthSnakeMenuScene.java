@@ -34,6 +34,7 @@ import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
 import io.github.some_example_name.lwjgl3.application_classes.entity.EnemySnake;
 import io.github.some_example_name.lwjgl3.application_classes.entity.FoodEntity;
+import io.github.some_example_name.lwjgl3.abstract_engine.control.ControlMode;
 
 public class HealthSnakeMenuScene extends Scene {
     private Texture backgroundTexture;
@@ -190,6 +191,20 @@ public class HealthSnakeMenuScene extends Scene {
             table.add(musicSlider).width(300).padBottom(40).expandX().center().row();
             table.add(soundLabel).padBottom(10).row();
             table.add(soundSlider).width(300).padBottom(40).expandX().center().row();
+
+            // Control Mode Toggle
+            final TextButton controlToggle = new TextButton("Control: " + ioManager.getControlMode(), skin);
+            controlToggle.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    ControlMode current = ioManager.getControlMode();
+                    ControlMode next = (current == ControlMode.KEYBOARD) ? ControlMode.MOUSE : ControlMode.KEYBOARD;
+                    ioManager.setControlMode(next);
+                    controlToggle.setText("Control: " + next);
+                }
+            });
+            table.add(controlToggle).padBottom(30).row();
+
 
             Table buttonTable = new Table();
             buttonTable.add(redButton).pad(10);

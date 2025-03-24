@@ -28,6 +28,8 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManag
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.control.ControlMode;
+
 
 public class SnakeSettingScene extends Scene{
 	private SpriteBatch batch;
@@ -114,6 +116,19 @@ public class SnakeSettingScene extends Scene{
             TextButton blueButton = new TextButton("Blue Snake", skin);
             TextButton greenButton = new TextButton("Green Snake", skin);
 
+            // Control Mode Toggle Button
+            TextButton controlModeButton = new TextButton("Control Mode: " + ioManager.getControlMode(), skin);
+            controlModeButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    ControlMode current = ioManager.getControlMode();
+                    ControlMode next = (current == ControlMode.KEYBOARD) ? ControlMode.MOUSE : ControlMode.KEYBOARD;
+                    ioManager.setControlMode(next);
+                    controlModeButton.setText("Control Mode: " + next); // Update button label
+                }
+            });
+
+
 //            // Button click listeners
 //            redButton.addListener(new ChangeListener() {
 //                @Override
@@ -148,6 +163,8 @@ public class SnakeSettingScene extends Scene{
             table.add(musicSlider).width(300).padBottom(40).expandX().center().row();
             table.add(soundLabel).padBottom(10).row();
             table.add(soundSlider).width(300).padBottom(40).expandX().center().row();
+            table.add(controlModeButton).padTop(30).center().row();
+            table.add(controlModeButton).padTop(30).center().row();
 
             Table buttonTable = new Table();
             buttonTable.add(redButton).pad(10);

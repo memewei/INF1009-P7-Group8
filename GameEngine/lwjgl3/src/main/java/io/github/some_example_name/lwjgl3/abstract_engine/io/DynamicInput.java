@@ -43,6 +43,16 @@ public class DynamicInput extends InputAdapter {
         return Gdx.input.isKeyJustPressed(keycode);
     }
 
+    // Get current mouse X position
+    public int getMouseX() {
+        return Gdx.input.getX();
+    }
+
+    // Get current mouse Y position
+    public int getMouseY() {
+        return Gdx.input.getY();
+    }
+
     //draw inputs for display purposes only
    public void drawInputText() {
        SpriteBatch batch;
