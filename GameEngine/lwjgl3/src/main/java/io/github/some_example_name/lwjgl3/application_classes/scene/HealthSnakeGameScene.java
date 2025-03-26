@@ -53,6 +53,8 @@ public class HealthSnakeGameScene extends Scene {
     // Rendering and UI
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
+    private Texture healthyPlateTexture;
+    private boolean showHealthyPlateIntro = true;
 
     // Timers and state management
     private float foodSpawnTimer = 0;
@@ -144,6 +146,7 @@ public class HealthSnakeGameScene extends Scene {
         try {
             backgroundTexture = new Texture(Gdx.files.internal(AssetPaths.BACKGROUND));
             levelTransitionTexture = new Texture(Gdx.files.internal(AssetPaths.LEVEL_TRANSITION));
+            healthyPlateTexture = new Texture(Gdx.files.internal("healthy_plate.png"));
             System.out.println("[HealthSnakeGameScene] Textures loaded.");
         } catch (Exception e) {
             System.err.println("[HealthSnakeGameScene] Error loading textures: " + e.getMessage());
@@ -263,6 +266,14 @@ public class HealthSnakeGameScene extends Scene {
 
     @Override
     public void update(float deltaTime) {
+    	//Pause logic until player presses a key
+    	if (showHealthyPlateIntro) {
+    	    if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
+    	        showHealthyPlateIntro = false;
+    	    }
+    	    return; // Don't update game logic yet
+    	}
+    	
         // Handle level transition display
         if (showingLevelTransition) {
             // Increment the transition timer for animation effects
@@ -640,6 +651,39 @@ public class HealthSnakeGameScene extends Scene {
 
     @Override
     public void render(SpriteBatch batch) {
+    	if (showHealthyPlateIntro) {
+    	    batch.begin();
+
+    	    // Center image
+    	    float imgX = (Gdx.graphics.getWidth() - healthyPlateTexture.getWidth()) / 2f;
+    	    float imgY = (Gdx.graphics.getHeight() - healthyPlateTexture.getHeight()) / 2f + 50;
+    	    batch.draw(healthyPlateTexture, imgX, imgY);
+
+    	    // Multi-line title (split manually for best control)
+    	    String line1 = "In the game, collect these healthy foods to grow stronger";
+    	    String line2 = "and level up faster! Avoid junk food to stay on the healthy path.";
+
+    	    font.getData().setScale(0.3f);
+    	    font.setColor(Color.WHITE);
+
+    	    GlyphLayout line1Layout = new GlyphLayout(font, line1);
+    	    GlyphLayout line2Layout = new GlyphLayout(font, line2);
+
+    	    float titleY = imgY + healthyPlateTexture.getHeight() + 40;
+
+    	    font.draw(batch, line1, (Gdx.graphics.getWidth() - line1Layout.width) / 2, titleY);
+    	    font.draw(batch, line2, (Gdx.graphics.getWidth() - line2Layout.width) / 2, titleY - 25);
+
+    	    // Instruction text
+    	    String message = "Press any key to start your healthy journey!";
+    	    GlyphLayout layout = new GlyphLayout(font, message);
+    	    font.draw(batch, message, (Gdx.graphics.getWidth() - layout.width) / 2, 60);
+
+    	    batch.end();
+    	    return;
+    	}
+
+    	
         // Draw tiled background
         batch.begin();
         if (backgroundTexture != null) {
@@ -760,6 +804,7 @@ public class HealthSnakeGameScene extends Scene {
         // Dispose textures
         safeDisposeTexture(backgroundTexture);
         safeDisposeTexture(levelTransitionTexture);
+        safeDisposeTexture(healthyPlateTexture);
 
         // Dispose rendering components
         safeDisposeShapeRenderer(shapeRenderer);
