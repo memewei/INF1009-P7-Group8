@@ -20,12 +20,22 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManag
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
 import io.github.some_example_name.lwjgl3.application_classes.entity.SnakePlayer;
 import io.github.some_example_name.lwjgl3.application_classes.entity.EnemySnake;
 import io.github.some_example_name.lwjgl3.application_classes.entity.FoodEntity;
+import io.github.some_example_name.lwjgl3.application_classes.entity.FoodEntityFactory;
 import io.github.some_example_name.lwjgl3.application_classes.game.LevelManager;
 
 public class HealthSnakeGameScene extends Scene {
+    // Configuration constants
+    private static final float WORLD_WIDTH = 2000f;
+    private static final float WORLD_HEIGHT = 2000f;
+    private static final int MAX_FOOD = 30;
+    private static final float FOOD_SPAWN_INTERVAL = 2f;
+    private static final float ENEMY_SPAWN_INTERVAL = 3f;
+
+    // Scene components
     private Texture backgroundTexture;
     private SpriteBatch batch;
     private EntityManager entityManager;
@@ -35,40 +45,37 @@ public class HealthSnakeGameScene extends Scene {
     private IOManager ioManager;
     private LevelManager levelManager;
 
+    // Game entities
     private SnakePlayer player;
     private Array<EnemySnake> enemies;
     private Array<FoodEntity> foods;
 
-    // Infinite world parameters
-    private float worldWidth = 2000; // Virtual world width
-    private float worldHeight = 2000; // Virtual world height
-    private Vector2 cameraOffset = new Vector2(0, 0); // Camera offset from player
-
-    private float foodSpawnTimer = 0;
-    private float foodSpawnInterval = 2f; // Seconds between food spawns
-    private int maxFood = 30; // Maximum food items in the world
-
+    // Rendering and UI
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
-    
-    // Level transition
+
+    // Timers and state management
+    private float foodSpawnTimer = 0;
+    private float enemySpawnTimer = 0;
     private boolean waitingForInput = false;
     private boolean showingLevelTransition = false;
     private float transitionTimer = 0;
-    private float transitionDuration = 2.0f;
     private String transitionMessage = "";
     private Texture levelTransitionTexture;
 
+    // Camera and world management
+    private Vector2 cameraOffset = new Vector2(0, 0);
+
     public HealthSnakeGameScene(SpriteBatch batch, EntityManager entityManager,
-                            MovementManager movementManager, World world,
-                            SceneManager sceneManager, IOManager ioManager) {
+            MovementManager movementManager, World world,
+            SceneManager sceneManager, IOManager ioManager) {
         this(batch, entityManager, movementManager, world, sceneManager, ioManager, new LevelManager());
     }
-    
+
     public HealthSnakeGameScene(SpriteBatch batch, EntityManager entityManager,
-                            MovementManager movementManager, World world,
-                            SceneManager sceneManager, IOManager ioManager,
-                            LevelManager levelManager) {
+            MovementManager movementManager, World world,
+            SceneManager sceneManager, IOManager ioManager,
+            LevelManager levelManager) {
         this.batch = batch;
         this.entityManager = entityManager;
         this.movementManager = movementManager;
@@ -77,68 +84,105 @@ public class HealthSnakeGameScene extends Scene {
         this.ioManager = ioManager;
         this.levelManager = levelManager;
 
+        initializeGameComponents();
+    }
+
+    /**
+     * Initialize game components during constructor
+     */
+    private void initializeGameComponents() {
         shapeRenderer = new ShapeRenderer();
-        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
+        font = new BitmapFont(Gdx.files.internal(AssetPaths.GAME_FONT));
         font.setColor(Color.WHITE);
         font.getData().setScale(0.3f);
 
-        enemies = new Array<EnemySnake>();
-        foods = new Array<FoodEntity>();
+        enemies = new Array<>();
+        foods = new Array<>();
     }
 
     @Override
     public void initialize() {
-        System.out.println("[HealthSnakeGameScene] Initializing level " + levelManager.getCurrentLevel() + 
-                          (levelManager.isUnhealthyPath() ? " (Unhealthy Path)" : " (Healthy Path)"));
+        System.out.println("[HealthSnakeGameScene] Initializing level " + levelManager.getCurrentLevel());
 
+        // Clear previous entities
         entityManager.clearEntities();
 
-        // Stop any previous music and start game music
-        ioManager.getAudio().stopMusic();
-        ioManager.getAudio().playMusic("game_music.mp3");
+        // Manage audio
+        manageAudio();
 
         // Load textures
-        try {
-            backgroundTexture = new Texture(Gdx.files.internal("snake_background.png"));
-            levelTransitionTexture = new Texture(Gdx.files.internal("level_transition.png"));
-            System.out.println("[HealthSnakeGameScene] Textures loaded.");
-        } catch (Exception e) {
-            System.err.println("[HealthSnakeGameScene] Error loading textures: " + e.getMessage());
-            // Fallback or placeholder textures could be used here
-        }
+        loadTextures();
 
-        // Create player in the center of the world
-        player = new SnakePlayer("Player",
-                            worldWidth / 2f,
-                            worldHeight / 2f,
-                            "snake_head.png",
-                            "snake_body.png",
-                            levelManager);
-        entityManager.addEntity(player);
-        
-        // Add player to movement manager
-        movementManager.addEntity(player);
+        // Create player
+        createPlayer();
 
-        // Create enemy snakes distributed throughout the world
-        int enemyCount = 5 + levelManager.getCurrentLevel() * 2; // More enemies in higher levels
-        for (int i = 0; i < enemyCount; i++) {
-            createRandomEnemyInWorld(i);
-        }
+        // Create initial game elements
+        createInitialEnemies();
+        createInitialFood();
 
-        // Initial food items scattered around the world
-        for (int i = 0; i < 20; i++) {
-            spawnFoodInWorld();
-        }
-
-        // Reset camera offset to center on player initially
+        // Update camera position
         updateCameraPosition();
-        
-        // Show level transition if not level 1
+
+        // Show level transition if not first level
         if (levelManager.getCurrentLevel() > 1) {
             showLevelTransition();
         }
     }
-    
+
+    /**
+     * Manage audio based on current scene state
+     */
+    private void manageAudio() {
+        ioManager.getAudio().stopMusic();
+        ioManager.getAudio().playMusic(AssetPaths.GAME_MUSIC);
+    }
+
+    /**
+     * Load necessary textures for the scene
+     */
+    private void loadTextures() {
+        try {
+            backgroundTexture = new Texture(Gdx.files.internal(AssetPaths.BACKGROUND));
+            levelTransitionTexture = new Texture(Gdx.files.internal(AssetPaths.LEVEL_TRANSITION));
+            System.out.println("[HealthSnakeGameScene] Textures loaded.");
+        } catch (Exception e) {
+            System.err.println("[HealthSnakeGameScene] Error loading textures: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Create the player at the center of the world
+     */
+    private void createPlayer() {
+        player = new SnakePlayer("Player",
+                WORLD_WIDTH / 2f,
+                WORLD_HEIGHT / 2f,
+                AssetPaths.SNAKE_HEAD,
+                AssetPaths.SNAKE_BODY,
+                levelManager);
+        entityManager.addEntity(player);
+        movementManager.addEntity(player);
+    }
+
+    /**
+     * Create initial enemies based on current level
+     */
+    private void createInitialEnemies() {
+        int enemyCount = 5 + levelManager.getCurrentLevel() * 2;
+        for (int i = 0; i < enemyCount; i++) {
+            createRandomEnemyInWorld(i);
+        }
+    }
+
+    /**
+     * Create initial food items scattered in the world
+     */
+    private void createInitialFood() {
+        for (int i = 0; i < 20; i++) {
+            spawnFoodInWorld();
+        }
+    }
+
     private void showLevelTransition() {
         showingLevelTransition = true;
         transitionTimer = 0; // Reset the timer for animations
@@ -151,9 +195,9 @@ public class HealthSnakeGameScene extends Scene {
 
         // Calculate maximum distances in each direction
         float maxDistanceLeft = Math.min(1200, playerPos.x - 50);
-        float maxDistanceRight = Math.min(1200, worldWidth - 50 - playerPos.x);
+        float maxDistanceRight = Math.min(1200, WORLD_WIDTH - 50 - playerPos.x);
         float maxDistanceDown = Math.min(1200, playerPos.y - 50);
-        float maxDistanceUp = Math.min(1200, worldHeight - 50 - playerPos.y);
+        float maxDistanceUp = Math.min(1200, WORLD_HEIGHT - 50 - playerPos.y);
 
         float x, y;
         boolean tooClose;
@@ -162,13 +206,13 @@ public class HealthSnakeGameScene extends Scene {
         do {
             if (maxDistanceLeft < 100 || maxDistanceRight < 100 || maxDistanceDown < 100 || maxDistanceUp < 100) {
                 // Player is near edge, use directional spawn
-                if (playerPos.x < worldWidth / 2) {
+                if (playerPos.x < WORLD_WIDTH / 2) {
                     x = playerPos.x + MathUtils.random(300, maxDistanceRight);
                 } else {
                     x = playerPos.x - MathUtils.random(300, maxDistanceLeft);
                 }
 
-                if (playerPos.y < worldHeight / 2) {
+                if (playerPos.y < WORLD_HEIGHT / 2) {
                     y = playerPos.y + MathUtils.random(300, maxDistanceUp);
                 } else {
                     y = playerPos.y - MathUtils.random(300, maxDistanceDown);
@@ -182,16 +226,20 @@ public class HealthSnakeGameScene extends Scene {
                 y = playerPos.y + MathUtils.sin(angle) * distance;
 
                 // Adjust position if it would be outside bounds
-                if (x < 50) x = 50 + MathUtils.random(50);
-                if (x > worldWidth - 50) x = worldWidth - 50 - MathUtils.random(50);
-                if (y < 50) y = 50 + MathUtils.random(50);
-                if (y > worldHeight - 50) y = worldHeight - 50 - MathUtils.random(50);
+                if (x < 50)
+                    x = 50 + MathUtils.random(50);
+                if (x > WORLD_WIDTH - 50)
+                    x = WORLD_WIDTH - 50 - MathUtils.random(50);
+                if (y < 50)
+                    y = 50 + MathUtils.random(50);
+                if (y > WORLD_HEIGHT - 50)
+                    y = WORLD_HEIGHT - 50 - MathUtils.random(50);
             }
 
             tooClose = Vector2.dst(x, y, playerPos.x, playerPos.y) < 300;
             attempts++;
         } while (tooClose && attempts < 10);
-        
+
         // Adjust enemy speed based on level
         float enemySpeed = MathUtils.random(80f, 150f);
         if (levelManager.isUnhealthyPath()) {
@@ -204,55 +252,14 @@ public class HealthSnakeGameScene extends Scene {
 
         // Position the enemy on the map
         EnemySnake enemy = new EnemySnake(
-            "EnemySnake_" + idNumber,
-            x, y,
-            "enemy_head.png",
-            "enemy_body.png",
-            MathUtils.random(5, 15)
-        );
+                "EnemySnake_" + idNumber,
+                x, y,
+                AssetPaths.ENEMY_HEAD,
+                AssetPaths.ENEMY_BODY,
+                MathUtils.random(5, 15));
 
         enemies.add(enemy);
         entityManager.addEntity(enemy);
-    }
-
-    private void spawnFoodInWorld() {
-        if (foods.size >= maxFood) return;
-
-        // Position food randomly across the map
-        float x = MathUtils.random(50, worldWidth - 50);
-        float y = MathUtils.random(50, worldHeight - 50);
-
-        // Adjust healthy/unhealthy ratio based on level path
-        float healthyChance = levelManager.isUnhealthyPath() ? 0.5f : 0.7f;
-        boolean isHealthy = MathUtils.randomBoolean(healthyChance);
-
-        String texturePath = FoodEntity.getRandomTexturePath(isHealthy);
-        String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
-
-        FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
-        foods.add(food);
-        entityManager.addEntity(food);
-    }
-
-    private void updateCameraPosition() {
-        // Update camera to follow player
-        Vector2 playerPos = player.getPosition();
-
-        // Calculate screen center
-        float screenCenterX = Gdx.graphics.getWidth() / 2f;
-        float screenCenterY = Gdx.graphics.getHeight() / 2f;
-
-        // Set camera offset so player is at screen center
-        cameraOffset.x = playerPos.x - screenCenterX;
-        cameraOffset.y = playerPos.y - screenCenterY;
-    }
-
-    // Convert a world position to screen position
-    private Vector2 worldToScreen(float worldX, float worldY) {
-        return new Vector2(
-            worldX - cameraOffset.x,
-            worldY - cameraOffset.y
-        );
     }
 
     @Override
@@ -261,7 +268,7 @@ public class HealthSnakeGameScene extends Scene {
         if (showingLevelTransition) {
             // Increment the transition timer for animation effects
             transitionTimer += deltaTime;
-            
+
             // Check if player pressed Enter to continue
             if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
                 showingLevelTransition = false;
@@ -275,7 +282,7 @@ public class HealthSnakeGameScene extends Scene {
         if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
             System.out.println("[HealthSnakeGameScene] Pausing game...");
             sceneManager.pushScene(new SnakePauseScene(batch, sceneManager, entityManager, movementManager, ioManager),
-                                GameState.PAUSED);
+                    GameState.PAUSED);
             return;
         }
 
@@ -295,15 +302,15 @@ public class HealthSnakeGameScene extends Scene {
         } else if (player.checkWinCondition() && player.checkLoseCondition()) {
             // Both goals met simultaneously - proceed based on which is higher percentage
             boolean goUnhealthy = player.getUnhealthyFoodPercentage() > player.getHealthyFoodPercentage();
-            System.out.println("[HealthSnakeGameScene] Both goals met, progressing to next " + 
-                              (goUnhealthy ? "unhealthy" : "healthy") + " level...");
+            System.out.println("[HealthSnakeGameScene] Both goals met, progressing to next " +
+                    (goUnhealthy ? "unhealthy" : "healthy") + " level...");
             progressToNextLevel(goUnhealthy);
             return;
         }
 
         // Food spawn timer
         foodSpawnTimer += deltaTime;
-        if (foodSpawnTimer >= foodSpawnInterval && foods.size < maxFood) {
+        if (foodSpawnTimer >= FOOD_SPAWN_INTERVAL && foods.size < MAX_FOOD) {
             spawnFoodInWorld();
             foodSpawnTimer = 0;
         }
@@ -377,48 +384,6 @@ public class HealthSnakeGameScene extends Scene {
         // Update camera position to follow player
         updateCameraPosition();
     }
-    
-    private void progressToNextLevel(boolean unhealthyPath) {
-        // Update level manager with progression info
-        levelManager.progressToNextLevel(player.getHealthyFoodPercentage(), player.getUnhealthyFoodPercentage());
-        
-        // Save current player body size for continuity
-        int currentBodySize = player.getBodySize();
-        
-        // Start a new game scene with the updated level manager
-        sceneManager.changeScene(
-            new HealthSnakeGameScene(
-                batch,
-                entityManager,
-                movementManager,
-                sceneManager.getWorld(),
-                sceneManager,
-                ioManager,
-                levelManager
-            ),
-            GameState.RUNNING
-        );
-    }
-    
-    private void handleGameOver(String deathCause) {
-        // Pass separate calorie counts to death scene
-        sceneManager.changeScene(
-            new HealthSnakeDeathScene(
-                batch,
-                sceneManager,
-                entityManager,
-                movementManager,
-                ioManager,
-                player.getHealthyCalories(),
-                player.getUnhealthyCalories(),
-                player.getHealthyFoodCount(),
-                player.getUnhealthyFoodCount(),
-                deathCause,
-                levelManager
-            ),
-            GameState.GAME_OVER
-        );
-    }
 
     private void repositionOffscreenFood() {
         Vector2 playerPos = player.getPosition();
@@ -446,71 +411,76 @@ public class HealthSnakeGameScene extends Scene {
         }
     }
 
-private void spawnFoodNearPlayer() {
-    Vector2 playerPos = player.getPosition();
+    private void spawnFoodNearPlayer() {
+        Vector2 playerPos = player.getPosition();
 
-    // Calculate the maximum possible spawn distance in each direction without going outside world bounds
-    float maxDistanceLeft = Math.min(800, playerPos.x - 50);
-    float maxDistanceRight = Math.min(800, worldWidth - 50 - playerPos.x);
-    float maxDistanceDown = Math.min(800, playerPos.y - 50);
-    float maxDistanceUp = Math.min(800, worldHeight - 50 - playerPos.y);
+        // Calculate the maximum possible spawn distance in each direction without going
+        // outside world bounds
+        float maxDistanceLeft = Math.min(800, playerPos.x - 50);
+        float maxDistanceRight = Math.min(800, WORLD_WIDTH - 50 - playerPos.x);
+        float maxDistanceDown = Math.min(800, playerPos.y - 50);
+        float maxDistanceUp = Math.min(800, WORLD_HEIGHT - 50 - playerPos.y);
 
-    // Generate position using a smarter approach
-    float x, y;
-    float spawnDistance;
-    float angle;
+        // Generate position using a smarter approach
+        float x, y;
+        float spawnDistance;
+        float angle;
 
-    // If player is too close to any edge, use a different spawn strategy
-    if (maxDistanceLeft < 100 || maxDistanceRight < 100 || maxDistanceDown < 100 || maxDistanceUp < 100) {
-        // Player is near an edge - choose a position away from the nearest edge
-        if (playerPos.x < worldWidth / 2) {
-            // Player closer to left edge, spawn to the right
-            x = playerPos.x + MathUtils.random(100, maxDistanceRight);
+        // If player is too close to any edge, use a different spawn strategy
+        if (maxDistanceLeft < 100 || maxDistanceRight < 100 || maxDistanceDown < 100 || maxDistanceUp < 100) {
+            // Player is near an edge - choose a position away from the nearest edge
+            if (playerPos.x < WORLD_WIDTH / 2) {
+                // Player closer to left edge, spawn to the right
+                x = playerPos.x + MathUtils.random(100, maxDistanceRight);
+            } else {
+                // Player closer to right edge, spawn to the left
+                x = playerPos.x - MathUtils.random(100, maxDistanceLeft);
+            }
+
+            if (playerPos.y < WORLD_HEIGHT / 2) {
+                // Player closer to bottom edge, spawn above
+                y = playerPos.y + MathUtils.random(100, maxDistanceUp);
+            } else {
+                // Player closer to top edge, spawn below
+                y = playerPos.y - MathUtils.random(100, maxDistanceDown);
+            }
         } else {
-            // Player closer to right edge, spawn to the left
-            x = playerPos.x - MathUtils.random(100, maxDistanceLeft);
+            // Player is far from edges - use normal radial distribution
+            // Try to find a suitable position (with retries)
+            int attempts = 0;
+            do {
+                angle = MathUtils.random(MathUtils.PI2);
+                spawnDistance = MathUtils.random(300, 800);
+
+                x = playerPos.x + MathUtils.cos(angle) * spawnDistance;
+                y = playerPos.y + MathUtils.sin(angle) * spawnDistance;
+
+                // Adjust position if it would be outside bounds
+                if (x < 50)
+                    x = 50 + MathUtils.random(50);
+                if (x > WORLD_WIDTH - 50)
+                    x = WORLD_WIDTH - 50 - MathUtils.random(50);
+                if (y < 50)
+                    y = 50 + MathUtils.random(50);
+                if (y > WORLD_HEIGHT - 50)
+                    y = WORLD_HEIGHT - 50 - MathUtils.random(50);
+
+                attempts++;
+            } while (Vector2.dst(x, y, playerPos.x, playerPos.y) < 300 && attempts < 10);
         }
 
-        if (playerPos.y < worldHeight / 2) {
-            // Player closer to bottom edge, spawn above
-            y = playerPos.y + MathUtils.random(100, maxDistanceUp);
-        } else {
-            // Player closer to top edge, spawn below
-            y = playerPos.y - MathUtils.random(100, maxDistanceDown);
-        }
-    } else {
-        // Player is far from edges - use normal radial distribution
-        // Try to find a suitable position (with retries)
-        int attempts = 0;
-        do {
-            angle = MathUtils.random(MathUtils.PI2);
-            spawnDistance = MathUtils.random(300, 800);
+        // Adjust healthy/unhealthy ratio based on level path
+        float healthyChance = levelManager.isUnhealthyPath() ? 0.5f : 0.7f;
+        boolean isHealthy = MathUtils.randomBoolean(healthyChance);
 
-            x = playerPos.x + MathUtils.cos(angle) * spawnDistance;
-            y = playerPos.y + MathUtils.sin(angle) * spawnDistance;
+        String texturePath = FoodEntityFactory.getRandomTexturePath(isHealthy);
+        String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
 
-            // Adjust position if it would be outside bounds
-            if (x < 50) x = 50 + MathUtils.random(50);
-            if (x > worldWidth - 50) x = worldWidth - 50 - MathUtils.random(50);
-            if (y < 50) y = 50 + MathUtils.random(50);
-            if (y > worldHeight - 50) y = worldHeight - 50 - MathUtils.random(50);
-
-            attempts++;
-        } while (Vector2.dst(x, y, playerPos.x, playerPos.y) < 300 && attempts < 10);
+        // Create and add the new food entity
+        FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
+        foods.add(food);
+        entityManager.addEntity(food);
     }
-
-    // Adjust healthy/unhealthy ratio based on level path
-    float healthyChance = levelManager.isUnhealthyPath() ? 0.5f : 0.7f;
-    boolean isHealthy = MathUtils.randomBoolean(healthyChance);
-
-    String texturePath = FoodEntity.getRandomTexturePath(isHealthy);
-    String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
-
-    // Create and add the new food entity
-    FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
-    foods.add(food);
-    entityManager.addEntity(food);
-}
 
     private void repositionEnemyNearPlayer(EnemySnake enemy) {
         Vector2 playerPos = player.getPosition();
@@ -521,10 +491,152 @@ private void spawnFoodNearPlayer() {
         float y = playerPos.y + MathUtils.sin(angle) * spawnDistance;
 
         // Keep coordinates within world bounds
-        x = MathUtils.clamp(x, 50, worldWidth - 50);
-        y = MathUtils.clamp(y, 50, worldHeight - 50);
+        x = MathUtils.clamp(x, 50, WORLD_WIDTH - 50);
+        y = MathUtils.clamp(y, 50, WORLD_HEIGHT - 50);
 
         enemy.setPosition(x, y);
+    }
+
+    private void drawUI(SpriteBatch batch) {
+        // End batch to draw shape renderer elements
+        batch.end();
+
+        // Draw UI elements with ShapeRenderer
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        // Draw healthy food progress bar (green)
+        shapeRenderer.setColor(0.2f, 0.8f, 0.2f, 1);
+        shapeRenderer.rect(20, Gdx.graphics.getHeight() - 30, 200 * player.getHealthyFoodPercentage(), 20);
+
+        // Draw unhealthy food progress bar (red)
+        shapeRenderer.setColor(0.8f, 0.2f, 0.2f, 1);
+        shapeRenderer.rect(Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 30,
+                200 * player.getUnhealthyFoodPercentage(), 20);
+
+        shapeRenderer.end();
+
+        // Draw bar outlines
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(20, Gdx.graphics.getHeight() - 30, 200, 20);
+        shapeRenderer.rect(Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 30, 200, 20);
+        shapeRenderer.end();
+
+        // Restart batch for text drawing
+        batch.begin();
+
+        // Draw bar labels
+        font.draw(batch, "Healthy", 20, Gdx.graphics.getHeight() - 40);
+        font.draw(batch, "Unhealthy", Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 40);
+
+        // Draw level information
+        String levelText = "Level " + levelManager.getCurrentLevel();
+        font.draw(batch, levelText, Gdx.graphics.getWidth() / 2 - 60, Gdx.graphics.getHeight() - 20);
+
+        // Draw food counts
+        String healthyCount = player.getHealthyFoodCount() + "/" + levelManager.getHealthyFoodGoal();
+        String unhealthyCount = player.getUnhealthyFoodCount() + "/" + levelManager.getUnhealthyFoodGoal();
+
+        font.draw(batch, healthyCount, 230, Gdx.graphics.getHeight() - 20);
+        font.draw(batch, unhealthyCount, Gdx.graphics.getWidth() - 50, Gdx.graphics.getHeight() - 20);
+
+        // Draw calorie counters
+        font.setColor(0.2f, 0.9f, 0.2f, 1f);
+        font.draw(batch, "Healthy: " + player.getHealthyCalories() + " kcal", 20, 30);
+
+        font.setColor(0.9f, 0.2f, 0.2f, 1f);
+        font.draw(batch, "Unhealthy: " + player.getUnhealthyCalories() + " kcal", Gdx.graphics.getWidth() - 220, 30);
+
+        // Reset font color
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Size: " + player.getBodySize(), Gdx.graphics.getWidth() / 2 - 40, 30);
+    }
+
+    private void drawLevelTransition(SpriteBatch batch) {
+        // Draw semi-transparent background
+        batch.setColor(0, 0, 0, 0.7f);
+        batch.draw(levelTransitionTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.setColor(Color.WHITE);
+
+        // Create pulsing effect using transitionTimer
+        float pulse = (float) Math.sin(transitionTimer * 3) * 0.2f + 0.8f;
+        float scale = 0.35f + 0.05f * pulse;
+
+        // Draw level message - centered
+        drawCenteredText(batch, transitionMessage, Gdx.graphics.getHeight() / 2 + 70, scale, Color.WHITE);
+
+        // Display specific information based on the level path - centered
+        String infoText;
+        if (levelManager.isUnhealthyPath()) {
+            infoText = "Unhealthy Path: Snake is slower and larger!";
+            drawCenteredText(batch, infoText, Gdx.graphics.getHeight() / 2 + 20, 0.3f, new Color(1, 0.5f, 0.5f, 1));
+        } else {
+            infoText = "Healthy Path: Snake is faster and more agile!";
+            drawCenteredText(batch, infoText, Gdx.graphics.getHeight() / 2 + 20, 0.3f, new Color(0.5f, 1, 0.5f, 1));
+        }
+
+        // Show goals - centered
+        String healthyGoal = "Healthy Food Goal: " + levelManager.getHealthyFoodGoal();
+        String unhealthyGoal = "Unhealthy Food Goal: " + levelManager.getUnhealthyFoodGoal();
+
+        drawCenteredText(batch, healthyGoal, Gdx.graphics.getHeight() / 2 - 20, 0.25f, new Color(0.5f, 1, 0.5f, 1));
+        drawCenteredText(batch, unhealthyGoal, Gdx.graphics.getHeight() / 2 - 60, 0.25f, new Color(1, 0.5f, 0.5f, 1));
+
+        // Add "Press Enter to continue" text with pulsing effect - centered
+        drawCenteredText(batch, "Press Enter to continue",
+                Gdx.graphics.getHeight() / 2 - 120, 0.3f,
+                new Color(1, 1, 1, pulse)); // Pulsing opacity
+
+        // Reset font settings
+        font.setColor(Color.WHITE);
+        font.getData().setScale(0.3f);
+    }
+
+    private void drawCenteredText(SpriteBatch batch, String text, float y, float scale, Color color) {
+        font.getData().setScale(scale);
+        font.setColor(color);
+
+        // Use GlyphLayout to calculate exact text width
+        GlyphLayout layout = new GlyphLayout(font, text);
+        float textWidth = layout.width;
+
+        // Draw centered text
+        font.draw(batch, text, (Gdx.graphics.getWidth() - textWidth) / 2f, y);
+    }
+
+    private void progressToNextLevel(boolean unhealthyPath) {
+        // Update level manager with progression info
+        levelManager.progressToNextLevel(player.getHealthyFoodPercentage(), player.getUnhealthyFoodPercentage());
+
+        // Start a new game scene with the updated level manager
+        sceneManager.changeScene(
+                new HealthSnakeGameScene(
+                        batch,
+                        entityManager,
+                        movementManager,
+                        sceneManager.getWorld(),
+                        sceneManager,
+                        ioManager,
+                        levelManager),
+                GameState.RUNNING);
+    }
+
+    private void handleGameOver(String deathCause) {
+        // Pass separate calorie counts to death scene
+        sceneManager.changeScene(
+                new HealthSnakeDeathScene(
+                        batch,
+                        sceneManager,
+                        entityManager,
+                        movementManager,
+                        ioManager,
+                        player.getHealthyCalories(),
+                        player.getUnhealthyCalories(),
+                        player.getHealthyFoodCount(),
+                        player.getUnhealthyFoodCount(),
+                        deathCause,
+                        levelManager),
+                GameState.GAME_OVER);
     }
 
     @Override
@@ -538,10 +650,12 @@ private void spawnFoodNearPlayer() {
 
             // Calculate starting position based on camera offset
             float startX = -(cameraOffset.x % bgWidth);
-            if (startX > 0) startX -= bgWidth;
+            if (startX > 0)
+                startX -= bgWidth;
 
             float startY = -(cameraOffset.y % bgHeight);
-            if (startY > 0) startY -= bgHeight;
+            if (startY > 0)
+                startY -= bgHeight;
 
             // Draw background tiles
             for (float x = startX; x < Gdx.graphics.getWidth(); x += bgWidth) {
@@ -557,7 +671,7 @@ private void spawnFoodNearPlayer() {
 
             // Only draw if on screen
             if (screenPos.x >= -50 && screenPos.x <= Gdx.graphics.getWidth() + 50 &&
-                screenPos.y >= -50 && screenPos.y <= Gdx.graphics.getHeight() + 50) {
+                    screenPos.y >= -50 && screenPos.y <= Gdx.graphics.getHeight() + 50) {
 
                 // We need to draw the food at its screen position
                 float origX = food.getPosition().x;
@@ -578,7 +692,7 @@ private void spawnFoodNearPlayer() {
 
             // Only draw if on screen (use a larger margin for larger entities)
             if (screenPos.x >= -100 && screenPos.x <= Gdx.graphics.getWidth() + 100 &&
-                screenPos.y >= -100 && screenPos.y <= Gdx.graphics.getHeight() + 100) {
+                    screenPos.y >= -100 && screenPos.y <= Gdx.graphics.getHeight() + 100) {
 
                 // Draw enemy at screen position
                 enemy.renderAtPosition(batch, screenPos.x, screenPos.y);
@@ -587,10 +701,10 @@ private void spawnFoodNearPlayer() {
 
         // Draw player (always centered)
         player.render(batch);
-        
+
         // Draw UI elements - progress bars, level info, etc.
         drawUI(batch);
-        
+
         // Draw level transition overlay if active
         if (showingLevelTransition) {
             drawLevelTransition(batch);
@@ -598,126 +712,101 @@ private void spawnFoodNearPlayer() {
 
         batch.end();
     }
-    
-    private void drawUI(SpriteBatch batch) {
-        // End batch to draw shape renderer elements
-        batch.end();
-        
-        // Draw UI elements with ShapeRenderer
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-    
-        // Draw healthy food progress bar (green)
-        shapeRenderer.setColor(0.2f, 0.8f, 0.2f, 1);
-        shapeRenderer.rect(20, Gdx.graphics.getHeight() - 30, 200 * player.getHealthyFoodPercentage(), 20);
-    
-        // Draw unhealthy food progress bar (red)
-        shapeRenderer.setColor(0.8f, 0.2f, 0.2f, 1);
-        shapeRenderer.rect(Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 30, 200 * player.getUnhealthyFoodPercentage(), 20);
-    
-        shapeRenderer.end();
-    
-        // Draw bar outlines
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(20, Gdx.graphics.getHeight() - 30, 200, 20);
-        shapeRenderer.rect(Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 30, 200, 20);
-        shapeRenderer.end();
-    
-        // Restart batch for text drawing
-        batch.begin();
-        
-        // Draw bar labels
-        font.draw(batch, "Healthy", 20, Gdx.graphics.getHeight() - 40);
-        font.draw(batch, "Unhealthy", Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 40);
-        
-        // Draw level information
-        String levelText = "Level " + levelManager.getCurrentLevel();
-        font.draw(batch, levelText, Gdx.graphics.getWidth() / 2 - 60, Gdx.graphics.getHeight() - 20);
-        
-        // Draw food counts
-        String healthyCount = player.getHealthyFoodCount() + "/" + levelManager.getHealthyFoodGoal();
-        String unhealthyCount = player.getUnhealthyFoodCount() + "/" + levelManager.getUnhealthyFoodGoal();
-        
-        font.draw(batch, healthyCount, 230, Gdx.graphics.getHeight() - 20);
-        font.draw(batch, unhealthyCount, Gdx.graphics.getWidth() - 50, Gdx.graphics.getHeight() - 20);
-        
-        // Draw calorie counters
-        font.setColor(0.2f, 0.9f, 0.2f, 1f);
-        font.draw(batch, "Healthy: " + player.getHealthyCalories() + " kcal", 20, 30);
-        
-        font.setColor(0.9f, 0.2f, 0.2f, 1f);
-        font.draw(batch, "Unhealthy: " + player.getUnhealthyCalories() + " kcal", Gdx.graphics.getWidth() - 220, 30);
-        
-        // Reset font color
-        font.setColor(Color.WHITE);
-        font.draw(batch, "Size: " + player.getBodySize(), Gdx.graphics.getWidth() / 2 - 40, 30);
+
+    private void spawnFoodInWorld() {
+        if (foods.size >= MAX_FOOD)
+            return;
+
+        // Position food randomly across the map
+        float x = MathUtils.random(50, WORLD_WIDTH - 50);
+        float y = MathUtils.random(50, WORLD_HEIGHT - 50);
+
+        // Adjust healthy/unhealthy ratio based on level path
+        float healthyChance = levelManager.isUnhealthyPath() ? 0.5f : 0.7f;
+        boolean isHealthy = MathUtils.randomBoolean(healthyChance);
+
+        String texturePath = FoodEntityFactory.getRandomTexturePath(isHealthy);
+        String name = isHealthy ? "HealthyFood_" + MathUtils.random(1000) : "UnhealthyFood_" + MathUtils.random(1000);
+
+        FoodEntity food = new FoodEntity(name, x, y, isHealthy, texturePath);
+        foods.add(food);
+        entityManager.addEntity(food);
     }
 
-    private void drawCenteredText(SpriteBatch batch, String text, float y, float scale, Color color) {
-        font.getData().setScale(scale);
-        font.setColor(color);
-        
-        // Use GlyphLayout to calculate exact text width
-        GlyphLayout layout = new GlyphLayout(font, text);
-        float textWidth = layout.width;
-        
-        // Draw centered text
-        font.draw(batch, text, (Gdx.graphics.getWidth() - textWidth) / 2f, y);
+    private void updateCameraPosition() {
+        // Update camera to follow player
+        Vector2 playerPos = player.getPosition();
+
+        // Calculate screen center
+        float screenCenterX = Gdx.graphics.getWidth() / 2f;
+        float screenCenterY = Gdx.graphics.getHeight() / 2f;
+
+        // Set camera offset so player is at screen center
+        cameraOffset.x = playerPos.x - screenCenterX;
+        cameraOffset.y = playerPos.y - screenCenterY;
     }
-    
-    private void drawLevelTransition(SpriteBatch batch) {
-        // Draw semi-transparent background
-        batch.setColor(0, 0, 0, 0.7f);
-        batch.draw(levelTransitionTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.setColor(Color.WHITE);
-        
-        // Create pulsing effect using transitionTimer
-        float pulse = (float)Math.sin(transitionTimer * 3) * 0.2f + 0.8f;
-        float scale = 0.35f + 0.05f * pulse;
-        
-        // Draw level message - centered
-        drawCenteredText(batch, transitionMessage, Gdx.graphics.getHeight() / 2 + 70, scale, Color.WHITE);
-        
-        // Display specific information based on the level path - centered
-        String infoText;
-        if (levelManager.isUnhealthyPath()) {
-            infoText = "Unhealthy Path: Snake is slower and larger!";
-            drawCenteredText(batch, infoText, Gdx.graphics.getHeight() / 2 + 20, 0.3f, new Color(1, 0.5f, 0.5f, 1));
-        } else {
-            infoText = "Healthy Path: Snake is faster and more agile!";
-            drawCenteredText(batch, infoText, Gdx.graphics.getHeight() / 2 + 20, 0.3f, new Color(0.5f, 1, 0.5f, 1));
-        }
-        
-        // Show goals - centered
-        String healthyGoal = "Healthy Food Goal: " + levelManager.getHealthyFoodGoal();
-        String unhealthyGoal = "Unhealthy Food Goal: " + levelManager.getUnhealthyFoodGoal();
-        
-        drawCenteredText(batch, healthyGoal, Gdx.graphics.getHeight() / 2 - 20, 0.25f, new Color(0.5f, 1, 0.5f, 1));
-        drawCenteredText(batch, unhealthyGoal, Gdx.graphics.getHeight() / 2 - 60, 0.25f, new Color(1, 0.5f, 0.5f, 1));
-        
-        // Add "Press Enter to continue" text with pulsing effect - centered
-        drawCenteredText(batch, "Press Enter to continue", 
-                         Gdx.graphics.getHeight() / 2 - 120, 0.3f, 
-                         new Color(1, 1, 1, pulse)); // Pulsing opacity
-        
-        // Reset font settings
-        font.setColor(Color.WHITE);
-        font.getData().setScale(0.3f);
+
+    private Vector2 worldToScreen(float worldX, float worldY) {
+        return new Vector2(
+                worldX - cameraOffset.x,
+                worldY - cameraOffset.y);
     }
 
     @Override
     public void dispose() {
-        if (backgroundTexture != null) {
-            backgroundTexture.dispose();
+        // Dispose textures
+        safeDisposeTexture(backgroundTexture);
+        safeDisposeTexture(levelTransitionTexture);
+
+        // Dispose rendering components
+        safeDisposeShapeRenderer(shapeRenderer);
+        safeDisposeFont(font);
+
+        // Dispose game entities
+        disposeGameEntities();
+    }
+
+    /**
+     * Safely dispose of a texture
+     */
+    private void safeDisposeTexture(Texture texture) {
+        if (texture != null) {
+            texture.dispose();
         }
-        if (levelTransitionTexture != null) {
-            levelTransitionTexture.dispose();
+    }
+
+    /**
+     * Safely dispose of ShapeRenderer
+     */
+    private void safeDisposeShapeRenderer(ShapeRenderer renderer) {
+        if (renderer != null) {
+            renderer.dispose();
         }
-        if (shapeRenderer != null) {
-            shapeRenderer.dispose();
+    }
+
+    /**
+     * Safely dispose of BitmapFont
+     */
+    private void safeDisposeFont(BitmapFont bitmapFont) {
+        if (bitmapFont != null) {
+            bitmapFont.dispose();
         }
-        if (font != null) {
-            font.dispose();
+    }
+
+    /**
+     * Dispose of game entities
+     */
+    private void disposeGameEntities() {
+        // Dispose enemies
+        for (EnemySnake enemy : enemies) {
+            enemy.dispose();
         }
+        enemies.clear();
+
+        // Dispose food items
+        for (FoodEntity food : foods) {
+            food.dispose();
+        }
+        foods.clear();
     }
 }

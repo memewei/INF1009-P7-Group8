@@ -30,7 +30,7 @@ public class FoodEntity extends Entity implements Collidable {
         super(entityName, positionX, positionY, texturePath);
         this.isHealthy = isHealthy;
         // Size based on food type
-        this.foodSize = isHealthy ? 24f : 36f;
+        this.foodSize = isHealthy ? 40f : 42f;
         
         // Get food information from the nutrition manager
         NutritionManager.FoodInfo info = NutritionManager.getInstance().getFoodInfo(texturePath, isHealthy);

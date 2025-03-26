@@ -15,6 +15,7 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManag
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
 import io.github.some_example_name.lwjgl3.application_classes.game.NutritionManager;
 import io.github.some_example_name.lwjgl3.application_classes.game.LevelManager;
 
@@ -204,10 +205,10 @@ public class HealthSnakeDeathScene extends Scene {
         // Menu navigation
         if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.UP)) {
             selectedItem = (selectedItem - 1 + menuItems.length) % menuItems.length;
-            ioManager.getAudio().playSound("menu_move.mp3");
+            ioManager.getAudio().playSound(AssetPaths.MENU_MOVE);
         } else if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.DOWN)) {
             selectedItem = (selectedItem + 1) % menuItems.length;
-            ioManager.getAudio().playSound("menu_move.mp3");
+            ioManager.getAudio().playSound(AssetPaths.MENU_MOVE);
         }
 
         // Menu selection
@@ -217,7 +218,7 @@ public class HealthSnakeDeathScene extends Scene {
     }
 
     private void handleMenuSelection() {
-        ioManager.getAudio().playSound("menu_select.mp3");
+        ioManager.getAudio().playSound(AssetPaths.MENU_SELECT);
 
         switch (selectedItem) {
             case 0: // Try Again

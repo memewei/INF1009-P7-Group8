@@ -35,8 +35,8 @@ public class SnakePlayer extends MovableEntity {
     private Texture headTexture;
     private Texture bodyTexture;
 
-    private float segmentSpacing = 18f; // distance between segments
-    private float baseBodySize = 24f; // base size of body segments
+    private float segmentSpacing = 22f; // distance between segments
+    private float baseBodySize = 28f; // base size of body segments
     private float currentBodySize; // current size after applying multipliers
 
     // For infinite world, we center the player on screen and move the world

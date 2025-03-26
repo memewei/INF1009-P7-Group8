@@ -32,8 +32,10 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManag
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
 import io.github.some_example_name.lwjgl3.application_classes.entity.EnemySnake;
 import io.github.some_example_name.lwjgl3.application_classes.entity.FoodEntity;
+import io.github.some_example_name.lwjgl3.application_classes.entity.FoodEntityFactory;
 import io.github.some_example_name.lwjgl3.abstract_engine.control.ControlMode;
 
 public class HealthSnakeMenuScene extends Scene {
@@ -96,19 +98,20 @@ public class HealthSnakeMenuScene extends Scene {
     public void initialize() {
         try {
             // Load all required textures
-            backgroundTexture = new Texture(Gdx.files.internal("snake_background.png"));
-            titleTexture = new Texture(Gdx.files.internal("health_snake_title.png"));
-            instructionsTexture = new Texture(Gdx.files.internal("instructions.png"));
-            soundSlider = new Texture(Gdx.files.internal("sound_slider.png"));
-            soundBar = new Texture(Gdx.files.internal("sound_bar.png"));
-            snakeTexture = new Texture(Gdx.files.internal("snake_head.png")); // Default color
-            skin = new Skin(Gdx.files.internal("uiskin.json"));
+            backgroundTexture = new Texture(Gdx.files.internal(AssetPaths.BACKGROUND));
+            titleTexture = new Texture(Gdx.files.internal(AssetPaths.TITLE));
+            instructionsTexture = new Texture(Gdx.files.internal(AssetPaths.INSTRUCTIONS));
+            soundSlider = new Texture(Gdx.files.internal(AssetPaths.SOUND_SLIDER));
+            soundBar = new Texture(Gdx.files.internal(AssetPaths.SOUND_BAR));
+            snakeTexture = new Texture(Gdx.files.internal(AssetPaths.SNAKE_HEAD));
+            skin = new Skin(Gdx.files.internal(AssetPaths.UI_SKIN));
+            font = new BitmapFont(Gdx.files.internal(AssetPaths.GAME_FONT));
             
             // Stop any currently playing music first
             ioManager.getAudio().stopMusic();
 
             // Then start menu music
-            ioManager.getAudio().playMusic("menu_music.mp3");
+            ioManager.getAudio().playMusic(AssetPaths.MENU_MUSIC);
 
             // Initialize viewport and stage for UI
             viewport = new ScreenViewport();  // Ensures correct resizing
@@ -326,8 +329,8 @@ public class HealthSnakeMenuScene extends Scene {
         // Randomly choose snake type (player or enemy)
         boolean isPlayerType = MathUtils.randomBoolean(0.3f); // 30% chance for player-like snake
 
-        Texture headTexture = new Texture(Gdx.files.internal(isPlayerType ? "snake_head.png" : "enemy_head.png"));
-        Texture bodyTexture = new Texture(Gdx.files.internal(isPlayerType ? "snake_body.png" : "enemy_body.png"));
+        Texture headTexture = new Texture(Gdx.files.internal(isPlayerType ? AssetPaths.SNAKE_HEAD : AssetPaths.ENEMY_HEAD));
+        Texture bodyTexture = new Texture(Gdx.files.internal(isPlayerType ? AssetPaths.SNAKE_BODY : AssetPaths.ENEMY_BODY));
 
         // Random length between 5-15 segments
         int length = MathUtils.random(5, 15);
@@ -345,7 +348,7 @@ public class HealthSnakeMenuScene extends Scene {
 
         boolean isHealthy = MathUtils.randomBoolean(0.7f); // 70% chance for healthy food
 
-        String texturePath = FoodEntity.getRandomTexturePath(isHealthy);
+        String texturePath = FoodEntityFactory.getRandomTexturePath(isHealthy);
         Texture foodTexture = new Texture(texturePath);
         float size = isHealthy ? 20f : 30f;
 
@@ -384,10 +387,10 @@ public class HealthSnakeMenuScene extends Scene {
         // Menu navigation
         if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.UP)) {
             selectedItem = (selectedItem - 1 + menuItems.length) % menuItems.length;
-            ioManager.getAudio().playSound("menu_move.mp3");
+            ioManager.getAudio().playSound(AssetPaths.MENU_MOVE);
         } else if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.DOWN)) {
             selectedItem = (selectedItem + 1) % menuItems.length;
-            ioManager.getAudio().playSound("menu_move.mp3");
+            ioManager.getAudio().playSound(AssetPaths.MENU_MOVE);
         }
 
         // Menu selection
@@ -449,7 +452,7 @@ public class HealthSnakeMenuScene extends Scene {
     }
 
     private void handleMenuSelection() {
-        ioManager.getAudio().playSound("menu_select.mp3");
+        ioManager.getAudio().playSound(AssetPaths.MENU_SELECT);
 
         switch (selectedItem) {
             case 0: // Start Game

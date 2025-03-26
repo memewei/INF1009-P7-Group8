@@ -13,6 +13,7 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManag
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
 
 public class SnakePauseScene extends Scene {
     private Texture pauseBackground;
@@ -70,10 +71,10 @@ public class SnakePauseScene extends Scene {
         // Menu navigation
         if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.UP)) {
             selectedItem = (selectedItem - 1 + menuItems.length) % menuItems.length;
-            ioManager.getAudio().playSound("menu_move.mp3");
+            ioManager.getAudio().playSound(AssetPaths.MENU_MOVE);
         } else if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.DOWN)) {
             selectedItem = (selectedItem + 1) % menuItems.length;
-            ioManager.getAudio().playSound("menu_move.mp3");
+            ioManager.getAudio().playSound(AssetPaths.MENU_MOVE);
         }
 
         // Escape key resumes game (same as selecting "Resume Game")
@@ -89,7 +90,7 @@ public class SnakePauseScene extends Scene {
     }
 
     private void handleMenuSelection() {
-        ioManager.getAudio().playSound("menu_select.mp3");
+        ioManager.getAudio().playSound(AssetPaths.MENU_SELECT);
 
         switch (selectedItem) {
             case 0: // Resume Game

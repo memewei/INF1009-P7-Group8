@@ -1,112 +1,124 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.config;
 
-import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.Gdx;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Game configuration manager to handle persistent game settings
- * and provide default values when needed.
+ * Simplified game configuration manager with in-memory storage
  */
 public class GameConfig {
-    private static final String PREFS_NAME = "HealthSnake_Preferences";
-    
-    // Preference keys
-    private static final String KEY_MUSIC_VOLUME = "musicVolume";
-    private static final String KEY_SOUND_VOLUME = "soundVolume";
-    private static final String KEY_CONTROL_MODE = "controlMode";
-    private static final String KEY_SNAKE_COLOR = "snakeColor";
-    
-    // Default values
+    // Singleton instance
+    private static GameConfig instance;
+
+    // Default configuration values
     private static final float DEFAULT_MUSIC_VOLUME = 0.7f;
     private static final float DEFAULT_SOUND_VOLUME = 0.8f;
     private static final String DEFAULT_CONTROL_MODE = "KEYBOARD";
     private static final String DEFAULT_SNAKE_COLOR = "green";
-    
-    // Singleton instance
-    private static GameConfig instance;
-    
-    private Preferences prefs;
-    
+
+    // Configuration storage
+    private Map<String, Object> configMap;
+
     // Private constructor for singleton pattern
     private GameConfig() {
-        prefs = Gdx.app.getPreferences(PREFS_NAME);
+        configMap = new HashMap<>();
+        
+        // Set default values
+        configMap.put("musicVolume", DEFAULT_MUSIC_VOLUME);
+        configMap.put("soundVolume", DEFAULT_SOUND_VOLUME);
+        configMap.put("controlMode", DEFAULT_CONTROL_MODE);
+        configMap.put("snakeColor", DEFAULT_SNAKE_COLOR);
     }
-    
+
     /**
-     * Gets the singleton instance of the GameConfig
+     * Get the singleton instance of GameConfig
      */
-    public static GameConfig getInstance() {
+    public static synchronized GameConfig getInstance() {
         if (instance == null) {
             instance = new GameConfig();
         }
         return instance;
     }
-    
+
     /**
-     * Save the current settings
+     * Get music volume
      */
-    public void saveSettings() {
-        prefs.flush();
-    }
-    
-    // Music volume
     public float getMusicVolume() {
-        return prefs.getFloat(KEY_MUSIC_VOLUME, DEFAULT_MUSIC_VOLUME);
+        return getFloatValue("musicVolume", DEFAULT_MUSIC_VOLUME);
     }
-    
+
+    /**
+     * Set music volume
+     */
     public void setMusicVolume(float volume) {
-        prefs.putFloat(KEY_MUSIC_VOLUME, volume);
-        saveSettings();
+        configMap.put("musicVolume", volume);
     }
-    
-    // Sound volume
+
+    /**
+     * Get sound volume
+     */
     public float getSoundVolume() {
-        return prefs.getFloat(KEY_SOUND_VOLUME, DEFAULT_SOUND_VOLUME);
+        return getFloatValue("soundVolume", DEFAULT_SOUND_VOLUME);
     }
-    
+
+    /**
+     * Set sound volume
+     */
     public void setSoundVolume(float volume) {
-        prefs.putFloat(KEY_SOUND_VOLUME, volume);
-        saveSettings();
+        configMap.put("soundVolume", volume);
     }
-    
-    // Control mode
+
+    /**
+     * Get control mode
+     */
     public String getControlMode() {
-        return prefs.getString(KEY_CONTROL_MODE, DEFAULT_CONTROL_MODE);
+        return getStringValue("controlMode", DEFAULT_CONTROL_MODE);
     }
-    
+
+    /**
+     * Set control mode
+     */
     public void setControlMode(String mode) {
-        prefs.putString(KEY_CONTROL_MODE, mode);
-        saveSettings();
+        configMap.put("controlMode", mode);
     }
-    
-    // Snake color
+
+    /**
+     * Get snake color
+     */
     public String getSnakeColor() {
-        return prefs.getString(KEY_SNAKE_COLOR, DEFAULT_SNAKE_COLOR);
+        return getStringValue("snakeColor", DEFAULT_SNAKE_COLOR);
     }
-    
+
+    /**
+     * Set snake color
+     */
     public void setSnakeColor(String color) {
-        prefs.putString(KEY_SNAKE_COLOR, color);
-        saveSettings();
+        configMap.put("snakeColor", color);
     }
-    
-    // Game world settings (these could be saved to preferences too)
-    public int getWorldWidth() {
-        return 2000;
+
+    /**
+     * Generic method to get float value with default
+     */
+    private float getFloatValue(String key, float defaultValue) {
+        Object value = configMap.get(key);
+        return (value instanceof Float) ? (Float) value : defaultValue;
     }
-    
-    public int getWorldHeight() {
-        return 2000;
+
+    /**
+     * Generic method to get string value with default
+     */
+    private String getStringValue(String key, String defaultValue) {
+        Object value = configMap.get(key);
+        return (value instanceof String) ? (String) value : defaultValue;
     }
-    
-    public int getMaxFood() {
-        return 30;
-    }
-    
-    public float getFoodSpawnInterval() {
-        return 2.0f;
-    }
-    
-    public float getTransitionDuration() {
-        return 2.0f;
+
+    /**
+     * Reset all settings to default
+     */
+    public void resetToDefaults() {
+        configMap.put("musicVolume", DEFAULT_MUSIC_VOLUME);
+        configMap.put("soundVolume", DEFAULT_SOUND_VOLUME);
+        configMap.put("controlMode", DEFAULT_CONTROL_MODE);
+        configMap.put("snakeColor", DEFAULT_SNAKE_COLOR);
     }
 }
