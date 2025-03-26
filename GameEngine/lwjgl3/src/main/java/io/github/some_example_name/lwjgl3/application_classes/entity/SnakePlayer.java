@@ -12,6 +12,7 @@ import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.application_classes.game.LevelManager;
+import io.github.some_example_name.lwjgl3.application_classes.game.SnakeColor;
 import io.github.some_example_name.lwjgl3.abstract_engine.control.ControlMode;
 
 public class SnakePlayer extends MovableEntity {
@@ -22,6 +23,7 @@ public class SnakePlayer extends MovableEntity {
     private float minSpeed = 80f;
     private float maxSpeed = 300f;
     private float turnSpeed = 3.0f; // radians per second
+    private SnakeColor snakeColor;
 
     // Food tracking
     private int healthyFoodCount = 0;
@@ -45,12 +47,12 @@ public class SnakePlayer extends MovableEntity {
     // Vector to store last movement input
     private Vector2 movementInput = new Vector2(0, 0);
 
-    public SnakePlayer(String entityName, float positionX, float positionY, String headTexturePath, String bodyTexturePath, LevelManager levelManager) {
-        super(entityName, positionX, positionY, headTexturePath);
-        this.headTexture = new Texture(Gdx.files.internal(headTexturePath));
-        this.bodyTexture = new Texture(Gdx.files.internal(bodyTexturePath));
+    public SnakePlayer(String entityName, float positionX, float positionY, LevelManager levelManager, SnakeColor color) {
+        super(entityName, positionX, positionY, getHeadTexturePath(color));
+        this.headTexture = new Texture(Gdx.files.internal(getHeadTexturePath(color)));
+        this.bodyTexture = new Texture(Gdx.files.internal(getBodyTexturePath(color)));
         this.levelManager = levelManager;
-
+        this.snakeColor = color;
 
         // Apply level-specific settings
         this.speed = levelManager.getSnakeSpeed();
@@ -353,6 +355,45 @@ public class SnakePlayer extends MovableEntity {
 
     public float getCurrentBodySize() {
         return currentBodySize;
+    }
+    
+    private static String getHeadTexturePath(SnakeColor color) {
+        switch (color) {
+            case BROWN:
+                return "snake_head_brown.png";
+            case BLUE:
+                return "snake_head_blue.png";
+            case GREEN:
+            default:
+                return "snake_head_green.png";
+        }
+    }
+
+    private static String getBodyTexturePath(SnakeColor color) {
+        switch (color) {
+            case BROWN:
+                return "snake_body_brown.png";
+            case BLUE:
+                return "snake_body_blue.png";
+            case GREEN:
+            default:
+                return "snake_body_green.png";
+        }
+    }
+    
+    public void setSnakeColor(SnakeColor color) {
+    	System.out.println("[SnakePlayer] Changing color to: " + color);
+        if (this.snakeColor == color) return; // already the same, skip
+
+        this.snakeColor = color;
+
+        // Dispose existing textures
+        if (headTexture != null) headTexture.dispose();
+        if (bodyTexture != null) bodyTexture.dispose();
+
+        // Load new textures
+        this.headTexture = new Texture(Gdx.files.internal(getHeadTexturePath(color)));
+        this.bodyTexture = new Texture(Gdx.files.internal(getBodyTexturePath(color)));
     }
 
     /**

@@ -157,9 +157,8 @@ public class HealthSnakeGameScene extends Scene {
         player = new SnakePlayer("Player",
                 WORLD_WIDTH / 2f,
                 WORLD_HEIGHT / 2f,
-                AssetPaths.SNAKE_HEAD,
-                AssetPaths.SNAKE_BODY,
-                levelManager);
+                levelManager,
+                SnakeSettingScene.selectedSnakeColor);
         entityManager.addEntity(player);
         movementManager.addEntity(player);
     }
@@ -750,6 +749,10 @@ public class HealthSnakeGameScene extends Scene {
         return new Vector2(
                 worldX - cameraOffset.x,
                 worldY - cameraOffset.y);
+    }
+    
+    public SnakePlayer getPlayer() {
+        return this.player;
     }
 
     @Override
