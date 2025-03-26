@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
@@ -51,6 +52,7 @@ public class HealthSnakeGameScene extends Scene {
     private BitmapFont font;
     
     // Level transition
+    private boolean waitingForInput = false;
     private boolean showingLevelTransition = false;
     private float transitionTimer = 0;
     private float transitionDuration = 2.0f;
@@ -139,7 +141,7 @@ public class HealthSnakeGameScene extends Scene {
     
     private void showLevelTransition() {
         showingLevelTransition = true;
-        transitionTimer = 0;
+        transitionTimer = 0; // Reset the timer for animations
         transitionMessage = levelManager.getLevelDescription();
         ioManager.getAudio().playSound("level_up.mp3");
     }
@@ -257,9 +259,13 @@ public class HealthSnakeGameScene extends Scene {
     public void update(float deltaTime) {
         // Handle level transition display
         if (showingLevelTransition) {
+            // Increment the transition timer for animation effects
             transitionTimer += deltaTime;
-            if (transitionTimer >= transitionDuration) {
+            
+            // Check if player pressed Enter to continue
+            if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ENTER)) {
                 showingLevelTransition = false;
+                transitionTimer = 0; // Reset timer when exiting transition
             }
             // Don't process other game updates during transition
             return;
@@ -646,6 +652,18 @@ private void spawnFoodNearPlayer() {
         font.setColor(Color.WHITE);
         font.draw(batch, "Size: " + player.getBodySize(), Gdx.graphics.getWidth() / 2 - 40, 30);
     }
+
+    private void drawCenteredText(SpriteBatch batch, String text, float y, float scale, Color color) {
+        font.getData().setScale(scale);
+        font.setColor(color);
+        
+        // Use GlyphLayout to calculate exact text width
+        GlyphLayout layout = new GlyphLayout(font, text);
+        float textWidth = layout.width;
+        
+        // Draw centered text
+        font.draw(batch, text, (Gdx.graphics.getWidth() - textWidth) / 2f, y);
+    }
     
     private void drawLevelTransition(SpriteBatch batch) {
         // Draw semi-transparent background
@@ -653,52 +671,35 @@ private void spawnFoodNearPlayer() {
         batch.draw(levelTransitionTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.setColor(Color.WHITE);
         
-        // Calculate animation progress (0 to 1)
-        float progress = transitionTimer / transitionDuration;
+        // Create pulsing effect using transitionTimer
+        float pulse = (float)Math.sin(transitionTimer * 3) * 0.2f + 0.8f;
+        float scale = 0.35f + 0.05f * pulse;
         
-        // Animated text scaling
-        float scale = 0.3f + 0.1f * (float)Math.sin(progress * Math.PI * 4);
-        font.getData().setScale(scale);
+        // Draw level message - centered
+        drawCenteredText(batch, transitionMessage, Gdx.graphics.getHeight() / 2 + 70, scale, Color.WHITE);
         
-        // Draw level message
-        font.setColor(1, 1, 1, 1);
-        float messageWidth = font.draw(batch, transitionMessage, 0, 0).width;
-        font.draw(batch, transitionMessage, 
-            (Gdx.graphics.getWidth() - messageWidth * scale) / 2,
-            Gdx.graphics.getHeight() / 2);
-            
-        // Draw additional level information
-        font.getData().setScale(0.25f);
-        
-        // Display specific information based on the level path
+        // Display specific information based on the level path - centered
         String infoText;
         if (levelManager.isUnhealthyPath()) {
             infoText = "Unhealthy Path: Snake is slower and larger!";
-            font.setColor(1, 0.5f, 0.5f, 1);
+            drawCenteredText(batch, infoText, Gdx.graphics.getHeight() / 2 + 20, 0.3f, new Color(1, 0.5f, 0.5f, 1));
         } else {
             infoText = "Healthy Path: Snake is faster and more agile!";
-            font.setColor(0.5f, 1, 0.5f, 1);
+            drawCenteredText(batch, infoText, Gdx.graphics.getHeight() / 2 + 20, 0.3f, new Color(0.5f, 1, 0.5f, 1));
         }
         
-        float infoWidth = font.draw(batch, infoText, 0, 0).width;
-        font.draw(batch, infoText,
-            (Gdx.graphics.getWidth() - infoWidth * 0.25f) / 2,
-            Gdx.graphics.getHeight() / 2 - 40);
-            
-        // Show goals
+        // Show goals - centered
         String healthyGoal = "Healthy Food Goal: " + levelManager.getHealthyFoodGoal();
         String unhealthyGoal = "Unhealthy Food Goal: " + levelManager.getUnhealthyFoodGoal();
         
-        font.setColor(0.5f, 1, 0.5f, 1);
-        font.draw(batch, healthyGoal, 
-            Gdx.graphics.getWidth() / 2 - 150,
-            Gdx.graphics.getHeight() / 2 - 80);
-            
-        font.setColor(1, 0.5f, 0.5f, 1);
-        font.draw(batch, unhealthyGoal, 
-            Gdx.graphics.getWidth() / 2 - 150,
-            Gdx.graphics.getHeight() / 2 - 110);
-            
+        drawCenteredText(batch, healthyGoal, Gdx.graphics.getHeight() / 2 - 20, 0.25f, new Color(0.5f, 1, 0.5f, 1));
+        drawCenteredText(batch, unhealthyGoal, Gdx.graphics.getHeight() / 2 - 60, 0.25f, new Color(1, 0.5f, 0.5f, 1));
+        
+        // Add "Press Enter to continue" text with pulsing effect - centered
+        drawCenteredText(batch, "Press Enter to continue", 
+                         Gdx.graphics.getHeight() / 2 - 120, 0.3f, 
+                         new Color(1, 1, 1, pulse)); // Pulsing opacity
+        
         // Reset font settings
         font.setColor(Color.WHITE);
         font.getData().setScale(0.3f);

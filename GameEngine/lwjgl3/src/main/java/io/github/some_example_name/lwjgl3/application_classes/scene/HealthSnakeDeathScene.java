@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 
@@ -263,6 +264,18 @@ public class HealthSnakeDeathScene extends Scene {
         }
     }
 
+    private void drawCenteredText(SpriteBatch batch, String text, float y, float scale, Color color) {
+        font.getData().setScale(scale);
+        font.setColor(color);
+        
+        // Calculate text width for centering
+        GlyphLayout layout = new GlyphLayout(font, text);
+        float textWidth = layout.width;
+        
+        // Draw centered text
+        font.draw(batch, text, (Gdx.graphics.getWidth() - textWidth) / 2f, y);
+    }
+
     @Override
     public void render(SpriteBatch batch) {
         batch.begin();
@@ -303,7 +316,7 @@ public class HealthSnakeDeathScene extends Scene {
             }
         }
 
-        // Draw game over text
+        // Draw game over text centered
         if (gameOverTexture != null) {
             float scale = 0.8f + 0.2f * (float) Math.sin(timeElapsed * 2);
             float width = gameOverTexture.getWidth() * scale;
@@ -317,112 +330,84 @@ public class HealthSnakeDeathScene extends Scene {
             );
         }
         
-        // Draw level info
-        font.getData().setScale(0.4f);
-        String levelText = "Level " + level;
-        float levelWidth = font.draw(batch, levelText, 0, 0).width * 0.4f;
-        font.setColor(1f, 0.5f, 0.5f, 1f);
-        font.draw(
-                batch,
-                levelText,
-                (Gdx.graphics.getWidth() - levelWidth) / 2,
-                Gdx.graphics.getHeight() - 130
-        );
+        // Draw level info centered
+        drawCenteredText(batch, "Level " + level, Gdx.graphics.getHeight() - 130, 0.4f, 
+                        new Color(1f, 0.5f, 0.5f, 1f));
 
-        // Draw death message
-        font.getData().setScale(0.3f);
-        float messageWidth = font.draw(batch, deathMessage, 0, 0).width * 0.3f;
-        font.setColor(1f, 0.3f, 0.3f, 1f);
-        font.draw(
-                batch,
-                deathMessage,
-                (Gdx.graphics.getWidth() - messageWidth) / 2,
-                Gdx.graphics.getHeight() - 180
-        );
+        // Draw death message centered
+        drawCenteredText(batch, deathMessage, Gdx.graphics.getHeight() - 180, 0.3f, 
+                        new Color(1f, 0.3f, 0.3f, 1f));
 
-        // Draw calorie counts separately
-        font.getData().setScale(0.3f);
-        
+        // Draw calorie counts with centered alignment
         // Healthy calories (green)
-        font.setColor(0.3f, 0.9f, 0.3f, 1f);
-        String healthyText = "Healthy Food: " + healthyCount + " items (" + healthyCalories + " kcal)";
-        float healthyWidth = font.draw(batch, healthyText, 0, 0).width * 0.3f;
-        font.draw(
-                batch,
-                healthyText,
-                (Gdx.graphics.getWidth() - healthyWidth) / 2,
-                Gdx.graphics.getHeight() - 220
-        );
+        drawCenteredText(batch, 
+                        "Healthy Food: " + healthyCount + " items (" + healthyCalories + " kcal)", 
+                        Gdx.graphics.getHeight() - 220, 0.3f, 
+                        new Color(0.3f, 0.9f, 0.3f, 1f));
         
         // Unhealthy calories (red)
-        font.setColor(0.9f, 0.3f, 0.3f, 1f);
-        String unhealthyText = "Unhealthy Food: " + unhealthyCount + " items (" + unhealthyCalories + " kcal)";
-        float unhealthyWidth = font.draw(batch, unhealthyText, 0, 0).width * 0.3f;
-        font.draw(
-                batch,
-                unhealthyText,
-                (Gdx.graphics.getWidth() - unhealthyWidth) / 2,
-                Gdx.graphics.getHeight() - 250
-        );
+        drawCenteredText(batch, 
+                        "Unhealthy Food: " + unhealthyCount + " items (" + unhealthyCalories + " kcal)", 
+                        Gdx.graphics.getHeight() - 250, 0.3f, 
+                        new Color(0.9f, 0.3f, 0.3f, 1f));
         
         // Total calories
-        font.setColor(1f, 1f, 1f, 1f);
-        String totalText = "Total: " + (healthyCalories + unhealthyCalories) + " kcal consumed";
-        float totalWidth = font.draw(batch, totalText, 0, 0).width * 0.3f;
-        font.draw(
-                batch,
-                totalText,
-                (Gdx.graphics.getWidth() - totalWidth) / 2,
-                Gdx.graphics.getHeight() - 280
-        );
+        drawCenteredText(batch, 
+                        "Total: " + (healthyCalories + unhealthyCalories) + " kcal consumed", 
+                        Gdx.graphics.getHeight() - 280, 0.3f, 
+                        new Color(1f, 1f, 1f, 1f));
 
         // Draw death cause if provided
         if (deathCause != null && !deathCause.isEmpty()) {
-            font.getData().setScale(0.3f);
-            float causeWidth = font.draw(batch, "Cause: " + deathCause, 0, 0).width * 0.3f;
-            font.draw(
-                    batch,
-                    "Cause: " + deathCause,
-                    (Gdx.graphics.getWidth() - causeWidth) / 2,
-                    Gdx.graphics.getHeight() - 320
-            );
+            drawCenteredText(batch, "Cause: " + deathCause, Gdx.graphics.getHeight() - 320, 0.3f, Color.WHITE);
         }
         
-        // Draw educational tip
+        // Draw educational tip - centered header with wrapped text below
+        float tipX = Gdx.graphics.getWidth() / 2 - 250;
+        float tipY = Gdx.graphics.getHeight() / 2 - 20;
+        
+        drawCenteredText(batch, "Nutrition Tip:", tipY, 0.25f, new Color(0.9f, 0.9f, 1.0f, 1.0f));
+        
+        // For wrapped text, we'll center the block itself
         font.setColor(0.9f, 0.9f, 1.0f, 1.0f);
         font.getData().setScale(0.25f);
-        String tipHeader = "Nutrition Tip:";
-        font.draw(batch, tipHeader, Gdx.graphics.getWidth() / 2 - 250, Gdx.graphics.getHeight() / 2 - 20);
-        font.draw(batch, educationalTip, Gdx.graphics.getWidth() / 2 - 250, Gdx.graphics.getHeight() / 2 - 50, 500, -1, true);
+        float contentWidth = 500;
+        font.draw(batch, educationalTip, 
+                (Gdx.graphics.getWidth() - contentWidth) / 2, // Center the text block
+                tipY - 30, contentWidth, -1, true);
 
         // Draw menu items
-        font.setColor(Color.WHITE);
-        font.getData().setScale(0.3f);
         float menuY = Gdx.graphics.getHeight() / 2 - 130;
         float menuSpacing = 50;
+        font.setColor(Color.WHITE);
+        font.getData().setScale(0.3f);
 
         for (int i = 0; i < menuItems.length; i++) {
-            // Highlight selected item
+            String itemText;
             if (i == selectedItem) {
                 // Pulsing effect for selected item
                 float pulse = (float) Math.sin(timeElapsed * 5) * 0.2f + 0.8f;
                 font.setColor(1f, pulse, pulse, 1f);
-                font.draw(batch, "> " + menuItems[i] + " <",
-                        Gdx.graphics.getWidth() / 2 - 150,
-                        menuY - i * menuSpacing);
-                font.setColor(Color.WHITE); // Reset color
+                itemText = "> " + menuItems[i] + " <";
             } else {
-                font.draw(batch, menuItems[i],
-                        Gdx.graphics.getWidth() / 2 - 100,
-                        menuY - i * menuSpacing);
+                font.setColor(Color.WHITE);
+                itemText = menuItems[i];
             }
+            
+            // Center each menu item
+            GlyphLayout layout = new GlyphLayout(font, itemText);
+            float itemWidth = layout.width;
+            font.draw(batch, itemText,
+                    (Gdx.graphics.getWidth() - itemWidth) / 2,
+                    menuY - i * menuSpacing);
         }
 
-        // Draw controls hint
-        font.getData().setScale(0.3f);
-        font.draw(batch, "Arrow Keys: Navigate | Enter: Select",
-                Gdx.graphics.getWidth() / 2 - 225,
-                50);
+        // Reset font color
+        font.setColor(Color.WHITE);
+
+        // Draw controls hint centered
+        drawCenteredText(batch, "Arrow Keys: Navigate | Enter: Select",
+                50, 0.3f, Color.WHITE);
 
         batch.end();
     }

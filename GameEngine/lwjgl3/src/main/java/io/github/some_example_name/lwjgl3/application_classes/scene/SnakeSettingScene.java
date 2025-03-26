@@ -2,6 +2,7 @@ package io.github.some_example_name.lwjgl3.application_classes.scene;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -62,27 +63,27 @@ public class SnakeSettingScene extends Scene{
         System.out.println("[SnakeSettingScene] Initializing...");
 
         try {
-        	soundSliderTexture = new Texture(Gdx.files.internal("sound_slider.png"));
+            soundSliderTexture = new Texture(Gdx.files.internal("sound_slider.png"));
             soundBarTexture = new Texture(Gdx.files.internal("sound_bar.png"));
             snakeTexture = new Texture(Gdx.files.internal("snake_head.png")); // Default color
             skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-            //Settings
-            viewport = new ScreenViewport();  // Ensures correct resizing
+            // Settings
+            viewport = new ScreenViewport();
             stage = new Stage(viewport);
-            Gdx.input.setInputProcessor(stage); // Ensure input handling
+            Gdx.input.setInputProcessor(stage);
 
-            //Slider
+            // Slider style
             SliderStyle sliderStyle = new SliderStyle();
             sliderStyle.background = new TextureRegionDrawable(new TextureRegion(soundBarTexture));
             sliderStyle.knob = new TextureRegionDrawable(new TextureRegion(soundSliderTexture));
 
-            //Music Slider
+            // Music Slider
             Slider musicSlider = new Slider(0, 100, 1, false, sliderStyle);
-            musicSlider.setValue(ioManager.getAudio().getMusicVolume()); // get Volume from ioManager
+            musicSlider.setValue(ioManager.getAudio().getMusicVolume());
             musicSlider.setSize(200, 20);
 
-            //Music Label to display slider value
+            // Music Label
             Label musicLabel = new Label("Music Volume: " + (int) musicSlider.getValue(), skin);
             musicSlider.addListener(new ChangeListener() {
                 @Override
@@ -93,12 +94,12 @@ public class SnakeSettingScene extends Scene{
                 }
             });
 
-            //Sound Slider
+            // Sound Slider
             Slider soundSlider = new Slider(0, 100, 1, false, sliderStyle);
-            soundSlider.setValue(ioManager.getAudio().getSoundVolume()); // get Volume from ioManager
+            soundSlider.setValue(ioManager.getAudio().getSoundVolume());
             soundSlider.setSize(200, 20);
 
-            //Sound Label to display slider value
+            // Sound Label
             Label soundLabel = new Label("Sound Volume: " + (int) soundSlider.getValue(), skin);
             soundSlider.addListener(new ChangeListener() {
                 @Override
@@ -109,82 +110,120 @@ public class SnakeSettingScene extends Scene{
                 }
             });
 
+            // Create a "selectedSnakeColor" field to track the selected color
+            final String[] selectedSnakeColor = {"green"};  // Default selection
 
+            // Create styles for selected and unselected buttons using color differences
+            TextButton.TextButtonStyle defaultStyle = skin.get(TextButton.TextButtonStyle.class);
+            
+            // Create a selected style with yellow text for highlighting
+            TextButton.TextButtonStyle selectedStyle = new TextButton.TextButtonStyle(defaultStyle);
+            selectedStyle.fontColor = Color.YELLOW;
 
             // Snake Color Buttons
-            TextButton redButton = new TextButton("Red Snake", skin);
-            TextButton blueButton = new TextButton("Blue Snake", skin);
-            TextButton greenButton = new TextButton("Green Snake", skin);
+            final TextButton greenButton = new TextButton("Green Snake", skin);
+            final TextButton redButton = new TextButton("Red Snake", skin);
+            final TextButton blueButton = new TextButton("Blue Snake", skin);
+            
+            // Set the initial selected button
+            greenButton.setStyle(selectedStyle);
+            redButton.setStyle(defaultStyle);
+            blueButton.setStyle(defaultStyle);
+
+            // Button click listeners with visual selection
+            redButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    // Update selection style
+                    redButton.setStyle(selectedStyle);
+                    blueButton.setStyle(defaultStyle);
+                    greenButton.setStyle(defaultStyle);
+                    selectedSnakeColor[0] = "red";
+                }
+            });
+
+            blueButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    // Update selection style
+                    blueButton.setStyle(selectedStyle);
+                    redButton.setStyle(defaultStyle);
+                    greenButton.setStyle(defaultStyle);
+                    selectedSnakeColor[0] = "blue";
+                }
+            });
+
+            greenButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    // Update selection style
+                    greenButton.setStyle(selectedStyle);
+                    redButton.setStyle(defaultStyle);
+                    blueButton.setStyle(defaultStyle);
+                    selectedSnakeColor[0] = "green";
+                }
+            });
 
             // Control Mode Toggle Button
-            TextButton controlModeButton = new TextButton("Control Mode: " + ioManager.getControlMode(), skin);
+            TextButton controlModeButton = new TextButton("Control: " + ioManager.getControlMode(), skin);
             controlModeButton.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     ControlMode current = ioManager.getControlMode();
                     ControlMode next = (current == ControlMode.KEYBOARD) ? ControlMode.MOUSE : ControlMode.KEYBOARD;
                     ioManager.setControlMode(next);
-                    controlModeButton.setText("Control Mode: " + next); // Update button label
+                    controlModeButton.setText("Control: " + next);
                 }
             });
-
-
-//            // Button click listeners
-//            redButton.addListener(new ChangeListener() {
-//                @Override
-//                public void changed(ChangeEvent event, Actor actor) {
-//                    snakeTexture.dispose();
-//                    snakeTexture = new Texture(Gdx.files.internal("snake_red.png"));
-//                }
-//            });
-//
-//            blueButton.addListener(new ChangeListener() {
-//                @Override
-//                public void changed(ChangeEvent event, Actor actor) {
-//                    snakeTexture.dispose();
-//                    snakeTexture = new Texture(Gdx.files.internal("snake_blue.png"));
-//                }
-//            });
-//
-//            greenButton.addListener(new ChangeListener() {
-//                @Override
-//                public void changed(ChangeEvent event, Actor actor) {
-//                    snakeTexture.dispose();
-//                    snakeTexture = new Texture(Gdx.files.internal("snake_green.png"));
-//                }
-//            });
 
             // Layout using Table
             Table table = new Table();
             table.setFillParent(true);
             table.center();
 
+            // Title
+            Label settingsTitle = new Label("SETTINGS", skin);
+            settingsTitle.setFontScale(1.5f);
+            table.add(settingsTitle).colspan(2).padBottom(40).row();
+
+            // Audio settings
             table.add(musicLabel).padBottom(10).row();
             table.add(musicSlider).width(300).padBottom(40).expandX().center().row();
             table.add(soundLabel).padBottom(10).row();
             table.add(soundSlider).width(300).padBottom(40).expandX().center().row();
-            table.add(controlModeButton).padTop(30).center().row();
-            table.add(controlModeButton).padTop(30).center().row();
-
+            
+            // Control mode
+            table.add(controlModeButton).padBottom(30).center().row();
+            
+            // Snake color selection
+            table.add(new Label("Snake Color:", skin)).padBottom(10).row();
+            
+            // Color button table
             Table buttonTable = new Table();
-            buttonTable.add(redButton).pad(10);
-            buttonTable.add(blueButton).pad(10);
-            buttonTable.add(greenButton).pad(10);
-
+            buttonTable.add(redButton).pad(10).width(150).height(50);
+            buttonTable.add(blueButton).pad(10).width(150).height(50);
+            buttonTable.add(greenButton).pad(10).width(150).height(50);
+            
             table.add(buttonTable).colspan(3).center().row();
+            
+            // Back button
+            TextButton backButton = new TextButton("Back", skin);
+            backButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    resumeGame();
+                }
+            });
+            table.add(backButton).padTop(30).width(200).height(60).row();
 
             stage.addActor(table);
 
-            // Add UI to stage
-            stage.addActor(table);
-
-             System.out.println("[SnakeSettingScene] Setting menu loaded.");
+            System.out.println("[SnakeSettingScene] Setting menu loaded.");
         } catch (Exception e) {
             System.err.println("[SnakeSettingScene] Error loading background: " + e.getMessage());
-            // Create a default semi-transparent black texture
         }
 
-        // Play pause sound
+        // Play settings sound
         ioManager.getAudio().playSound("pause.mp3");
     }
 

@@ -16,8 +16,8 @@ public class EnemySnake extends Entity implements Collidable {
     private float direction; // in radians
     private float speed;
     private float turnSpeed;
-    private float segmentSpacing = 15f;
-    private float bodySize = 20f;
+    private float segmentSpacing = 18f;
+    private float bodySize = 24f;
     private float directionChangeTimer;
     private float directionChangeInterval;
     private Texture headTexture;

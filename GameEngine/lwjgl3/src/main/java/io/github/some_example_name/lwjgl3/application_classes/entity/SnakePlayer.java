@@ -35,8 +35,8 @@ public class SnakePlayer extends MovableEntity {
     private Texture headTexture;
     private Texture bodyTexture;
 
-    private float segmentSpacing = 15f; // distance between segments
-    private float baseBodySize = 20f; // base size of body segments
+    private float segmentSpacing = 18f; // distance between segments
+    private float baseBodySize = 24f; // base size of body segments
     private float currentBodySize; // current size after applying multipliers
 
     // For infinite world, we center the player on screen and move the world
@@ -77,7 +77,7 @@ public class SnakePlayer extends MovableEntity {
     @Override
     public void update(float deltaTime) {
         ControlMode controlMode = IOManager.getInstance().getControlMode();
-
+    
         if (controlMode == ControlMode.MOUSE) {
             Vector2 mousePos = new Vector2(
                 IOManager.getInstance().getDynamicInput().getMouseX(),
@@ -85,16 +85,20 @@ public class SnakePlayer extends MovableEntity {
             );
             Vector2 headPos = new Vector2(positionX, positionY);
             Vector2 dirToMouse = new Vector2(mousePos).sub(headPos).nor();
-
-            // Smoothly rotate toward the mouse
+    
+            // Calculate angle to mouse
             float targetAngle = dirToMouse.angleRad();
-            direction = MathUtils.lerpAngle(direction, targetAngle, deltaTime * turnSpeed);
+            
+            // Use direct angle setting instead of lerp for more responsive control
+            // Optionally add a small amount of smoothing if needed
+            float smoothing = 0.7f; // Higher value = more responsive (0.0-1.0)
+            direction = MathUtils.lerpAngle(direction, targetAngle, deltaTime * turnSpeed * smoothing);
         }
-
-        // Movement continues (same logic regardless of input mode)
+    
+        // Movement calculations
         float moveX = MathUtils.cos(direction) * speed * deltaTime;
         float moveY = MathUtils.sin(direction) * speed * deltaTime;
-
+    
         // Update head position
         Vector2 prevHeadPos = new Vector2(positionX, positionY);
         positionX += moveX;
@@ -185,13 +189,13 @@ public class SnakePlayer extends MovableEntity {
         movementInput.x = forceX;
         movementInput.y = forceY;
 
-        // Handle turning based on left/right input
+        // Handle turning based on input with improved responsiveness
         if (forceX < 0) {
             // Turn left (counter-clockwise)
-            direction += turnSpeed * Gdx.graphics.getDeltaTime();
+            direction += turnSpeed * Gdx.graphics.getDeltaTime() * 1.5f; // Increased turning speed
         } else if (forceX > 0) {
             // Turn right (clockwise)
-            direction -= turnSpeed * Gdx.graphics.getDeltaTime();
+            direction -= turnSpeed * Gdx.graphics.getDeltaTime() * 1.5f; // Increased turning speed
         }
     }
 

@@ -39,50 +39,48 @@ public class MovementManager {
     private void handlePlayerInput(IMovable entity) {
         float forceX = 0;
         float forceY = 0;
-
+    
         ControlMode mode = ioManager.getControlMode();
-
+    
         if (mode == ControlMode.KEYBOARD) {
             if (ioManager.getDynamicInput().isKeyPressed(Input.Keys.LEFT) ||
                 ioManager.getDynamicInput().isKeyPressed(Input.Keys.A)) {
-                forceX = -50f;
+                forceX = -75f; // Increased from 50f for faster response
             }
             if (ioManager.getDynamicInput().isKeyPressed(Input.Keys.RIGHT) ||
                 ioManager.getDynamicInput().isKeyPressed(Input.Keys.D)) {
-                forceX = 50f;
+                forceX = 75f; // Increased from 50f for faster response
             }
             if (ioManager.getDynamicInput().isKeyPressed(Input.Keys.UP) ||
                 ioManager.getDynamicInput().isKeyPressed(Input.Keys.W)) {
-                forceY = 50f;
+                forceY = 75f; // Increased from 50f for faster response
             }
             if (ioManager.getDynamicInput().isKeyPressed(Input.Keys.DOWN) ||
                 ioManager.getDynamicInput().isKeyPressed(Input.Keys.S)) {
-                forceY = -50f;
+                forceY = -75f; // Increased from 50f for faster response
             }
         } else if (mode == ControlMode.MOUSE) {
             Vector2 mousePos = new Vector2(
                 ioManager.getDynamicInput().getMouseX(),
                 Gdx.graphics.getHeight() - ioManager.getDynamicInput().getMouseY()
             );
-
+    
             Vector2 playerPos;
-
+    
             if (entity instanceof MovementComponent) {
                 playerPos = ((MovementComponent) entity).getPosition();
             } else if (entity instanceof SnakePlayer) {
-                playerPos = ((SnakePlayer) entity).getPosition(); // Make sure SnakePlayer has this method!
+                playerPos = ((SnakePlayer) entity).getPosition();
             } else {
                 return; // Unsupported entity type, skip
             }
-
+    
             Vector2 direction = mousePos.sub(playerPos).nor();
-            forceX = direction.x * 50f;
-            forceY = direction.y * 50f;
-
+            // Increase mouse movement force for more responsive controls
+            forceX = direction.x * 100f; // Increased from 50f
+            forceY = direction.y * 100f; // Increased from 50f
         }
-
-        // System.out.println("Applied Force: (" + forceX + ", " + forceY + ")");
-
+    
         if (forceX == 0 && forceY == 0) {
             entity.stop();
         } else {

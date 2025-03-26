@@ -360,6 +360,17 @@ public class HealthSnakeVictoryScene extends Scene {
         }
     }
 
+    private void drawCenteredText(SpriteBatch batch, String text, float y, float width, float scale, Color color) {
+        font.getData().setScale(scale);
+        font.setColor(color);
+        
+        // Calculate the width of the text for centering
+        float textWidth = font.draw(batch, text, 0, 0).width;
+        
+        // Draw centered text
+        font.draw(batch, text, (Gdx.graphics.getWidth() - textWidth) / 2f, y);
+    }
+
     @Override
     public void render(SpriteBatch batch) {
         batch.begin();
@@ -526,8 +537,16 @@ public class HealthSnakeVictoryScene extends Scene {
         font.setColor(0.9f, 0.9f, 1.0f, 1.0f);
         font.getData().setScale(0.25f);
         String factHeader = "Health Fact:";
-        font.draw(batch, factHeader, Gdx.graphics.getWidth() / 2 - 250, statsY - 200);
-        font.draw(batch, educationalFact, Gdx.graphics.getWidth() / 2 - 250, statsY - 230, 500, -1, true);
+        float factY = statsY - 200;
+        float contentWidth = 500;
+
+        // Draw centered header
+        drawCenteredText(batch, factHeader, factY, contentWidth, 0.25f, new Color(0.9f, 0.9f, 1.0f, 1.0f));
+
+        // For wrapped text, we'll use a special method to center the block
+        float factTextY = factY - 20;
+        float factX = (Gdx.graphics.getWidth() - contentWidth) / 2f;
+        font.draw(batch, educationalFact, factX, factTextY, contentWidth, -1, true);
         
         // Reset font color
         font.setColor(Color.WHITE);

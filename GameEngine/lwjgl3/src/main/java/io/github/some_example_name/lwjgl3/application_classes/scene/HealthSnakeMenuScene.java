@@ -95,6 +95,7 @@ public class HealthSnakeMenuScene extends Scene {
     @Override
     public void initialize() {
         try {
+            // Load all required textures
             backgroundTexture = new Texture(Gdx.files.internal("snake_background.png"));
             titleTexture = new Texture(Gdx.files.internal("health_snake_title.png"));
             instructionsTexture = new Texture(Gdx.files.internal("instructions.png"));
@@ -102,28 +103,28 @@ public class HealthSnakeMenuScene extends Scene {
             soundBar = new Texture(Gdx.files.internal("sound_bar.png"));
             snakeTexture = new Texture(Gdx.files.internal("snake_head.png")); // Default color
             skin = new Skin(Gdx.files.internal("uiskin.json"));
+            
             // Stop any currently playing music first
             ioManager.getAudio().stopMusic();
 
             // Then start menu music
             ioManager.getAudio().playMusic("menu_music.mp3");
 
-            //Settings
+            // Initialize viewport and stage for UI
             viewport = new ScreenViewport();  // Ensures correct resizing
             stage = new Stage(viewport);
-            Gdx.input.setInputProcessor(stage); // Ensure input handling
 
-            //Slider
+            // Set up slider style
             SliderStyle sliderStyle = new SliderStyle();
             sliderStyle.background = new TextureRegionDrawable(new TextureRegion(soundBar));
             sliderStyle.knob = new TextureRegionDrawable(new TextureRegion(soundSlider));
 
-            //Music Slider
+            // Music Slider
             Slider musicSlider = new Slider(0, 100, 1, false, sliderStyle);
             musicSlider.setValue(ioManager.getAudio().getMusicVolume()); //get volume from ioManager
             musicSlider.setSize(200, 20);
 
-            //Music Label to display slider value
+            // Music Label to display slider value
             Label musicLabel = new Label("Music Volume: " + (int) musicSlider.getValue(), skin);
             musicSlider.addListener(new ChangeListener() {
                 @Override
@@ -134,12 +135,12 @@ public class HealthSnakeMenuScene extends Scene {
                 }
             });
 
-            //Sound Slider
+            // Sound Slider
             Slider soundSlider = new Slider(0, 100, 1, false, sliderStyle);
             soundSlider.setValue(ioManager.getAudio().getSoundVolume()); //get volume from ioManager
             soundSlider.setSize(200, 20);
 
-            //Sound Label to display slider value
+            // Sound Label to display slider value
             Label soundLabel = new Label("Sound Volume: " + (int) soundSlider.getValue(), skin);
             soundSlider.addListener(new ChangeListener() {
                 @Override
@@ -150,49 +151,7 @@ public class HealthSnakeMenuScene extends Scene {
                 }
             });
 
-
-
-            // Snake Color Buttons
-            TextButton redButton = new TextButton("Red Snake", skin);
-            TextButton blueButton = new TextButton("Blue Snake", skin);
-            TextButton greenButton = new TextButton("Green Snake", skin);
-
-//            // Button click listeners
-//            redButton.addListener(new ChangeListener() {
-//                @Override
-//                public void changed(ChangeEvent event, Actor actor) {
-//                    snakeTexture.dispose();
-//                    snakeTexture = new Texture(Gdx.files.internal("snake_red.png"));
-//                }
-//            });
-//
-//            blueButton.addListener(new ChangeListener() {
-//                @Override
-//                public void changed(ChangeEvent event, Actor actor) {
-//                    snakeTexture.dispose();
-//                    snakeTexture = new Texture(Gdx.files.internal("snake_blue.png"));
-//                }
-//            });
-//
-//            greenButton.addListener(new ChangeListener() {
-//                @Override
-//                public void changed(ChangeEvent event, Actor actor) {
-//                    snakeTexture.dispose();
-//                    snakeTexture = new Texture(Gdx.files.internal("snake_green.png"));
-//                }
-//            });
-
-            // Layout using Table
-            Table table = new Table();
-            table.setFillParent(true);
-            table.center();
-
-            table.add(musicLabel).padBottom(10).row();
-            table.add(musicSlider).width(300).padBottom(40).expandX().center().row();
-            table.add(soundLabel).padBottom(10).row();
-            table.add(soundSlider).width(300).padBottom(40).expandX().center().row();
-
-            // Control Mode Toggle
+            // Control Mode Toggle Button
             final TextButton controlToggle = new TextButton("Control: " + ioManager.getControlMode(), skin);
             controlToggle.addListener(new ChangeListener() {
                 @Override
@@ -203,20 +162,107 @@ public class HealthSnakeMenuScene extends Scene {
                     controlToggle.setText("Control: " + next);
                 }
             });
-            table.add(controlToggle).padBottom(30).row();
 
+            // Create styles for selected and unselected buttons using color differences
+            TextButton.TextButtonStyle defaultStyle = skin.get(TextButton.TextButtonStyle.class);
+            
+            // Create a selected style with yellow text for highlighting
+            TextButton.TextButtonStyle selectedStyle = new TextButton.TextButtonStyle(defaultStyle);
+            selectedStyle.fontColor = Color.YELLOW;
+            
+            // Snake Color Buttons
+            final TextButton greenButton = new TextButton("Green Snake", skin);
+            final TextButton redButton = new TextButton("Red Snake", skin);
+            final TextButton blueButton = new TextButton("Blue Snake", skin);
+            
+            // Set the initial selected button
+            greenButton.setStyle(selectedStyle);
+            redButton.setStyle(defaultStyle);
+            blueButton.setStyle(defaultStyle);
+            
+            // Create a "selectedSnakeColor" field to track the selected color
+            final String[] selectedSnakeColor = {"green"};  // Default selection
+            
+            // Button click listeners with visual selection
+            redButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    // Update selection style
+                    redButton.setStyle(selectedStyle);
+                    blueButton.setStyle(defaultStyle);
+                    greenButton.setStyle(defaultStyle);
+                    selectedSnakeColor[0] = "red";
+                }
+            });
+            
+            blueButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    // Update selection style
+                    blueButton.setStyle(selectedStyle);
+                    redButton.setStyle(defaultStyle);
+                    greenButton.setStyle(defaultStyle);
+                    selectedSnakeColor[0] = "blue";
+                }
+            });
+            
+            greenButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    // Update selection style
+                    greenButton.setStyle(selectedStyle);
+                    redButton.setStyle(defaultStyle);
+                    blueButton.setStyle(defaultStyle);
+                    selectedSnakeColor[0] = "green";
+                }
+            });
 
+            // Create the settings UI table
+            Table settingsTable = new Table();
+            settingsTable.setFillParent(true);
+            settingsTable.center();
+            
+            // Title
+            Label settingsTitle = new Label("SETTINGS", skin);
+            settingsTitle.setFontScale(1.5f);
+            settingsTable.add(settingsTitle).colspan(2).padBottom(40).row();
+            
+            // Audio settings
+            settingsTable.add(musicLabel).padBottom(10).row();
+            settingsTable.add(musicSlider).width(300).padBottom(40).expandX().center().row();
+            settingsTable.add(soundLabel).padBottom(10).row();
+            settingsTable.add(soundSlider).width(300).padBottom(40).expandX().center().row();
+            
+            // Control mode
+            settingsTable.add(controlToggle).padBottom(30).center().row();
+            
+            // Snake color selection
+            settingsTable.add(new Label("Snake Color:", skin)).padBottom(10).row();
+            
+            // Color button table
             Table buttonTable = new Table();
-            buttonTable.add(redButton).pad(10);
-            buttonTable.add(blueButton).pad(10);
-            buttonTable.add(greenButton).pad(10);
-
-            table.add(buttonTable).colspan(3).center().row();
-
-            stage.addActor(table);
-
-            // Add UI to stage
-            stage.addActor(table);
+            buttonTable.add(redButton).pad(10).width(150).height(50);
+            buttonTable.add(blueButton).pad(10).width(150).height(50);
+            buttonTable.add(greenButton).pad(10).width(150).height(50);
+            
+            settingsTable.add(buttonTable).colspan(3).center().row();
+            
+            // Back button
+            TextButton backButton = new TextButton("Back to Main Menu", skin);
+            backButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    showingSettings = false;
+                    Gdx.input.setInputProcessor(ioManager.getDynamicInput()); // Reset input processor
+                }
+            });
+            settingsTable.add(backButton).padTop(30).width(200).height(60).row();
+            
+            // Save the settingsTable to be added to stage when needed
+            // We'll add this to the stage only when showingSettings is true
+            
+            // Initial input processor is always the dynamic input
+            Gdx.input.setInputProcessor(ioManager.getDynamicInput());
 
             System.out.println("[HealthSnakeMenuScene] Textures loaded successfully.");
         } catch (Exception e) {
@@ -314,21 +360,23 @@ public class HealthSnakeMenuScene extends Scene {
         // Update background animation
         updateBackgroundAnimation(deltaTime);
 
-        // Update UI interactions
-        stage.act(deltaTime);
-
         if (showingInstructions) {
             // If instructions are showing, pressing any key returns to menu
             if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ANY_KEY)) {
                 showingInstructions = false;
+                Gdx.input.setInputProcessor(ioManager.getDynamicInput());
             }
             return;
         }
 
         if (showingSettings) {
-            // If settings are showing, pressing ESCAPE to save and returns to menu
+            // Update UI when showing settings
+            stage.act(deltaTime);
+            
+            // If settings are showing, pressing ESCAPE returns to menu
             if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
-            	showingSettings = false;
+                showingSettings = false;
+                Gdx.input.setInputProcessor(ioManager.getDynamicInput());
             }
             return;
         }
@@ -429,8 +477,19 @@ public class HealthSnakeMenuScene extends Scene {
                 showingInstructions = true;
                 break;
 
-            case 2://Settings
-            	showingSettings = true;
+            case 2: // Settings
+                System.out.println("[HealthSnakeMenuScene] Opening settings...");
+                showingSettings = true;
+                
+                // We need to refresh the stage with our settings table
+                stage.clear();
+                
+                // Re-create the settings UI (call a helper method or code here)
+                // For simplicity, you might want to extract the settings UI creation to a separate method
+                createSettingsUI();
+                
+                // Set input processor to stage for UI interaction
+                Gdx.input.setInputProcessor(stage);
                 break;
 
             case 3: // Exit
@@ -442,6 +501,157 @@ public class HealthSnakeMenuScene extends Scene {
 
 
         }
+    }
+
+    // Helper method to create the settings UI
+    private void createSettingsUI() {
+        // Create styles for selected and unselected buttons
+        TextButton.TextButtonStyle defaultStyle = skin.get(TextButton.TextButtonStyle.class);
+        
+        // Create a selected style with yellow text for highlighting
+        TextButton.TextButtonStyle selectedStyle = new TextButton.TextButtonStyle(defaultStyle);
+        selectedStyle.fontColor = Color.YELLOW;
+        
+        // Create a "selectedSnakeColor" field to track the selected color
+        final String[] selectedSnakeColor = {"green"};  // Default selection
+        
+        // Set up slider style
+        SliderStyle sliderStyle = new SliderStyle();
+        sliderStyle.background = new TextureRegionDrawable(new TextureRegion(soundBar));
+        sliderStyle.knob = new TextureRegionDrawable(new TextureRegion(soundSlider));
+
+        // Music Slider
+        Slider musicSlider = new Slider(0, 100, 1, false, sliderStyle);
+        musicSlider.setValue(ioManager.getAudio().getMusicVolume());
+        musicSlider.setSize(200, 20);
+
+        // Music Label
+        Label musicLabel = new Label("Music Volume: " + (int) musicSlider.getValue(), skin);
+        musicSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                musicLabel.setText("Music Volume: " + (int) musicSlider.getValue());
+                float v = musicSlider.getValue()/100;
+                ioManager.getAudio().setMusicVolume(v);
+            }
+        });
+
+        // Sound Slider
+        Slider soundSlider = new Slider(0, 100, 1, false, sliderStyle);
+        soundSlider.setValue(ioManager.getAudio().getSoundVolume());
+        soundSlider.setSize(200, 20);
+
+        // Sound Label
+        Label soundLabel = new Label("Sound Volume: " + (int) soundSlider.getValue(), skin);
+        soundSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                soundLabel.setText("Sound Volume: " + (int) soundSlider.getValue());
+                float v = soundSlider.getValue()/100;
+                ioManager.getAudio().setSoundVolume(v);
+            }
+        });
+        
+        // Snake Color Buttons
+        final TextButton greenButton = new TextButton("Green Snake", skin);
+        final TextButton redButton = new TextButton("Red Snake", skin);
+        final TextButton blueButton = new TextButton("Blue Snake", skin);
+        
+        // Set the initial selected button
+        greenButton.setStyle(selectedStyle);
+        redButton.setStyle(defaultStyle);
+        blueButton.setStyle(defaultStyle);
+        
+        // Button click listeners with visual selection
+        redButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Update selection style
+                redButton.setStyle(selectedStyle);
+                blueButton.setStyle(defaultStyle);
+                greenButton.setStyle(defaultStyle);
+                selectedSnakeColor[0] = "red";
+            }
+        });
+        
+        blueButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Update selection style
+                blueButton.setStyle(selectedStyle);
+                redButton.setStyle(defaultStyle);
+                greenButton.setStyle(defaultStyle);
+                selectedSnakeColor[0] = "blue";
+            }
+        });
+        
+        greenButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Update selection style
+                greenButton.setStyle(selectedStyle);
+                redButton.setStyle(defaultStyle);
+                blueButton.setStyle(defaultStyle);
+                selectedSnakeColor[0] = "green";
+            }
+        });
+
+        // Control Mode Toggle
+        final TextButton controlToggle = new TextButton("Control: " + ioManager.getControlMode(), skin);
+        controlToggle.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                ControlMode current = ioManager.getControlMode();
+                ControlMode next = (current == ControlMode.KEYBOARD) ? ControlMode.MOUSE : ControlMode.KEYBOARD;
+                ioManager.setControlMode(next);
+                controlToggle.setText("Control: " + next);
+            }
+        });
+        
+        // Create the settings table
+        Table settingsTable = new Table();
+        settingsTable.setFillParent(true);
+        settingsTable.center();
+        
+        // Title
+        Label settingsTitle = new Label("SETTINGS", skin);
+        settingsTitle.setFontScale(1.5f);
+        settingsTable.add(settingsTitle).colspan(2).padBottom(40).row();
+        
+        // Audio settings
+        settingsTable.add(musicLabel).padBottom(10).row();
+        settingsTable.add(musicSlider).width(300).padBottom(40).expandX().center().row();
+        settingsTable.add(soundLabel).padBottom(10).row();
+        settingsTable.add(soundSlider).width(300).padBottom(40).expandX().center().row();
+        
+        // Control mode
+        settingsTable.add(controlToggle).padBottom(30).center().row();
+        
+        // Snake color selection
+        settingsTable.add(new Label("Snake Color:", skin)).padBottom(10).row();
+        
+        // Color button table
+        Table buttonTable = new Table();
+        buttonTable.add(redButton).pad(10).width(150).height(50);
+        buttonTable.add(blueButton).pad(10).width(150).height(50);
+        buttonTable.add(greenButton).pad(10).width(150).height(50);
+        
+        settingsTable.add(buttonTable).colspan(3).center().row();
+        
+        // Back button
+        TextButton backButton = new TextButton("Back to Main Menu", skin);
+        backButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                showingSettings = false;
+                Gdx.input.setInputProcessor(ioManager.getDynamicInput()); // Reset input processor
+            }
+        });
+        settingsTable.add(backButton).padTop(30).width(200).height(60).row();
+        
+        // Add the settings table to the stage
+        stage.clear();
+        stage.addActor(settingsTable);
     }
 
     @Override

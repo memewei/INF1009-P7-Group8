@@ -33,19 +33,21 @@ public class LevelManager {
         this.currentLevel = level;
         this.isUnhealthyPath = unhealthyPath;
         
-        // Base settings
-        baseSnakeSpeed = 150f;
+        // Increase base speed to make the game more playable
+        baseSnakeSpeed = 200f; // Increased from 150f
         
         if (unhealthyPath) {
-            // Unhealthy path - slower snake, larger size
-            snakeSpeedMultiplier = Math.max(0.7f - (level * 0.05f), 0.4f);
-            snakeSizeMultiplier = 1.0f + (level * 0.2f);
+            // Unhealthy path - snake is slower but not too slow, and larger
+            // Make sure even at high levels, speed doesn't go below 50% of base
+            snakeSpeedMultiplier = Math.max(0.8f - (level * 0.03f), 0.5f);
+            snakeSizeMultiplier = 1.0f + (level * 0.15f); // Less dramatic size increase
             healthyFoodGoal = 20; // Need more healthy food to balance
             unhealthyFoodGoal = 10 + (level * 2);
             levelDescription = "Unhealthy Level " + level + ": Your snake is slower and larger!";
         } else {
             // Healthy path - faster snake, normal size
-            snakeSpeedMultiplier = 1.0f + (level * 0.15f);
+            // Cap the maximum speed to prevent it from becoming too fast
+            snakeSpeedMultiplier = Math.min(1.0f + (level * 0.1f), 1.8f);
             snakeSizeMultiplier = 1.0f;
             healthyFoodGoal = 15 + (level * 3);
             unhealthyFoodGoal = 10;
