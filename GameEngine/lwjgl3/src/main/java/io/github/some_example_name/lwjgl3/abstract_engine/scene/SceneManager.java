@@ -73,6 +73,13 @@ public class SceneManager {
     public Scene getCurrentScene() {
         return currentScene;
     }
+    
+    public Scene getSceneBelow() {
+        if (sceneStack.size() >= 2) {
+            return sceneStack.get(sceneStack.size() - 2);
+        }
+        return null;
+    }
 
     public void dispose() {
         if (currentScene != null) {
