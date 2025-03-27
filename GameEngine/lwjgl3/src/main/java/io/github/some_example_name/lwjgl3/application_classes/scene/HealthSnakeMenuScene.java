@@ -55,7 +55,7 @@ public class HealthSnakeMenuScene extends Scene {
 	private float spawnInterval = 3f; // Spawn a new snake every 3 seconds
 	private int maxBackgroundSnakes = 8;
 
-	private String[] menuItems = { "Start Game", "How to Play", "Setting", "Exit" };
+	private String[] menuItems = { "Start Game", "How to Play", "Settings", "Exit" };
 
 	private int selectedItem = 0;
 	private float timeElapsed;
@@ -462,9 +462,9 @@ public class HealthSnakeMenuScene extends Scene {
 		settingsTable.center();
 
 		// Title
-		Label settingsTitle = new Label("SETTINGS", skin);
-		settingsTitle.setFontScale(1.5f);
-		settingsTable.add(settingsTitle).colspan(2).padBottom(40).row();
+		// Label settingsTitle = new Label("SETTINGS", skin);
+		// settingsTitle.setFontScale(1.5f);
+		// settingsTable.add(settingsTitle).colspan(2).padBottom(40).row();
 
 		// Audio settings
 		settingsTable.add(musicLabel).padBottom(10).row();

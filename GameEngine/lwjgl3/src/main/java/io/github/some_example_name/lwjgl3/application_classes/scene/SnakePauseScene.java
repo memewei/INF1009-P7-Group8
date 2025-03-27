@@ -27,7 +27,7 @@ public class SnakePauseScene extends Scene {
     private String[] menuItems = {
         "Resume Game",
         "Restart Game",
-        "Setting",
+        "Settings",
         "Return to Main Menu",
         "Exit Game"
     };
