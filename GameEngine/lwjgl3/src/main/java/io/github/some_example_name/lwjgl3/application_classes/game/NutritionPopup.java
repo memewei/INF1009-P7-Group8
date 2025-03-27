@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
+import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
+
 /**
  * Displays nutrition information as a popup when eating food.
  * Educational component showing calories and nutrition facts.
@@ -24,8 +26,8 @@ public class NutritionPopup {
     private boolean isVisible = false;
     
     public NutritionPopup() {
-        backgroundTexture = new Texture(Gdx.files.internal("popup_background.png"));
-        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
+        backgroundTexture = new Texture(Gdx.files.internal(AssetPaths.POPUP_BACKGROUND));
+        font = new BitmapFont(Gdx.files.internal(AssetPaths.GAME_FONT));
         font.getData().setScale(0.25f);
         position = new Vector2();
     }

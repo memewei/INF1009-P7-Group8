@@ -3,6 +3,8 @@ package io.github.some_example_name.lwjgl3.abstract_engine.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.some_example_name.lwjgl3.application_classes.game.SnakeColor;
+
 /**
  * Simplified game configuration manager with in-memory storage
  */
@@ -14,7 +16,8 @@ public class GameConfig {
     private static final float DEFAULT_MUSIC_VOLUME = 0.7f;
     private static final float DEFAULT_SOUND_VOLUME = 0.8f;
     private static final String DEFAULT_CONTROL_MODE = "KEYBOARD";
-    private static final String DEFAULT_SNAKE_COLOR = "green";
+    private static final SnakeColor DEFAULT_SNAKE_COLOR = SnakeColor.GREEN;
+
 
     // Configuration storage
     private Map<String, Object> configMap;
@@ -85,14 +88,15 @@ public class GameConfig {
     /**
      * Get snake color
      */
-    public String getSnakeColor() {
-        return getStringValue("snakeColor", DEFAULT_SNAKE_COLOR);
+    public SnakeColor getSnakeColor() {
+    	Object value = configMap.get("snakeColor");
+        return (value instanceof SnakeColor) ? (SnakeColor) value : SnakeColor.GREEN;
     }
 
     /**
      * Set snake color
      */
-    public void setSnakeColor(String color) {
+    public void setSnakeColor(SnakeColor color) {
         configMap.put("snakeColor", color);
     }
 

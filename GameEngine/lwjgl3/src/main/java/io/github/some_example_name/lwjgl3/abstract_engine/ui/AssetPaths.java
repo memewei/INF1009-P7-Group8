@@ -20,6 +20,7 @@ public class AssetPaths {
     public static final String VICTORY = "victory.png";
     public static final String TROPHY = "victory.png";
     public static final String POPUP_BACKGROUND = "popup_background.png";
+    public static final String HEALTHY_PLATE = "healthy_plate.png";
     
     // Snake Textures
     public static final String SNAKE_HEAD = "snake_head.png";
@@ -27,8 +28,15 @@ public class AssetPaths {
     public static final String ENEMY_HEAD = "enemy_head.png";
     public static final String ENEMY_BODY = "enemy_body.png";
     public static final String SNAKE_SKULL = "snake_skull.png";
+    public static final String SNAKE_HEAD_GREEN = "snake_head_green.png";
+    public static final String SNAKE_BODY_GREEN = "snake_body_green.png";
+    public static final String SNAKE_HEAD_BROWN = "snake_head_brown.png";
+    public static final String SNAKE_BODY_BROWN = "snake_body_brown.png";
+    public static final String SNAKE_HEAD_BLUE = "snake_head_blue.png";
+    public static final String SNAKE_BODY_BLUE = "snake_body_blue.png";
     
     // Food Textures
+    public static final String HEALTHY_FOOD_BG = "healthy_food.png";
     public static final String[] HEALTHY_FOOD = {
         "healthy_1.png",
         "healthy_2.png",
@@ -51,6 +59,7 @@ public class AssetPaths {
     // Audio
     public static final String MENU_MUSIC = "menu_music.mp3";
     public static final String GAME_MUSIC = "game_music.mp3";
+    public static final String VICTORY_M = "victory.mp3";
     public static final String VICTORY_MUSIC = "victory_music.mp3";
     public static final String SAD_MUSIC = "sad_music.mp3";
     

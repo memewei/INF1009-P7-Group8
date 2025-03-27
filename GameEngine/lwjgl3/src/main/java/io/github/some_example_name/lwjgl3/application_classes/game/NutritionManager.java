@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
+
 /**
  * Manages nutritional information and educational content about food items
  * in the game to support the educational aspect.
@@ -41,35 +43,35 @@ public class NutritionManager {
         
         // Populate with sample data
         // Healthy foods
-        addHealthyFood("healthy_1.png", "Apple", 95, 
+        addHealthyFood(AssetPaths.HEALTHY_FOOD[0], "Apple", 95, 
                       "Apples are rich in fiber and vitamin C. They can help reduce the risk of chronic diseases.");
                       
-        addHealthyFood("healthy_2.png", "Broccoli", 55, 
+        addHealthyFood(AssetPaths.HEALTHY_FOOD[1], "Broccoli", 55, 
                       "Broccoli is packed with vitamins, minerals, fiber and antioxidants that support overall health.");
                       
-        addHealthyFood("healthy_3.png", "Carrot", 50, 
+        addHealthyFood(AssetPaths.HEALTHY_FOOD[2], "Carrot", 50, 
                       "Carrots are rich in beta-carotene, which is converted to vitamin A in the body. Good for eye health.");
                       
-        addHealthyFood("healthy_4.png", "Banana", 105, 
+        addHealthyFood(AssetPaths.HEALTHY_FOOD[3], "Banana", 105, 
                       "Bananas are a good source of potassium and provide quick energy before or after exercise.");
                       
-        addHealthyFood("healthy_5.png", "Orange", 62, 
+        addHealthyFood(AssetPaths.HEALTHY_FOOD[4], "Orange", 62, 
                       "Oranges are high in vitamin C, which helps support immune function and collagen production.");
         
         // Unhealthy foods
-        addUnhealthyFood("unhealthy_1.png", "Burger", 550, 
+        addUnhealthyFood(AssetPaths.UNHEALTHY_FOOD[0], "Burger", 550, 
                         "Fast food burgers are high in calories, unhealthy fats, sodium, and have little nutritional value.");
                         
-        addUnhealthyFood("unhealthy_2.png", "Pizza", 285, 
+        addUnhealthyFood(AssetPaths.UNHEALTHY_FOOD[1], "Pizza", 285, 
                         "Pizza slices can be high in calories, saturated fat, and sodium, especially with processed meats.");
                         
-        addUnhealthyFood("unhealthy_3.png", "French Fries", 365, 
+        addUnhealthyFood(AssetPaths.UNHEALTHY_FOOD[2], "French Fries", 365, 
                          "French fries are fried in oil, making them high in calories and unhealthy fats.");
                          
-        addUnhealthyFood("unhealthy_4.png", "Soda", 150, 
+        addUnhealthyFood(AssetPaths.UNHEALTHY_FOOD[3], "Soda", 150, 
                          "Sodas contain a lot of added sugar with no nutritional value, contributing to obesity and tooth decay.");
                          
-        addUnhealthyFood("unhealthy_5.png", "Donut", 250, 
+        addUnhealthyFood(AssetPaths.UNHEALTHY_FOOD[4], "Donut", 250, 
                          "Donuts are high in sugar, refined carbs, and unhealthy fats with little nutritional benefits.");
     }
     
