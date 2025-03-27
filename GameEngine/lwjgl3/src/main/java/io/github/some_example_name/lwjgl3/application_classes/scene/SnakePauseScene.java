@@ -43,7 +43,7 @@ public class SnakePauseScene extends Scene {
         this.movementManager = movementManager;
         this.ioManager = ioManager;
 
-        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
+        font = new BitmapFont(Gdx.files.internal(AssetPaths.GAME_FONT));
         font.setColor(Color.WHITE);
         font.getData().setScale(0.3f);
     }
@@ -53,7 +53,7 @@ public class SnakePauseScene extends Scene {
         System.out.println("[SnakePauseScene] Initializing...");
 
         try {
-            pauseBackground = new Texture(Gdx.files.internal("pause_menu.png"));
+            pauseBackground = new Texture(Gdx.files.internal(AssetPaths.PAUSE_MENU));
             System.out.println("[SnakePauseScene] Pause menu loaded.");
         } catch (Exception e) {
             System.err.println("[SnakePauseScene] Error loading background: " + e.getMessage());
@@ -61,7 +61,7 @@ public class SnakePauseScene extends Scene {
         }
 
         // Play pause sound
-        ioManager.getAudio().playSound("pause.mp3");
+        ioManager.getAudio().playSound(AssetPaths.PAUSE_SOUND);
     }
 
     @Override
@@ -109,7 +109,8 @@ public class SnakePauseScene extends Scene {
                         movementManager,
                         sceneManager.getWorld(),
                         sceneManager,
-                        ioManager
+                        ioManager,
+                        true //Show healthy plate
                     ),
                     GameState.RUNNING
                 );

@@ -161,7 +161,7 @@ public class HealthSnakeDeathScene extends Scene {
 
         // Play death sound
         ioManager.getAudio().stopMusic();
-        ioManager.getAudio().playSound("game_over.mp3");
+        ioManager.getAudio().playSound(AssetPaths.GAME_OVER_SOUND);
 
         // Start sad music after a delay
         Gdx.app.postRunnable(new Runnable() {
@@ -169,7 +169,7 @@ public class HealthSnakeDeathScene extends Scene {
             public void run() {
                 try {
                     Thread.sleep(1000); // Wait 1 second
-                    ioManager.getAudio().playMusic("sad_music.mp3");
+                    ioManager.getAudio().playMusic(AssetPaths.SAD_MUSIC);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -236,7 +236,8 @@ public class HealthSnakeDeathScene extends Scene {
                                 sceneManager.getWorld(),
                                 sceneManager,
                                 ioManager,
-                                levelManager
+                                levelManager,
+                                true //Show healthy plate
                         ),
                         GameState.RUNNING
                 );

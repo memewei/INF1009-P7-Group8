@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.MathUtils;
 
+import io.github.some_example_name.lwjgl3.abstract_engine.config.GameConfig;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.EntityManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManager;
@@ -54,7 +55,8 @@ public class HealthSnakeGameScene extends Scene {
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
     private Texture healthyPlateTexture;
-    private boolean showHealthyPlateIntro = true;
+    private boolean showHealthyPlateIntro;
+    String title1, title2;
 
     // Timers and state management
     private float foodSpawnTimer = 0;
@@ -64,20 +66,22 @@ public class HealthSnakeGameScene extends Scene {
     private float transitionTimer = 0;
     private String transitionMessage = "";
     private Texture levelTransitionTexture;
+    
+
 
     // Camera and world management
     private Vector2 cameraOffset = new Vector2(0, 0);
 
     public HealthSnakeGameScene(SpriteBatch batch, EntityManager entityManager,
             MovementManager movementManager, World world,
-            SceneManager sceneManager, IOManager ioManager) {
-        this(batch, entityManager, movementManager, world, sceneManager, ioManager, new LevelManager());
+            SceneManager sceneManager, IOManager ioManager, boolean showHealthyPlateOnStart) {
+        this(batch, entityManager, movementManager, world, sceneManager, ioManager, new LevelManager(), showHealthyPlateOnStart);
     }
 
     public HealthSnakeGameScene(SpriteBatch batch, EntityManager entityManager,
             MovementManager movementManager, World world,
             SceneManager sceneManager, IOManager ioManager,
-            LevelManager levelManager) {
+            LevelManager levelManager, boolean showHealthyPlateOnStart) {
         this.batch = batch;
         this.entityManager = entityManager;
         this.movementManager = movementManager;
@@ -85,6 +89,7 @@ public class HealthSnakeGameScene extends Scene {
         this.sceneManager = sceneManager;
         this.ioManager = ioManager;
         this.levelManager = levelManager;
+        this.showHealthyPlateIntro = showHealthyPlateOnStart;
 
         initializeGameComponents();
     }
@@ -146,7 +151,7 @@ public class HealthSnakeGameScene extends Scene {
         try {
             backgroundTexture = new Texture(Gdx.files.internal(AssetPaths.BACKGROUND));
             levelTransitionTexture = new Texture(Gdx.files.internal(AssetPaths.LEVEL_TRANSITION));
-            healthyPlateTexture = new Texture(Gdx.files.internal("healthy_plate.png"));
+            healthyPlateTexture = new Texture(Gdx.files.internal(AssetPaths.HEALTHY_PLATE));
             System.out.println("[HealthSnakeGameScene] Textures loaded.");
         } catch (Exception e) {
             System.err.println("[HealthSnakeGameScene] Error loading textures: " + e.getMessage());
@@ -161,7 +166,7 @@ public class HealthSnakeGameScene extends Scene {
                 WORLD_WIDTH / 2f,
                 WORLD_HEIGHT / 2f,
                 levelManager,
-                SnakeSettingScene.selectedSnakeColor);
+                GameConfig.getInstance().getSnakeColor());
         entityManager.addEntity(player);
         movementManager.addEntity(player);
     }
@@ -189,7 +194,7 @@ public class HealthSnakeGameScene extends Scene {
         showingLevelTransition = true;
         transitionTimer = 0; // Reset the timer for animations
         transitionMessage = levelManager.getLevelDescription();
-        ioManager.getAudio().playSound("level_up.mp3");
+        ioManager.getAudio().playSound(AssetPaths.LEVEL_UP_SOUND);
     }
 
     private void createRandomEnemyInWorld(int idNumber) {
@@ -355,7 +360,7 @@ public class HealthSnakeGameScene extends Scene {
         for (EnemySnake enemy : enemies) {
             // Check head-to-head collision
             if (playerBounds.overlaps(enemy.getHeadBounds())) {
-                ioManager.getAudio().playSound("collision.mp3");
+                ioManager.getAudio().playSound(AssetPaths.COLLISION_SOUND);
 
                 // Calculate final score and transition to death scene
                 handleGameOver("Collision with enemy snake head");
@@ -366,7 +371,7 @@ public class HealthSnakeGameScene extends Scene {
             Array<Rectangle> enemyBodyBounds = enemy.getBodyBounds();
             for (Rectangle bodyPart : enemyBodyBounds) {
                 if (playerBounds.overlaps(bodyPart)) {
-                    ioManager.getAudio().playSound("collision.mp3");
+                    ioManager.getAudio().playSound(AssetPaths.COLLISION_SOUND);
 
                     // Calculate final score and transition to death scene
                     handleGameOver("Collision with enemy snake body");
@@ -627,7 +632,8 @@ public class HealthSnakeGameScene extends Scene {
                         sceneManager.getWorld(),
                         sceneManager,
                         ioManager,
-                        levelManager),
+                        levelManager,
+                        false),
                 GameState.RUNNING);
     }
 
@@ -659,20 +665,19 @@ public class HealthSnakeGameScene extends Scene {
     	    float imgY = (Gdx.graphics.getHeight() - healthyPlateTexture.getHeight()) / 2f + 50;
     	    batch.draw(healthyPlateTexture, imgX, imgY);
 
-    	    // Multi-line title (split manually for best control)
-    	    String line1 = "In the game, collect these healthy foods to grow stronger";
-    	    String line2 = "and level up faster! Avoid junk food to stay on the healthy path.";
+    	    title1 = "Collect these healthy foods to grow stronger";
+    	    title2 = "and level up faster! Avoid junk food to stay on the healthy path.";
 
     	    font.getData().setScale(0.3f);
     	    font.setColor(Color.WHITE);
 
-    	    GlyphLayout line1Layout = new GlyphLayout(font, line1);
-    	    GlyphLayout line2Layout = new GlyphLayout(font, line2);
+    	    GlyphLayout line1Layout = new GlyphLayout(font, title1);
+    	    GlyphLayout line2Layout = new GlyphLayout(font, title2);
 
     	    float titleY = imgY + healthyPlateTexture.getHeight() + 40;
 
-    	    font.draw(batch, line1, (Gdx.graphics.getWidth() - line1Layout.width) / 2, titleY);
-    	    font.draw(batch, line2, (Gdx.graphics.getWidth() - line2Layout.width) / 2, titleY - 25);
+    	    font.draw(batch, title1, (Gdx.graphics.getWidth() - line1Layout.width) / 2, titleY);
+    	    font.draw(batch, title2, (Gdx.graphics.getWidth() - line2Layout.width) / 2, titleY - 25);
 
     	    // Instruction text
     	    String message = "Press any key to start your healthy journey!";

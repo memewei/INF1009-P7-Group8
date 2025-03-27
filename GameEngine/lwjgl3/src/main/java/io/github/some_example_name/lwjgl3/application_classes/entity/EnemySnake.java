@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
+import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
 
 public class EnemySnake extends Entity implements Collidable {
@@ -68,7 +69,7 @@ public class EnemySnake extends Entity implements Collidable {
         String name = "EnemySnake_" + idNumber;
         int length = MathUtils.random(5, 15); // Random length between 5-15 segments
         
-        return new EnemySnake(name, x, y, "enemy_head.png", "enemy_body.png", length);
+        return new EnemySnake(name, x, y, AssetPaths.ENEMY_HEAD, AssetPaths.ENEMY_BODY, length);
     }
     
     @Override

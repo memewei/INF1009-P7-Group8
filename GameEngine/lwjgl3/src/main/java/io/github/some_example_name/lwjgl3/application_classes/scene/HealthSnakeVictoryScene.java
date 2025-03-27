@@ -101,7 +101,7 @@ public class HealthSnakeVictoryScene extends Scene {
         // Calculate calories burned based on snake length and activity level
         this.caloriesBurned = calculateCaloriesBurned(snakeLength, levelManager);
 
-        font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
+        font = new BitmapFont(Gdx.files.internal(AssetPaths.GAME_FONT));
         font.setColor(Color.WHITE);
         font.getData().setScale(0.3f);
 
@@ -185,10 +185,10 @@ public class HealthSnakeVictoryScene extends Scene {
     @Override
     public void initialize() {
         try {
-            backgroundTexture = new Texture(Gdx.files.internal("snake_background.png"));
-            victoryTexture = new Texture(Gdx.files.internal("victory.png"));
-            trophyTexture = new Texture(Gdx.files.internal("victory.png"));
-            healthyFoodTexture = new Texture(Gdx.files.internal("healthy_food.png"));
+            backgroundTexture = new Texture(Gdx.files.internal(AssetPaths.BACKGROUND));
+            victoryTexture = new Texture(Gdx.files.internal(AssetPaths.VICTORY));
+            trophyTexture = new Texture(Gdx.files.internal(AssetPaths.VICTORY));
+            healthyFoodTexture = new Texture(Gdx.files.internal(AssetPaths.HEALTHY_FOOD_BG));
 
             System.out.println("[HealthSnakeVictoryScene] Textures loaded successfully.");
         } catch (Exception e) {
@@ -198,7 +198,7 @@ public class HealthSnakeVictoryScene extends Scene {
 
         // Play victory sound
         ioManager.getAudio().stopMusic();
-        ioManager.getAudio().playSound("victory.mp3");
+        ioManager.getAudio().playSound(AssetPaths.VICTORY_M);
 
         // Start victory music after a delay
         Gdx.app.postRunnable(new Runnable() {
@@ -206,7 +206,7 @@ public class HealthSnakeVictoryScene extends Scene {
             public void run() {
                 try {
                     Thread.sleep(1500); // Wait 1.5 seconds
-                    ioManager.getAudio().playMusic("victory_music.mp3");
+                    ioManager.getAudio().playMusic(AssetPaths.VICTORY_MUSIC);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -309,7 +309,8 @@ public class HealthSnakeVictoryScene extends Scene {
                         sceneManager.getWorld(),
                         sceneManager,
                         ioManager,
-                        levelManager
+                        levelManager,
+                        false //Healthy Plate not displayed
                     ),
                     GameState.RUNNING
                 );
@@ -332,7 +333,8 @@ public class HealthSnakeVictoryScene extends Scene {
                         sceneManager.getWorld(),
                         sceneManager,
                         ioManager,
-                        levelManager
+                        levelManager,
+                        false //Healthy Plate not displayed
                     ),
                     GameState.RUNNING
                 );

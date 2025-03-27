@@ -29,8 +29,10 @@ import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementManag
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.GameState;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.Scene;
 import io.github.some_example_name.lwjgl3.abstract_engine.scene.SceneManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
 import io.github.some_example_name.lwjgl3.application_classes.entity.SnakePlayer;
 import io.github.some_example_name.lwjgl3.application_classes.game.SnakeColor;
+import io.github.some_example_name.lwjgl3.abstract_engine.config.GameConfig;
 import io.github.some_example_name.lwjgl3.abstract_engine.control.ControlMode;
 
 public class SnakeSettingScene extends Scene {
@@ -45,9 +47,7 @@ public class SnakeSettingScene extends Scene {
 	private Texture soundSliderTexture, soundBarTexture, snakeTexture;
 	private Viewport viewport;
 	private Skin skin;
-
-	// Create a "selectedSnakeColor" field to track the selected color
-	public static SnakeColor selectedSnakeColor = SnakeColor.GREEN; // DEFAULT
+	private SnakeColor snakeColor;
 
 	public SnakeSettingScene(SpriteBatch batch, SceneManager sceneManager, EntityManager entityManager,
 			MovementManager movementManager, IOManager ioManager) {
@@ -57,7 +57,7 @@ public class SnakeSettingScene extends Scene {
 		this.movementManager = movementManager;
 		this.ioManager = ioManager;
 
-		font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
+		font = new BitmapFont(Gdx.files.internal(AssetPaths.GAME_FONT));
 		font.setColor(Color.WHITE);
 		font.getData().setScale(0.3f);
 	}
@@ -67,10 +67,12 @@ public class SnakeSettingScene extends Scene {
 		System.out.println("[SnakeSettingScene] Initializing...");
 
 		try {
-			soundSliderTexture = new Texture(Gdx.files.internal("sound_slider.png"));
-			soundBarTexture = new Texture(Gdx.files.internal("sound_bar.png"));
-			snakeTexture = new Texture(Gdx.files.internal("snake_head.png")); // Default color
-			skin = new Skin(Gdx.files.internal("uiskin.json"));
+			soundSliderTexture = new Texture(Gdx.files.internal(AssetPaths.SOUND_SLIDER));
+			soundBarTexture = new Texture(Gdx.files.internal(AssetPaths.SOUND_BAR));
+			skin = new Skin(Gdx.files.internal(AssetPaths.UI_SKIN));
+			
+			//Retrieve the snake color from GameConfig
+			snakeColor = GameConfig.getInstance().getSnakeColor();
 
 			// Settings
 			viewport = new ScreenViewport();
@@ -144,7 +146,7 @@ public class SnakeSettingScene extends Scene {
 					if (previousScene instanceof HealthSnakeGameScene) {
 						HealthSnakeGameScene gameScene = (HealthSnakeGameScene) previousScene;
 						SnakePlayer gamePlayer = gameScene.getPlayer(); // Retrieves the player
-						SnakeSettingScene.selectedSnakeColor = SnakeColor.BROWN;
+						GameConfig.getInstance().setSnakeColor(SnakeColor.BROWN);
 						gamePlayer.setSnakeColor(SnakeColor.BROWN); // Apply brown color
 					}
 
@@ -163,7 +165,7 @@ public class SnakeSettingScene extends Scene {
 					if (previousScene instanceof HealthSnakeGameScene) {
 					    HealthSnakeGameScene gameScene = (HealthSnakeGameScene) previousScene;
 					    SnakePlayer gamePlayer = gameScene.getPlayer(); // Retrieves the player
-					    SnakeSettingScene.selectedSnakeColor = SnakeColor.BLUE;
+					    GameConfig.getInstance().setSnakeColor(SnakeColor.BLUE);
 					    gamePlayer.setSnakeColor(SnakeColor.BLUE); // Apply blue color
 					}
 
@@ -182,7 +184,7 @@ public class SnakeSettingScene extends Scene {
 					if (previousScene instanceof HealthSnakeGameScene) {
 						HealthSnakeGameScene gameScene = (HealthSnakeGameScene) previousScene;
 						SnakePlayer gamePlayer = gameScene.getPlayer(); // Retrieves the player
-						SnakeSettingScene.selectedSnakeColor = SnakeColor.GREEN;
+						GameConfig.getInstance().setSnakeColor(SnakeColor.GREEN);
 						gamePlayer.setSnakeColor(SnakeColor.GREEN); // Apply green color
 					}
 					System.out.println("Snake color selected: GREEN");
@@ -205,11 +207,6 @@ public class SnakeSettingScene extends Scene {
 			Table table = new Table();
 			table.setFillParent(true);
 			table.center();
-
-			// Title
-			Label settingsTitle = new Label("SETTINGS", skin);
-			settingsTitle.setFontScale(1.5f);
-			table.add(settingsTitle).colspan(2).padBottom(40).row();
 
 			// Audio settings
 			table.add(musicLabel).padBottom(10).row();
@@ -249,12 +246,12 @@ public class SnakeSettingScene extends Scene {
 		}
 
 		// Play settings sound
-		ioManager.getAudio().playSound("pause.mp3");
+		ioManager.getAudio().playSound(AssetPaths.PAUSE_SOUND);
 	}
 
 	private void applySnakeColorStyle(TextButton greenButton, TextButton brownButton, TextButton blueButton,
 	        TextButton.TextButtonStyle selectedStyle, TextButton.TextButtonStyle defaultStyle) {
-	    switch (selectedSnakeColor) {
+	    switch (snakeColor) {
 	        case GREEN:
 	            greenButton.setStyle(selectedStyle);
 	            brownButton.setStyle(defaultStyle);
@@ -278,6 +275,22 @@ public class SnakeSettingScene extends Scene {
 	            break;
 	    }
 	}
+	
+	private void drawSettingsOverlay(SpriteBatch batch) {
+	    GlyphLayout settingTitle = new GlyphLayout();
+	    settingTitle.setText(font, "SETTINGS");
+
+	    font.getData().setScale(0.3f);
+	    font.setColor(Color.WHITE);
+	    font.draw(batch, "SETTINGS", (viewport.getWorldWidth() - settingTitle.width) / 2,
+	              Gdx.graphics.getHeight() - 100);
+
+	    GlyphLayout layout = new GlyphLayout();
+	    layout.setText(font, "Press Esc key to return to main menu");
+
+	    font.draw(batch, "Press Esc key to return to main menu",
+	              (viewport.getWorldWidth() - layout.width) / 2, 80);
+	}
 
 
 	@Override
@@ -285,19 +298,14 @@ public class SnakeSettingScene extends Scene {
 
 		stage.act(deltaTime);
 
-		// Resume Game (Settings not saved)
-		if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
-			resumeGame();
-			return;
-		}
-
-		// Resume Game (Settings saved)
+		// Resume Game(ESCAPE KEY)
 		if (ioManager.getDynamicInput().isKeyJustPressed(Input.Keys.ESCAPE)) {
 			resumeGame();
 			return;
 		}
 	}
-
+	
+	//Resume Game
 	private void resumeGame() {
 		System.out.println("[SnakeSettingScene] Resuming game...");
 		if (sceneManager != null) {
@@ -317,24 +325,7 @@ public class SnakeSettingScene extends Scene {
 		// Ensure viewport updates on resize
 		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 
-		// Draw pause title
-		GlyphLayout settingTitle = new GlyphLayout();
-		settingTitle.setText(font, "SETTINGS");
-
-		font.getData().setScale(0.3f);
-		font.setColor(1, 1, 1, 1);
-		font.draw(batch, "SETTINGS", (viewport.getWorldWidth() - settingTitle.width) / 2,
-				Gdx.graphics.getHeight() - 100);
-
-		// Draw "Press enter to save and return to main menu" text
-		GlyphLayout layout = new GlyphLayout();
-		layout.setText(font, "Press Esc key to return to pause screen");
-
-		// Correctly position text even after resizing
-		font.draw(batch, "Press Esc key to return to pause screen", (viewport.getWorldWidth() - layout.width) / 2, // Always
-																													// centers
-																													// text
-				80);
+		drawSettingsOverlay(batch);
 
 		batch.end();
 

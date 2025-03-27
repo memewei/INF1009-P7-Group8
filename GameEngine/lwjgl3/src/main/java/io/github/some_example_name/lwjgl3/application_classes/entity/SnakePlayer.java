@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.Entity;
 import io.github.some_example_name.lwjgl3.abstract_engine.entity.MovableEntity;
 import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
+import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
 import io.github.some_example_name.lwjgl3.application_classes.game.LevelManager;
 import io.github.some_example_name.lwjgl3.application_classes.game.SnakeColor;
 import io.github.some_example_name.lwjgl3.abstract_engine.control.ControlMode;
@@ -220,7 +221,7 @@ public class SnakePlayer extends MovableEntity {
             addBodySegment(1);
 
             // Play positive sound
-            IOManager.getInstance().getAudio().playSound("healthy_food.mp3");
+            IOManager.getInstance().getAudio().playSound(AssetPaths.HEALTHY_FOOD_SOUND);
         } else {
             // Eat unhealthy food
             unhealthyFoodCount++;
@@ -234,7 +235,7 @@ public class SnakePlayer extends MovableEntity {
             addBodySegment(segmentsToAdd);
 
             // Play negative sound
-            IOManager.getInstance().getAudio().playSound("unhealthy_food.mp3");
+            IOManager.getInstance().getAudio().playSound(AssetPaths.UNHEALTHY_FOOD_SOUND);
         }
     }
 
@@ -360,24 +361,24 @@ public class SnakePlayer extends MovableEntity {
     private static String getHeadTexturePath(SnakeColor color) {
         switch (color) {
             case BROWN:
-                return "snake_head_brown.png";
+                return AssetPaths.SNAKE_HEAD_BROWN;
             case BLUE:
-                return "snake_head_blue.png";
+                return AssetPaths.SNAKE_HEAD_BLUE;
             case GREEN:
             default:
-                return "snake_head_green.png";
+                return AssetPaths.SNAKE_HEAD_GREEN;
         }
     }
 
     private static String getBodyTexturePath(SnakeColor color) {
         switch (color) {
             case BROWN:
-                return "snake_body_brown.png";
+                return AssetPaths.SNAKE_BODY_BROWN;
             case BLUE:
-                return "snake_body_blue.png";
+                return AssetPaths.SNAKE_BODY_BLUE;
             case GREEN:
             default:
-                return "snake_body_green.png";
+                return AssetPaths.SNAKE_BODY_GREEN;
         }
     }
     
