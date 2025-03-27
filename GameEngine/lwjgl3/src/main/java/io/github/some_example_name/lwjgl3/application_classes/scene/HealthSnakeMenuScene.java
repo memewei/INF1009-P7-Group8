@@ -756,26 +756,31 @@ public class HealthSnakeMenuScene extends Scene {
 
 		batch.end();
 	}
-
 	private void applySnakeColorStyle(TextButton greenButton, TextButton brownButton, TextButton blueButton,
-			TextButton.TextButtonStyle selectedStyle, TextButton.TextButtonStyle defaultStyle) {
-		switch (SnakeSettingScene.selectedSnakeColor) {
-		case GREEN:
-			greenButton.setStyle(selectedStyle);
-			brownButton.setStyle(defaultStyle);
-			blueButton.setStyle(defaultStyle);
-			break;
-		case BROWN:
-			greenButton.setStyle(defaultStyle);
-			brownButton.setStyle(selectedStyle);
-			blueButton.setStyle(defaultStyle);
-			break;
-		case BLUE:
-			greenButton.setStyle(defaultStyle);
-			brownButton.setStyle(defaultStyle);
-			blueButton.setStyle(selectedStyle);
-			break;
-		}
+	        TextButton.TextButtonStyle selectedStyle, TextButton.TextButtonStyle defaultStyle) {
+	    switch (SnakeSettingScene.selectedSnakeColor) {
+	        case GREEN:
+	            greenButton.setStyle(selectedStyle);
+	            brownButton.setStyle(defaultStyle);
+	            blueButton.setStyle(defaultStyle);
+	            break;
+
+	        case BROWN:
+	            brownButton.setStyle(selectedStyle);
+	            greenButton.setStyle(defaultStyle);
+	            blueButton.setStyle(defaultStyle);
+	            break;
+
+	        case BLUE:
+	            blueButton.setStyle(selectedStyle);
+	            greenButton.setStyle(defaultStyle);
+	            brownButton.setStyle(defaultStyle);
+	            break;
+
+	        default:
+	            // Optional: handle unexpected value
+	            break;
+	    }
 	}
 
 	private void disposeBackgroundElements() {

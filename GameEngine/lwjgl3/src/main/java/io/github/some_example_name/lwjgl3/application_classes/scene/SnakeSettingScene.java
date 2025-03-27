@@ -141,7 +141,8 @@ public class SnakeSettingScene extends Scene {
 					blueButton.setStyle(defaultStyle);
 					greenButton.setStyle(defaultStyle);
 
-					if (previousScene instanceof HealthSnakeGameScene gameScene) {
+					if (previousScene instanceof HealthSnakeGameScene) {
+						HealthSnakeGameScene gameScene = (HealthSnakeGameScene) previousScene;
 						SnakePlayer gamePlayer = gameScene.getPlayer(); // Retrieves the player
 						SnakeSettingScene.selectedSnakeColor = SnakeColor.BROWN;
 						gamePlayer.setSnakeColor(SnakeColor.BROWN); // Apply brown color
@@ -159,11 +160,13 @@ public class SnakeSettingScene extends Scene {
 					brownButton.setStyle(defaultStyle);
 					greenButton.setStyle(defaultStyle);
 
-					if (previousScene instanceof HealthSnakeGameScene gameScene) {
-						SnakePlayer gamePlayer = gameScene.getPlayer(); // Retrieves the player
-						SnakeSettingScene.selectedSnakeColor = SnakeColor.BLUE;
-						gamePlayer.setSnakeColor(SnakeColor.BLUE); // Apply blue color
+					if (previousScene instanceof HealthSnakeGameScene) {
+					    HealthSnakeGameScene gameScene = (HealthSnakeGameScene) previousScene;
+					    SnakePlayer gamePlayer = gameScene.getPlayer(); // Retrieves the player
+					    SnakeSettingScene.selectedSnakeColor = SnakeColor.BLUE;
+					    gamePlayer.setSnakeColor(SnakeColor.BLUE); // Apply blue color
 					}
+
 					System.out.println("Snake color selected: BLUE");
 				}
 			});
@@ -176,7 +179,8 @@ public class SnakeSettingScene extends Scene {
 					brownButton.setStyle(defaultStyle);
 					blueButton.setStyle(defaultStyle);
 
-					if (previousScene instanceof HealthSnakeGameScene gameScene) {
+					if (previousScene instanceof HealthSnakeGameScene) {
+						HealthSnakeGameScene gameScene = (HealthSnakeGameScene) previousScene;
 						SnakePlayer gamePlayer = gameScene.getPlayer(); // Retrieves the player
 						SnakeSettingScene.selectedSnakeColor = SnakeColor.GREEN;
 						gamePlayer.setSnakeColor(SnakeColor.GREEN); // Apply green color
@@ -249,25 +253,32 @@ public class SnakeSettingScene extends Scene {
 	}
 
 	private void applySnakeColorStyle(TextButton greenButton, TextButton brownButton, TextButton blueButton,
-			TextButton.TextButtonStyle selectedStyle, TextButton.TextButtonStyle defaultStyle) {
-		switch (selectedSnakeColor) {
-		case GREEN -> {
-			greenButton.setStyle(selectedStyle);
-			brownButton.setStyle(defaultStyle);
-			blueButton.setStyle(defaultStyle);
-		}
-		case BROWN -> {
-			brownButton.setStyle(selectedStyle);
-			greenButton.setStyle(defaultStyle);
-			blueButton.setStyle(defaultStyle);
-		}
-		case BLUE -> {
-			blueButton.setStyle(selectedStyle);
-			greenButton.setStyle(defaultStyle);
-			brownButton.setStyle(defaultStyle);
-		}
-		}
+	        TextButton.TextButtonStyle selectedStyle, TextButton.TextButtonStyle defaultStyle) {
+	    switch (selectedSnakeColor) {
+	        case GREEN:
+	            greenButton.setStyle(selectedStyle);
+	            brownButton.setStyle(defaultStyle);
+	            blueButton.setStyle(defaultStyle);
+	            break;
+
+	        case BROWN:
+	            brownButton.setStyle(selectedStyle);
+	            greenButton.setStyle(defaultStyle);
+	            blueButton.setStyle(defaultStyle);
+	            break;
+
+	        case BLUE:
+	            blueButton.setStyle(selectedStyle);
+	            greenButton.setStyle(defaultStyle);
+	            brownButton.setStyle(defaultStyle);
+	            break;
+
+	        default:
+	            // Optional: handle unexpected value
+	            break;
+	    }
 	}
+
 
 	@Override
 	public void update(float deltaTime) {
