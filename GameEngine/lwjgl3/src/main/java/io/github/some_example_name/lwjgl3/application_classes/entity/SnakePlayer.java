@@ -94,8 +94,8 @@ public class SnakePlayer extends MovableEntity {
             
             // Use direct angle setting instead of lerp for more responsive control
             // Optionally add a small amount of smoothing if needed
-            float smoothing = 0.7f; // Higher value = more responsive (0.0-1.0)
-            direction = MathUtils.lerpAngle(direction, targetAngle, deltaTime * turnSpeed * smoothing);
+            float smoothing = 5f; // Higher value = more responsive 
+            direction = MathUtils.lerpAngle(direction, targetAngle, deltaTime * smoothing);
         }
     
         // Movement calculations
