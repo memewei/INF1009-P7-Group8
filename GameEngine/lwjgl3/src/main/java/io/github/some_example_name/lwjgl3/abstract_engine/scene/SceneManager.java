@@ -2,17 +2,18 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.scene;
 
 import java.util.Stack;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.World;
 
 public class SceneManager {
-    private Stack<Scene> sceneStack = new Stack<>();
+    private final Stack<Scene> sceneStack = new Stack<>();
     private Scene currentScene;
-    private World world;
+    private final World world;
     private GameState gameState;
-    private Texture transitionTexture;
+    private final Texture transitionTexture;
 
     public SceneManager(World world) {
         this.world = world;

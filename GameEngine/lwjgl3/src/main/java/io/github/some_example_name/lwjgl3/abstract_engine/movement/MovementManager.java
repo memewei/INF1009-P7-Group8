@@ -1,22 +1,22 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.movement;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
-import java.util.List;
-import java.util.ArrayList;
+
 import io.github.some_example_name.lwjgl3.abstract_engine.control.ControlMode;
+import io.github.some_example_name.lwjgl3.abstract_engine.io.IOManager;
 import io.github.some_example_name.lwjgl3.application_classes.entity.SnakePlayer;
 
 public class MovementManager {
-    private World world;
-    private List<IMovable> entities;
-    private IOManager ioManager;
+    private final List<IMovable> entities;
+    private final IOManager ioManager;
 
     public MovementManager(World world, IOManager ioManager) {
-        this.world = world;
         this.entities = new ArrayList<>();
         this.ioManager = ioManager; // Store the reference
     }

@@ -71,18 +71,19 @@ public abstract class BaseGameScene extends Scene {
         
         // Common update logic
         
-        // Call scene-specific update logic
-        updateScene(deltaTime);
+        // Call scene-specific update logic - but don't use updateScene name
+        // as it's already used by the template method pattern in the parent class
+        updateSceneSpecifics(deltaTime);
     }
     
     /**
      * Update scene-specific logic
      */
-    protected abstract void updateScene(float deltaTime);
+    protected abstract void updateSceneSpecifics(float deltaTime);
     
     @Override
     public void render(SpriteBatch batch) {
-        batch.begin();
+        // Don't begin/end the batch here - that should be handled in the parent's renderScene
         
         // Render common background
         if (backgroundTexture != null) {
@@ -90,15 +91,13 @@ public abstract class BaseGameScene extends Scene {
         }
         
         // Call scene-specific render logic
-        renderScene(batch);
-        
-        batch.end();
+        renderSceneSpecifics(batch);
     }
     
     /**
      * Render scene-specific elements
      */
-    protected abstract void renderScene(SpriteBatch batch);
+    protected abstract void renderSceneSpecifics(SpriteBatch batch);
     
     /**
      * Helper method to draw centered text

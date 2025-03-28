@@ -34,7 +34,7 @@ public class HealthSnakeDeathScene extends Scene {
     private BitmapFont font;
     private LevelManager levelManager;
 
-    private String[] menuItems = {
+    private final String[] menuItems = {
         "Try Again",
         "Main Menu",
         "Exit Game"
@@ -56,7 +56,7 @@ public class HealthSnakeDeathScene extends Scene {
     private final int particleCount = 30;
 
     private String deathMessage;
-    private String[] deathMessages = {
+    private final String[] deathMessages = {
         "Too many unhealthy snacks!",
         "Your snake couldn't handle the junk food!",
         "Healthy eating is important!",
@@ -72,7 +72,6 @@ public class HealthSnakeDeathScene extends Scene {
     private final int unhealthyCount;
     private final String deathCause;
     private final int level;
-    private final boolean isUnhealthyPath;
 
     public HealthSnakeDeathScene(SpriteBatch batch, SceneManager sceneManager,
             EntityManager entityManager, MovementManager movementManager, IOManager ioManager,
@@ -97,7 +96,7 @@ public class HealthSnakeDeathScene extends Scene {
         this.deathCause = deathCause;
         this.levelManager = levelManager;
         this.level = levelManager.getCurrentLevel();
-        this.isUnhealthyPath = levelManager.isUnhealthyPath();
+        levelManager.isUnhealthyPath();
 
         font = new BitmapFont(Gdx.files.internal("game_font.fnt"));
         font.setColor(Color.WHITE);

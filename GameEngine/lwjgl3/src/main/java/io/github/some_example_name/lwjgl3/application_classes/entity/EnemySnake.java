@@ -13,16 +13,15 @@ import io.github.some_example_name.lwjgl3.abstract_engine.ui.AssetPaths;
 import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
 
 public class EnemySnake extends Entity implements Collidable {
-    private Array<Vector2> bodySegments;
+    private final Array<Vector2> bodySegments;
     private float direction; // in radians
-    private float speed;
-    private float turnSpeed;
-    private float segmentSpacing = 22f;
-    private float bodySize = 28f;
+    private final float speed;
+    private final float segmentSpacing = 22f;
+    private final float bodySize = 28f;
     private float directionChangeTimer;
     private float directionChangeInterval;
-    private Texture headTexture;
-    private Texture bodyTexture;
+    private final Texture headTexture;
+    private final Texture bodyTexture;
     
     public EnemySnake(String entityName, float positionX, float positionY, 
                      String headTexturePath, String bodyTexturePath, int length) {
@@ -33,8 +32,7 @@ public class EnemySnake extends Entity implements Collidable {
         
         // Random speed between 80 and 150
         this.speed = MathUtils.random(80f, 150f);
-        // Random turn speed between 1 and 2.5 radians per second
-        this.turnSpeed = MathUtils.random(1.0f, 2.5f);
+        MathUtils.random(1.0f, 2.5f);
         
         // Random initial direction
         this.direction = MathUtils.random(MathUtils.PI2);

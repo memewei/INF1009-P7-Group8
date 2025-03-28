@@ -1,16 +1,18 @@
 package io.github.some_example_name.lwjgl3.abstract_engine.entity;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
-import io.github.some_example_name.lwjgl3.abstract_engine.movement.IMovable;
-import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+
+import io.github.some_example_name.lwjgl3.abstract_engine.collision.Collidable;
+import io.github.some_example_name.lwjgl3.abstract_engine.movement.IMovable;
+import io.github.some_example_name.lwjgl3.abstract_engine.movement.MovementComponent;
+
 public abstract class MovableEntity extends Entity implements Collidable, IMovable {
     protected MovementComponent movementComponent;
-    private Map<String, Object> components;  //component storage
+    private final Map<String, Object> components;  //component storage
 
     public MovableEntity(String entityName, float positionX, float positionY, String texturePath) {
         super(entityName, positionX, positionY, texturePath);
@@ -48,7 +50,7 @@ public abstract class MovableEntity extends Entity implements Collidable, IMovab
     public void addComponent(String key, Object value) {
         components.put(key, value);
     }
-
+   
     public Object getComponent(String key) {
         return components.getOrDefault(key, null);
     }

@@ -60,8 +60,6 @@ public class HealthSnakeGameScene extends Scene {
 
     // Timers and state management
     private float foodSpawnTimer = 0;
-    private float enemySpawnTimer = 0;
-    private boolean waitingForInput = false;
     private boolean showingLevelTransition = false;
     private float transitionTimer = 0;
     private String transitionMessage = "";
